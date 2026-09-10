@@ -2,7 +2,7 @@
 // reads/writes of a plan the service layer (quiz-creation.ts) already decided — QUIZZING.md §4.
 
 import type { Difficulty, QuizUnitDefinition, TimingPolicy } from "../core/contracts"
-import type { QuizStatus, QuizType } from "../core/contracts"
+import type { DueAnnounceQuiz, QuizStatus, QuizType, UnitKind } from "../core/contracts"
 import type { QuizAdminSummary } from "../core/api"
 
 type QuizRow = {
@@ -454,4 +454,117 @@ export async function cancelQuiz(db: D1Database, id: string): Promise<{ ok: true
   if (result.meta.changes === 1) return { ok: true }
   const exists = await db.prepare("SELECT id FROM quizzes WHERE id = ?").bind(id).first()
   return { ok: false, reason: exists ? "conflict" : "not_found" }
+}
+
+// ============================================================================
+// listDueAnnounce — TG-1/TG-2/TG-3 discovery, CONTRACTS.md §5; SCHEDULER.md §"Announce"
+// ============================================================================
+
+const ANNOUNCE_WINDOW_MS = 7_200_000 // T-2h
+const SOON_WINDOW_MS = 1_800_000 // T-30m
+
+type DueCandidateRow = { id: string; scheduled_at: number }
+
+// "Due" is a threshold (now >= trigger), not a narrow window: a late/missed tick still finds and
+// claims the candidate on its next run, since re-evaluation (not a one-shot timer) is what makes
+// this resilient to Cloudflare cron's best-effort, occasionally-late firing.
+async function findDueQuizIds(db: D1Database, now: number, windowMs: number, kind: "announce" | "soon" | "open", limit: number): Promise<string[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT id, scheduled_at FROM quizzes
+       WHERE status IN ('scheduled', 'open') AND scheduled_at - ? <= ?
+         AND NOT EXISTS (SELECT 1 FROM telegram_posts WHERE quiz_id = quizzes.id AND kind = ?)
+       ORDER BY scheduled_at ASC, id ASC LIMIT ?`
+    )
+    .bind(windowMs, now, kind, limit)
+    .all<DueCandidateRow>()
+  return results.map((r) => r.id)
+}
+
+async function buildAnnouncePayload(db: D1Database, quizId: string, includeRoomCode: boolean): Promise<Omit<DueAnnounceQuiz, "quizId" | "kind"> | null> {
+  const row = await db
+    .prepare("SELECT title, scheduled_at, ends_at, question_count, unit_count, window_sec, room_code FROM quizzes WHERE id = ?")
+    .bind(quizId)
+    .first<{
+      title: string
+      scheduled_at: number
+      ends_at: number | null
+      question_count: number | null
+      unit_count: number | null
+      window_sec: number | null
+      room_code: string | null
+    }>()
+  if (!row || row.ends_at === null || row.question_count === null || row.unit_count === null || row.window_sec === null) return null
+
+  const { results } = await db.prepare("SELECT kind, time_limit_sec FROM quiz_units WHERE quiz_id = ?").bind(quizId).all<{ kind: UnitKind; time_limit_sec: number | null }>()
+  const byKind = new Map<UnitKind, { count: number; minTimeSec: number; maxTimeSec: number }>()
+  for (const unit of results) {
+    if (unit.time_limit_sec === null) continue
+    const existing = byKind.get(unit.kind)
+    if (!existing) {
+      byKind.set(unit.kind, { count: 1, minTimeSec: unit.time_limit_sec, maxTimeSec: unit.time_limit_sec })
+    } else {
+      existing.count++
+      existing.minTimeSec = Math.min(existing.minTimeSec, unit.time_limit_sec)
+      existing.maxTimeSec = Math.max(existing.maxTimeSec, unit.time_limit_sec)
+    }
+  }
+  const timingSummary = [...byKind.entries()].map(([kind, agg]) => ({ kind, ...agg }))
+
+  return {
+    title: row.title,
+    scheduledAt: row.scheduled_at,
+    endsAt: row.ends_at,
+    questionCount: row.question_count,
+    unitCount: row.unit_count,
+    windowSec: row.window_sec,
+    timingSummary,
+    ...(includeRoomCode && row.room_code ? { roomCode: row.room_code } : {}),
+  }
+}
+
+// Discovery-based fallback for the cancelled kind's notify path: routes/quizzes.ts (the only
+// caller of quiz-creation.ts's cancel()) is a protected Sprint 3 file this packet cannot edit, so
+// there is no way to inject an onQuizCancelled callback into the live admin HTTP cancel route.
+// This mirrors the same "SCHEDULER polls a bounded QUIZZING read" pattern already used by
+// listDuePrepare/listDueClose/listDueAnnounce, keeping "routed through SCHEDULER, not a direct
+// QUIZZING call" true for this kind too, just via polling instead of a synchronous callback.
+// Only genuinely notify-worthy candidates are returned (an 'open' post was actually sent) so a
+// silently-cancelled quiz — no 'open' post ever sent — never shows up as due, forever, on every
+// tick.
+export type DueCancelledNotification = { quizId: string; title: string; scheduledAt: number }
+
+export async function listDueCancelledNotifications(db: D1Database, limit: number): Promise<DueCancelledNotification[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT q.id, q.title, q.scheduled_at FROM quizzes q
+       WHERE q.status = 'cancelled'
+         AND EXISTS (SELECT 1 FROM telegram_posts WHERE quiz_id = q.id AND kind = 'open' AND status = 'sent')
+         AND NOT EXISTS (SELECT 1 FROM telegram_posts WHERE quiz_id = q.id AND kind = 'cancelled')
+       ORDER BY q.scheduled_at ASC, q.id ASC LIMIT ?`
+    )
+    .bind(limit)
+    .all<{ id: string; title: string; scheduled_at: number }>()
+  return results.map((r) => ({ quizId: r.id, title: r.title, scheduledAt: r.scheduled_at }))
+}
+
+export async function listDueAnnounce(db: D1Database, now: number, limit: number): Promise<DueAnnounceQuiz[]> {
+  const announceIds = await findDueQuizIds(db, now, ANNOUNCE_WINDOW_MS, "announce", limit)
+  const soonIds = await findDueQuizIds(db, now, SOON_WINDOW_MS, "soon", limit)
+  const openIds = await findDueQuizIds(db, now, 0, "open", limit)
+
+  const due: DueAnnounceQuiz[] = []
+  for (const quizId of announceIds) {
+    const payload = await buildAnnouncePayload(db, quizId, false) // TG-6: never a room code before T
+    if (payload) due.push({ quizId, kind: "announce", ...payload })
+  }
+  for (const quizId of soonIds) {
+    const payload = await buildAnnouncePayload(db, quizId, false)
+    if (payload) due.push({ quizId, kind: "soon", ...payload })
+  }
+  for (const quizId of openIds) {
+    const payload = await buildAnnouncePayload(db, quizId, true)
+    if (payload) due.push({ quizId, kind: "open", ...payload })
+  }
+  return due.slice(0, limit)
 }

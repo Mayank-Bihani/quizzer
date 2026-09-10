@@ -230,10 +230,12 @@ describe("closeQuizTransaction", () => {
     const { quizId, endsAt, windowSec } = await createOpenQuiz({ seatCap: 5, scheduledAt: Date.now(), joinWindowSec: 600, units: [{ timeLimitSec: 60, questions: [q] }] })
     const safeCloseAt = endsAt + windowSec * 1000 + 5000
     const result = await closeQuizTransaction(env.DB, quizId, safeCloseAt + 1)
-    expect(result).toEqual({ kind: "ok", result: { participantCount: 0, top10: [], boardComputedAt: safeCloseAt + 1 } })
+    expect(result).toEqual({ kind: "ok", result: { participantCount: 0, top10: [], boardComputedAt: safeCloseAt + 1 }, fresh: true })
 
     const again = await closeQuizTransaction(env.DB, quizId, safeCloseAt + 999)
-    expect(again).toEqual({ kind: "ok", result: { participantCount: 0, top10: [], boardComputedAt: safeCloseAt + 1 } }) // unchanged, reconstructed
+    // unchanged, reconstructed — fresh:false is exactly what tells Sprint 6's onQuizClosed hook
+    // not to re-fire TG-4 on this idempotent re-read.
+    expect(again).toEqual({ kind: "ok", result: { participantCount: 0, top10: [], boardComputedAt: safeCloseAt + 1 }, fresh: false })
   })
 
   it("converges concurrent closes on one committed result with no duplicate settlement", async () => {

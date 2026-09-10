@@ -5,6 +5,7 @@ import { jwksResponse, makeGoogleKeyPair, signGoogleIdToken } from "./helpers/go
 
 beforeEach(async () => {
   for (const table of [
+    "telegram_posts", // a leaderboard/review read can now trigger a lazy close, writing here
     "answers",
     "participant_units",
     "participants",

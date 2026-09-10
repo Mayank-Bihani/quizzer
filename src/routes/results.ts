@@ -12,7 +12,7 @@ type Env = { Bindings: Bindings; Variables: Variables }
 const MAX_QUIZ_ID_BYTES = 128
 
 function resultsDeps(c: Context<Env>): ResultsDeps {
-  return { db: c.env.DB, kv: c.env.CACHE, bank: c.get("bank"), now: () => Date.now() }
+  return { db: c.env.DB, kv: c.env.CACHE, bank: c.get("bank"), now: () => Date.now(), onQuizClosed: c.get("onQuizClosed") }
 }
 
 function isBoundedString(value: string, maxBytes: number): boolean {

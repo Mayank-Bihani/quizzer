@@ -31,13 +31,27 @@ import {
 } from "../db/results"
 import { getCachedBoard, putCachedBoard } from "./cache"
 
-export type ResultsDeps = { db: D1Database; kv: KVNamespace; bank: BankContract; now: () => number }
+// Locally typed only — this file must never import anything Telegram-shaped (AC-13). The real
+// body (calling claimAndSend) is composed in src/services/scheduler.ts/src/index.ts.
+export type OnQuizClosed = (quizId: string, result: CloseResult) => Promise<void>
 
-async function attemptClose(db: D1Database, kv: KVNamespace, quizId: string, now: number): Promise<CloseOutcome> {
+export type ResultsDeps = { db: D1Database; kv: KVNamespace; bank: BankContract; now: () => number; onQuizClosed?: OnQuizClosed }
+
+async function attemptClose(db: D1Database, kv: KVNamespace, quizId: string, now: number, onQuizClosed?: OnQuizClosed): Promise<CloseOutcome> {
   const outcome = await closeQuizTransaction(db, quizId, now)
   if (outcome.kind === "ok") {
     const board = await getFullRankedBoard(db, quizId, outcome.result.boardComputedAt)
     await putCachedBoard(kv, quizId, board) // best-effort; never blocks or reverses the D1 commit
+
+    // Fire strictly after the D1 commit, only on a genuinely fresh close (never a reconstructed
+    // re-read), and never let a callback failure escape into the close path (TG-7).
+    if (outcome.fresh && onQuizClosed) {
+      try {
+        await onQuizClosed(quizId, outcome.result)
+      } catch {
+        // swallowed deliberately — a failed/slow Telegram post must never affect quiz correctness
+      }
+    }
   }
   return outcome
 }
@@ -45,9 +59,9 @@ async function attemptClose(db: D1Database, kv: KVNamespace, quizId: string, now
 // The exact QuizzingSchedulerContract.closeQuiz(quizId, now) adapter. The scheduler only ever
 // calls this for IDs its own listDueClose already found eligible, so a non-'ok' outcome here is a
 // race/invariant surprise — thrown and caught per-candidate by the scheduler's pass isolation.
-export function createCloseQuiz(db: D1Database, kv: KVNamespace): (quizId: string, now: number) => Promise<CloseResult> {
+export function createCloseQuiz(db: D1Database, kv: KVNamespace, onQuizClosed?: OnQuizClosed): (quizId: string, now: number) => Promise<CloseResult> {
   return async (quizId, now) => {
-    const outcome = await attemptClose(db, kv, quizId, now)
+    const outcome = await attemptClose(db, kv, quizId, now, onQuizClosed)
     if (outcome.kind !== "ok") throw new Error(`closeQuiz: quiz ${outcome.kind}`)
     return outcome.result
   }
@@ -57,7 +71,7 @@ async function ensurePublished(deps: ResultsDeps, quizId: string, lifecycle: Qui
   if (lifecycle.boardComputedAt !== null) return lifecycle
   const safeCloseAt = safeCloseAtFor(lifecycle)
   if (lifecycle.status === "open" && safeCloseAt !== null && now > safeCloseAt) {
-    await attemptClose(deps.db, deps.kv, quizId, now)
+    await attemptClose(deps.db, deps.kv, quizId, now, deps.onQuizClosed)
     const refreshed = await getQuizLifecycle(deps.db, quizId)
     if (refreshed) return refreshed
   }

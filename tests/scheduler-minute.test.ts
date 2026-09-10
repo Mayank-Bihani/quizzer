@@ -160,6 +160,7 @@ describe("renderAlertText — safe content only", () => {
 describe("production wiring — Sprint 5 binds the real closeQuiz into the minute tick", () => {
   it("closes a genuinely due, zero-participant quiz end-to-end when the minute-tick cron fires against real D1", async () => {
     for (const table of [
+      "telegram_posts",
       "answers",
       "participant_units",
       "participants",
@@ -221,6 +222,7 @@ describe("production wiring — Sprint 5 binds the real closeQuiz into the minut
 
   it("leaves an ineligible (not-yet-due) quiz untouched — SCHEDULER still performs no SQL/KV of its own", async () => {
     for (const table of [
+      "telegram_posts",
       "answers",
       "participant_units",
       "participants",

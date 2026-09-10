@@ -115,7 +115,10 @@ async function getParticipantsSnapshot(db: D1Database, quizId: string): Promise<
   }))
 }
 
-export type CloseOutcome = { kind: "ok"; result: CloseResult } | { kind: "not_found" } | { kind: "not_eligible" }
+// `fresh` distinguishes an invocation that actually just performed the atomic settle+rank+publish
+// from one that merely reconstructed an already-committed board (idempotent re-read, or lost a
+// concurrent race to another winner) — Sprint 6's onQuizClosed hook must fire only on `fresh`.
+export type CloseOutcome = { kind: "ok"; result: CloseResult; fresh: boolean } | { kind: "not_found" } | { kind: "not_eligible" }
 
 // Strict `now > safeCloseAt`; reuses Sprint 4's settleExpiredUnit (idempotent/guarded) for every
 // unfinished participant, then ranks and publishes as one final conditional UPDATE — the only
@@ -126,7 +129,7 @@ export async function closeQuizTransaction(db: D1Database, quizId: string, now: 
   const lifecycle = await getQuizLifecycle(db, quizId)
   if (!lifecycle) return { kind: "not_found" }
   if (lifecycle.boardComputedAt !== null) {
-    return { kind: "ok", result: await readCommittedBoard(db, quizId, lifecycle.boardComputedAt) }
+    return { kind: "ok", result: await readCommittedBoard(db, quizId, lifecycle.boardComputedAt), fresh: false }
   }
 
   const safeCloseAt = safeCloseAtFor(lifecycle)
@@ -173,13 +176,13 @@ export async function closeQuizTransaction(db: D1Database, quizId: string, now: 
   if (publishResult.meta.changes !== 1) {
     const afterRace = await getQuizLifecycle(db, quizId)
     if (afterRace?.boardComputedAt !== null && afterRace?.boardComputedAt !== undefined) {
-      return { kind: "ok", result: await readCommittedBoard(db, quizId, afterRace.boardComputedAt) }
+      return { kind: "ok", result: await readCommittedBoard(db, quizId, afterRace.boardComputedAt), fresh: false }
     }
     return { kind: "not_eligible" }
   }
 
   const top10: LeaderboardRow[] = ranked.slice(0, 10).map((r) => ({ rank: r.rank, userId: r.userId, name: r.name, score: r.totalScore }))
-  return { kind: "ok", result: { participantCount: allTotals.length, top10, boardComputedAt: now } }
+  return { kind: "ok", result: { participantCount: allTotals.length, top10, boardComputedAt: now }, fresh: true }
 }
 
 // ============================================================================

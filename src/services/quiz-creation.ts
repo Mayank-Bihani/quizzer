@@ -2,7 +2,7 @@
 // plus draft/reshuffle/settings/cancel orchestration over the pure selector, the QUIZZING
 // repository, and the injected BankContract — QUIZZING.md §4.
 
-import type { BankContract, Difficulty, QuizType, TimingPolicy } from "../core/contracts"
+import type { BankContract, CancelledPayload, Difficulty, QuizType, TimingPolicy } from "../core/contracts"
 import type {
   CreateQuizDraftResponse,
   LockQuizResponse,
@@ -25,11 +25,16 @@ import {
   reserveQuizNumber,
 } from "../db/quizzes"
 
+// Locally typed only — this file must never import anything Telegram-shaped (AC-13). The real
+// body (calling claimAndSend) is composed in src/services/scheduler.ts/src/index.ts.
+export type OnQuizCancelled = (quizId: string, payload: CancelledPayload) => Promise<void>
+
 export type CreationDeps = {
   db: D1Database
   bank: BankContract
   now: () => number
   random: () => number
+  onQuizCancelled?: OnQuizCancelled
 }
 
 function computeWindowSec(unitLimits: (number | null)[], slackSec: number | null): number | null {
@@ -320,5 +325,17 @@ export async function cancel(deps: CreationDeps, id: string): Promise<CancelOutc
   const result = await cancelQuiz(deps.db, id)
   if (!result.ok) return { kind: result.reason === "not_found" ? "not_found" : "conflict" }
   const summary = await getQuizAdminSummary(deps.db, id)
+
+  // Strictly after the D1 commit; a failing/slow callback must never affect the cancellation or
+  // its response (mirrors quiz-results.ts's onQuizClosed handling). No request body carries a
+  // cancellation reason, so `reason` stays undefined.
+  if (deps.onQuizCancelled) {
+    try {
+      await deps.onQuizCancelled(id, { title: summary!.title, scheduledAt: summary!.scheduledAt })
+    } catch {
+      // swallowed deliberately
+    }
+  }
+
   return { kind: "ok", summary: summary! }
 }

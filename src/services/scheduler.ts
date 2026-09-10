@@ -2,7 +2,7 @@
 // alerts. Issues no SQL/KV itself — every read/write goes through the injected QUIZZING/TELEGRAM
 // seams — SCHEDULER.md §4.1; CONTRACTS.md §5; src/core/contracts.ts:125-181.
 
-import type { CloseResult, DueCloseQuiz, FailedTelegramPostRef, OpenResult } from "../core/contracts"
+import type { BoardSummary, CancelledPayload, CloseResult, DueAnnounceQuiz, DueCloseQuiz, FailedTelegramPostRef, OpenResult, QuizAnnouncePayload, TelegramContract } from "../core/contracts"
 import { CLOSE_ALERT_DELAY_MS, SCHEDULER_DISCOVERY_LIMIT } from "../core/config"
 import { sendFailureAlert, type EmailSender, type TelegramSender } from "./observability"
 
@@ -91,4 +91,83 @@ export async function runFailureAlertsPass(deps: SchedulerDeps): Promise<{ close
   }
 
   return { closeAlerts, postAlerts }
+}
+
+// ============================================================================
+// Telegram hook bodies — this file (and index.ts) are the only places TelegramContract,
+// src/db/telegram.ts, or src/services/telegram.ts may be imported (AC-13). quiz-results.ts and
+// quiz-creation.ts depend only on the locally-typed callback signatures.
+// ============================================================================
+
+export function createOnQuizClosed(telegram: TelegramContract): (quizId: string, result: CloseResult) => Promise<void> {
+  return async (quizId, result) => {
+    await telegram.claimAndSend("result", { quizId }, result)
+  }
+}
+
+export function createOnQuizCancelled(telegram: TelegramContract): (quizId: string, payload: CancelledPayload) => Promise<void> {
+  return async (quizId, payload) => {
+    await telegram.claimAndSend("cancelled", { quizId }, payload)
+  }
+}
+
+// AC-15: mirrors the already-bound Close pass's shape (bounded limit 100, per-candidate
+// isolation). Production-bound in index.ts's minute tick — unlike the weekly pass below, this one
+// has no unresolved upstream dependency left.
+export async function runAnnouncePass(
+  deps: { listDueAnnounce: (now: number, limit: number) => Promise<DueAnnounceQuiz[]>; now: () => number },
+  telegram: TelegramContract
+): Promise<{ attempted: number; failed: number }> {
+  const now = deps.now()
+  const due = await deps.listDueAnnounce(now, SCHEDULER_DISCOVERY_LIMIT)
+  let failed = 0
+  for (const entry of due) {
+    // Explicit construction, not a forward of the wider DueAnnounceQuiz object: it carries
+    // quizId/kind, two fields TelegramPayload doesn't have (CONTRACTS.md's explicit-DTO rule).
+    const { quizId, kind, ...rest } = entry
+    const payload: QuizAnnouncePayload = rest
+    try {
+      await telegram.claimAndSend(kind, { quizId }, payload)
+    } catch (err) {
+      failed++
+      logPassFailure("announce", quizId, err)
+    }
+  }
+  return { attempted: due.length, failed }
+}
+
+// Fallback trigger for the cancelled kind — see db/quizzes.ts's listDueCancelledNotifications for
+// why this exists alongside (not instead of) quiz-creation.ts's onQuizCancelled callback.
+// Production-bound alongside the Announce pass; claimAndSend's own silent/notify check makes a
+// duplicate/racing candidate here harmless.
+export async function runCancelledNotifyPass(
+  deps: { listDueCancelledNotifications: (limit: number) => Promise<{ quizId: string; title: string; scheduledAt: number }[]> },
+  telegram: TelegramContract
+): Promise<{ attempted: number; failed: number }> {
+  const due = await deps.listDueCancelledNotifications(SCHEDULER_DISCOVERY_LIMIT)
+  let failed = 0
+  for (const entry of due) {
+    try {
+      await telegram.claimAndSend("cancelled", { quizId: entry.quizId }, { title: entry.title, scheduledAt: entry.scheduledAt })
+    } catch (err) {
+      failed++
+      logPassFailure("cancelled-notify", entry.quizId, err)
+    }
+  }
+  return { attempted: due.length, failed }
+}
+
+// Typed but never production-wired in Sprint 6: Sprint 7 supplies the real computeWeeklyBoards
+// and binds this into the `0 19 * * SUN` cron trigger. Kept here and tested so the composition
+// seam is exercised without granting production traffic access to an unimplemented dependency —
+// mirrors the Sprint 4→5 close-pass handoff shape.
+export async function runWeeklyPass(
+  computeWeeklyBoards: (weekStart: string) => Promise<BoardSummary[]>,
+  weekStart: string,
+  telegram: TelegramContract
+): Promise<{ sent: boolean }> {
+  const boards = await computeWeeklyBoards(weekStart)
+  if (boards.length === 0) return { sent: false } // week not ready yet — SCHEDULER.md §"weekly"
+  await telegram.claimAndSend("weekly", { weekStart }, boards)
+  return { sent: true }
 }

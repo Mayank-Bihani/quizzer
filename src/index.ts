@@ -13,11 +13,21 @@ import quizzes from "./routes/quizzes"
 import { play, quizzesPublic } from "./routes/play"
 import { resultsQuizRoutes, studentsRoutes } from "./routes/results"
 import { createBankContract } from "./db/bank"
-import { listFailedPosts } from "./db/telegram"
+import { listDueAnnounce, listDueCancelledNotifications } from "./db/quizzes"
+import { createTelegramContract, listFailedPosts } from "./db/telegram"
 import { createEmailSender, createTelegramSender } from "./services/observability"
 import { listDueCloseQuizzes, listDuePrepareIds, openRoom, type RunDeps } from "./services/quiz-run"
 import { createCloseQuiz } from "./services/quiz-results"
-import { runClosePass, runFailureAlertsPass, runPreparePass, type SchedulerDeps } from "./services/scheduler"
+import {
+  createOnQuizClosed,
+  runAnnouncePass,
+  runCancelledNotifyPass,
+  runClosePass,
+  runFailureAlertsPass,
+  runPreparePass,
+  type SchedulerDeps,
+} from "./services/scheduler"
+import { createNoOpBotClient, createTelegramBotClient } from "./services/telegram"
 
 type Env = { Bindings: Bindings; Variables: Variables }
 
@@ -42,6 +52,20 @@ app.use("/api/admin/quizzes/*", withBankContract)
 app.use("/api/quizzes/*", withBankContract)
 app.use("/api/play/*", withBankContract)
 app.use("/api/students/*", withBankContract)
+
+// TELEGRAM_ENABLED gates the client at composition time, never inside claimAndSend itself, so
+// local/test runs exercise full claim-then-send idempotency without ever reaching
+// api.telegram.org — TELEGRAM.md §8. Lets routes/results.ts's lazy-close path fire the same
+// post-commit hook the scheduler's close pass uses, without that route file importing anything
+// Telegram-shaped (AC-13) — it only ever sees the locally-typed callback via c.get.
+const withTelegramCloseHook: MiddlewareHandler<Env> = async (c, next) => {
+  const bot = c.env.TELEGRAM_ENABLED === "true" && c.env.TELEGRAM_BOT_TOKEN ? createTelegramBotClient(c.env.TELEGRAM_BOT_TOKEN) : createNoOpBotClient()
+  const telegram = createTelegramContract(c.env.DB, bot, c.env.TELEGRAM_CHAT_ID ?? "")
+  c.set("onQuizClosed", createOnQuizClosed(telegram))
+  await next()
+}
+app.use("/api/quizzes/*", withTelegramCloseHook)
+
 app.route("/api/admin/quizzes", quizzes)
 app.route("/api/quizzes", quizzesPublic)
 app.route("/api/quizzes", resultsQuizRoutes)
@@ -57,11 +81,15 @@ const MINUTE_TICK_CRON = "* * * * *"
 
 async function scheduled(controller: ScheduledController, env: Bindings): Promise<void> {
   // Hourly materialization and weekly board publication are Sprint 7; only the minute tick's
-  // prepare+alerts portion is implemented here.
+  // prepare/close/alerts/announce portion is implemented here. The weekly cron trigger
+  // (0 19 * * SUN) intentionally has no handler branch yet — it falls through and no-ops.
   if (controller.cron !== MINUTE_TICK_CRON) return
 
   const runDeps: RunDeps = { db: env.DB, kv: env.CACHE, bank: createBankContract(env.DB), now: () => Date.now(), hash: sha256Hex }
   const fixedNow = (now: number): RunDeps => ({ ...runDeps, now: () => now })
+
+  const bot = env.TELEGRAM_ENABLED === "true" && env.TELEGRAM_BOT_TOKEN ? createTelegramBotClient(env.TELEGRAM_BOT_TOKEN) : createNoOpBotClient()
+  const telegram = createTelegramContract(env.DB, bot, env.TELEGRAM_CHAT_ID ?? "")
 
   const schedulerDeps: SchedulerDeps = {
     listDuePrepare: (now, limit) => listDuePrepareIds(fixedNow(now), now, limit),
@@ -77,7 +105,11 @@ async function scheduled(controller: ScheduledController, env: Bindings): Promis
 
   await runPreparePass(schedulerDeps)
   await runFailureAlertsPass(schedulerDeps)
-  await runClosePass(schedulerDeps, createCloseQuiz(env.DB, env.CACHE))
+  await runClosePass(schedulerDeps, createCloseQuiz(env.DB, env.CACHE, createOnQuizClosed(telegram)))
+  await runAnnouncePass({ listDueAnnounce: (now, limit) => listDueAnnounce(env.DB, now, limit), now: () => Date.now() }, telegram)
+  await runCancelledNotifyPass({ listDueCancelledNotifications: (limit) => listDueCancelledNotifications(env.DB, limit) }, telegram)
+  // runWeeklyPass is deliberately not called here — Sprint 7 supplies the real
+  // computeWeeklyBoards and binds this into the 0 19 * * SUN cron trigger.
 }
 
 export default Object.assign(app, { scheduled })

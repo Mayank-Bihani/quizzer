@@ -1,6 +1,6 @@
 // V1 constants: seat cap 120, room-code format, UNIT_SUBMISSION_TRANSPORT_MS=5000; positive unit allowances and configurable transition slack — PRD.md; QUIZZING.md §4-5.
 
-import type { BankContract, CurrentUser } from "./contracts"
+import type { BankContract, CloseResult, CurrentUser } from "./contracts"
 
 // ============================================================================
 // Worker environment — extended additively by later sprints.
@@ -19,11 +19,19 @@ export type Bindings = {
   TELEGRAM_ALERT_CHAT_ID?: string
   EMAIL_ALERT_ADDRESS?: string
   ALERT_EMAIL?: SendEmail
+  // Student-facing announcement channel — TELEGRAM.md §8. TELEGRAM_ENABLED is the kill switch:
+  // off (unset/not "true") in local dev so wrangler dev never posts to a real group.
+  TELEGRAM_CHAT_ID?: string
+  TELEGRAM_ENABLED?: string
 }
 
 export type Variables = {
   currentUser: CurrentUser
   bank: BankContract
+  // Locally-typed callback, not Telegram-shaped itself (AC-13) — lets routes/results.ts's lazy
+  // close path fire the same post-commit hook the scheduler's close pass uses, composed once in
+  // index.ts rather than importing anything Telegram-owned into the route file.
+  onQuizClosed?: (quizId: string, result: CloseResult) => Promise<void>
 }
 
 // ============================================================================
