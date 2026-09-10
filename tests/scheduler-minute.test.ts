@@ -1,5 +1,7 @@
+import { env } from "cloudflare:test"
 import { describe, expect, it, vi } from "vitest"
 import type { CloseResult, DueCloseQuiz, FailedTelegramPostRef, OpenResult } from "../src/core/contracts"
+import app from "../src/index"
 import { renderAlertText, sendFailureAlert, type EmailSender, type TelegramSender } from "../src/services/observability"
 import { runClosePass, runFailureAlertsPass, runPreparePass, type SchedulerDeps } from "../src/services/scheduler"
 
@@ -45,7 +47,7 @@ describe("runPreparePass", () => {
   })
 })
 
-describe("runClosePass — typed but never production-wired in Sprint 4", () => {
+describe("runClosePass — the pass itself, isolated from production wiring", () => {
   it("calls the injected closeQuiz for every discovered due id", async () => {
     const listDueClose = vi.fn(async (_now: number, limit: number): Promise<DueCloseQuiz[]> => {
       expect(limit).toBe(100)
@@ -152,5 +154,106 @@ describe("renderAlertText — safe content only", () => {
     const text = renderAlertText({ category: "close_overdue", quizId: "q1", safeCloseAt: 1000 })
     expect(text).not.toContain("token")
     expect(text).toContain("q1")
+  })
+})
+
+describe("production wiring — Sprint 5 binds the real closeQuiz into the minute tick", () => {
+  it("closes a genuinely due, zero-participant quiz end-to-end when the minute-tick cron fires against real D1", async () => {
+    for (const table of [
+      "answers",
+      "participant_units",
+      "participants",
+      "quiz_seats",
+      "quiz_questions",
+      "quiz_units",
+      "questions",
+      "passages",
+      "quizzes",
+      "users",
+    ]) {
+      await env.DB.prepare(`DELETE FROM ${table}`).run()
+    }
+
+    const adminId = crypto.randomUUID()
+    await env.DB.prepare("INSERT INTO users (id, google_sub, email, name, role, created_at) VALUES (?, ?, ?, ?, 'admin', ?)")
+      .bind(adminId, crypto.randomUUID(), `${adminId}@example.com`, "Admin", Date.now())
+      .run()
+
+    const questionId = "sched-q-1"
+    await env.DB.prepare(
+      `INSERT INTO questions (id, type, topic, difficulty, format, body_md, option_a, option_b, option_c, option_d, correct_option, explanation_md, created_by, created_at)
+       VALUES (?, 'quant', 'Topic', 'easy', 'mcq', 'Body', 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
+    )
+      .bind(questionId, adminId, Date.now())
+      .run()
+
+    const quizId = crypto.randomUUID()
+    const joinWindowSec = 600
+    const timeLimitSec = 60
+    const scheduledAt = Date.now() - 10_000_000
+    const endsAt = scheduledAt + joinWindowSec * 1000
+    const lobbyOpensAt = scheduledAt - 300_000
+    await env.DB.prepare(
+      `INSERT INTO quizzes (id, quiz_number, title, type, question_count, unit_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, scheduled_at, lobby_opens_at, ends_at, status, room_code, seat_cap, window_sec, marks_correct, marks_wrong, created_by, created_at, opened_at)
+       VALUES (?, 1, 'Sched Quiz', 'quant', 1, 1, '{}', '{}', 0, ?, ?, ?, ?, 'open', 'QNT-7001', 5, ?, 4, -1, ?, ?, ?)`
+    )
+      .bind(quizId, joinWindowSec, scheduledAt, lobbyOpensAt, endsAt, timeLimitSec, adminId, Date.now(), Date.now())
+      .run()
+    await env.DB.prepare("INSERT INTO quiz_units (quiz_id, unit_position, kind, passage_id, time_limit_sec) VALUES (?, 1, 'standalone', NULL, ?)")
+      .bind(quizId, timeLimitSec)
+      .run()
+    await env.DB.prepare("INSERT INTO quiz_questions (quiz_id, question_id, position, unit_position, sub_position) VALUES (?, ?, 1, 1, 1)")
+      .bind(quizId, questionId)
+      .run()
+    for (let seatNo = 1; seatNo <= 5; seatNo++) {
+      await env.DB.prepare("INSERT INTO quiz_seats (quiz_id, seat_no) VALUES (?, ?)").bind(quizId, seatNo).run()
+    }
+
+    const controller = { cron: "* * * * *", scheduledTime: Date.now(), noRetry: () => undefined }
+    await app.scheduled(controller, env)
+
+    const row = await env.DB.prepare("SELECT status, board_computed_at FROM quizzes WHERE id = ?")
+      .bind(quizId)
+      .first<{ status: string; board_computed_at: number | null }>()
+    expect(row?.status).toBe("ended")
+    expect(row?.board_computed_at).not.toBeNull()
+  })
+
+  it("leaves an ineligible (not-yet-due) quiz untouched — SCHEDULER still performs no SQL/KV of its own", async () => {
+    for (const table of [
+      "answers",
+      "participant_units",
+      "participants",
+      "quiz_seats",
+      "quiz_questions",
+      "quiz_units",
+      "questions",
+      "passages",
+      "quizzes",
+      "users",
+    ]) {
+      await env.DB.prepare(`DELETE FROM ${table}`).run()
+    }
+    const adminId = crypto.randomUUID()
+    await env.DB.prepare("INSERT INTO users (id, google_sub, email, name, role, created_at) VALUES (?, ?, ?, ?, 'admin', ?)")
+      .bind(adminId, crypto.randomUUID(), `${adminId}@example.com`, "Admin", Date.now())
+      .run()
+    const quizId = crypto.randomUUID()
+    const scheduledAt = Date.now() + 3_600_000 // an hour from now — nowhere near eligible
+    await env.DB.prepare(
+      `INSERT INTO quizzes (id, quiz_number, title, type, question_count, unit_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, scheduled_at, status, seat_cap, created_by, created_at)
+       VALUES (?, 2, 'Future Quiz', 'quant', 1, 1, '{}', '{}', 0, 600, ?, 'draft', 5, ?, ?)`
+    )
+      .bind(quizId, scheduledAt, adminId, Date.now())
+      .run()
+
+    const controller = { cron: "* * * * *", scheduledTime: Date.now(), noRetry: () => undefined }
+    await app.scheduled(controller, env)
+
+    const row = await env.DB.prepare("SELECT status, board_computed_at FROM quizzes WHERE id = ?")
+      .bind(quizId)
+      .first<{ status: string; board_computed_at: number | null }>()
+    expect(row?.status).toBe("draft")
+    expect(row?.board_computed_at).toBeNull()
   })
 })

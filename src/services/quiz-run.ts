@@ -111,7 +111,9 @@ export async function openRoom(deps: RunDeps, quizId: string): Promise<OpenResul
 // Server-only expiry settlement — shared by `current` and late `submit` — AC-9/AC-12
 // ============================================================================
 
-function unansweredCountForClosure(meta: RuntimeQuizMeta, unitPosition: number, finish: boolean): number {
+// Exported for reuse by Sprint 5's global close, which always finishes an abandoned participant
+// (finish=true) rather than progressing — the math is identical either way.
+export function unansweredCountForClosure(meta: RuntimeQuizMeta, unitPosition: number, finish: boolean): number {
   const unit = meta.units.find((u) => u.unitPosition === unitPosition)
   if (!unit) throw new Error("quiz-run invariant: unknown unit position")
   if (!finish) return unit.questionPositions.length

@@ -11,11 +11,13 @@ import bank from "./routes/bank"
 import images from "./routes/images"
 import quizzes from "./routes/quizzes"
 import { play, quizzesPublic } from "./routes/play"
+import { resultsQuizRoutes, studentsRoutes } from "./routes/results"
 import { createBankContract } from "./db/bank"
 import { listFailedPosts } from "./db/telegram"
 import { createEmailSender, createTelegramSender } from "./services/observability"
 import { listDueCloseQuizzes, listDuePrepareIds, openRoom, type RunDeps } from "./services/quiz-run"
-import { runFailureAlertsPass, runPreparePass, type SchedulerDeps } from "./services/scheduler"
+import { createCloseQuiz } from "./services/quiz-results"
+import { runClosePass, runFailureAlertsPass, runPreparePass, type SchedulerDeps } from "./services/scheduler"
 
 type Env = { Bindings: Bindings; Variables: Variables }
 
@@ -39,9 +41,12 @@ const withBankContract: MiddlewareHandler<Env> = async (c, next) => {
 app.use("/api/admin/quizzes/*", withBankContract)
 app.use("/api/quizzes/*", withBankContract)
 app.use("/api/play/*", withBankContract)
+app.use("/api/students/*", withBankContract)
 app.route("/api/admin/quizzes", quizzes)
 app.route("/api/quizzes", quizzesPublic)
+app.route("/api/quizzes", resultsQuizRoutes)
 app.route("/api/play", play)
+app.route("/api/students", studentsRoutes)
 
 async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input))
@@ -72,9 +77,7 @@ async function scheduled(controller: ScheduledController, env: Bindings): Promis
 
   await runPreparePass(schedulerDeps)
   await runFailureAlertsPass(schedulerDeps)
-  // runClosePass is deliberately NOT called here — it is typed and tested (tests/scheduler-
-  // minute.test.ts) but stays unbound from production traffic until Sprint 5 supplies the real
-  // atomic closeQuiz. Wiring it here would let Sprint 4 pre-settle a whole quiz, which §8a forbids.
+  await runClosePass(schedulerDeps, createCloseQuiz(env.DB, env.CACHE))
 }
 
 export default Object.assign(app, { scheduled })
