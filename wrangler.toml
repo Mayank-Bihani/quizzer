@@ -11,12 +11,11 @@ compatibility_flags = ["nodejs_compat"]
 # directory = "./web/dist"
 # binding = "ASSETS"
 
-# D1 — PLAN.md "Data model (D1)" / migrations/0001_init.sql. Nothing provisioned yet;
-# database_id is a placeholder until `wrangler d1 create` is run.
+# D1 — PLAN.md "Data model (D1)" / migrations/0001_init.sql.
 [[d1_databases]]
 binding = "DB"
 database_name = "quizzer-db"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "ec8fed2e-4101-462e-9569-2735c2ac9ec3"
 
 # R2 — question/passage images only. BANK.md §5, MODULES.md §5.
 [[r2_buckets]]
@@ -24,10 +23,10 @@ binding = "IMAGES"
 bucket_name = "quizzer-images"
 
 # Workers KV — JWKS cache, role cache, redacted unit-content cache, board cache.
-# MODULES.md "KV keyspace ownership". id is a placeholder until `wrangler kv namespace create` is run.
+# MODULES.md "KV keyspace ownership".
 [[kv_namespaces]]
 binding = "CACHE"
-id = "00000000000000000000000000000000"
+id = "eae63b30b0c44548808a63e5fc087980"
 
 # Cron triggers — SCHEDULER.md §4. Expressions are UTC. "0 19 * * 0" is 00:30 IST Monday —
 # deliberately *after* the IST week has ended, not 20:00 IST Sunday, which is still before
@@ -37,7 +36,9 @@ crons = [
   "* * * * *",    # tick: open rooms, fire due Telegram posts, close quizzes past their last
                   # possible finish (ends_at + window_sec*1000 + 5000ms delivery — PRD.md §5.4)
   "0 * * * *",    # materialize recurring templates for the next 7 days + auto-draw units; retry deferred weekly publication
-  "0 19 * * 0",   # weekly boards — 00:30 IST Monday; defer if eligible runs are unfinished
+  "0 19 * * SUN", # weekly boards — 00:30 IST Monday; defer if eligible runs are unfinished
+                  # (Cloudflare numbers day-of-week 1=Sunday..7=Saturday, unlike standard cron's
+                  # 0=Sunday, so the day name is used here to avoid ambiguity)
 ]
 
 # Non-secret Worker vars — TELEGRAM.md §8. Secrets (TELEGRAM_BOT_TOKEN, SUPERADMIN_EMAIL,

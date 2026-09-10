@@ -13,6 +13,12 @@ export type Bindings = {
   GOOGLE_CLIENT_ID: string
   SESSION_SIGNING_KEY: string
   SUPERADMIN_EMAIL: string
+  // Failure-alert channels — SCHEDULER.md §4.1. Unset locally/pre-launch; each channel is
+  // attempted independently and a missing binding is just treated as that channel unavailable.
+  TELEGRAM_BOT_TOKEN?: string
+  TELEGRAM_ALERT_CHAT_ID?: string
+  EMAIL_ALERT_ADDRESS?: string
+  ALERT_EMAIL?: SendEmail
 }
 
 export type Variables = {
@@ -72,3 +78,18 @@ export const ROOM_CODE_DIGIT_LENGTH = 4
 export const ROOM_CODE_MAX_COLLISION_RETRIES = 10
 
 export const QUIZ_NUMBER_MAX_COLLISION_RETRIES = 10
+
+// ============================================================================
+// QUIZZING run — PRD.md §5.4; QUIZZING.md §5.
+// ============================================================================
+
+// Delivery-only allowance after the edit deadline; never additional editing time.
+export const UNIT_SUBMISSION_TRANSPORT_MS = 5000
+
+// Implementation protection, not new product limits.
+export const MAX_SUBMISSION_ID_BYTES = 128
+export const MAX_UNIT_ANSWERS = 5 // matches the largest legal RC/LRDI group size
+export const SEAT_PREP_CHUNK_SIZE = 50
+
+export const SCHEDULER_DISCOVERY_LIMIT = 100
+export const CLOSE_ALERT_DELAY_MS = 180_000 // three minutes after safeCloseAt — SCHEDULER.md §4.1
