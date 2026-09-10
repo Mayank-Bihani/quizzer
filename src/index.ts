@@ -8,6 +8,8 @@ import auth from "./routes/auth"
 import { adminRoleMutation, adminRoster } from "./routes/admins"
 import bank from "./routes/bank"
 import images from "./routes/images"
+import quizzes from "./routes/quizzes"
+import { createBankContract } from "./db/bank"
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -21,5 +23,11 @@ app.route("/api/admin/users", adminRoster)
 app.route("/api/admin/users", adminRoleMutation)
 app.route("/api/bank", bank)
 app.route("/api/images", images)
+
+app.use("/api/admin/quizzes/*", async (c, next) => {
+  c.set("bank", createBankContract(c.env.DB))
+  await next()
+})
+app.route("/api/admin/quizzes", quizzes)
 
 export default app

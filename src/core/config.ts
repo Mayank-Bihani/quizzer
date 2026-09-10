@@ -1,6 +1,6 @@
 // V1 constants: seat cap 120, room-code format, UNIT_SUBMISSION_TRANSPORT_MS=5000; positive unit allowances and configurable transition slack — PRD.md; QUIZZING.md §4-5.
 
-import type { CurrentUser } from "./contracts"
+import type { BankContract, CurrentUser } from "./contracts"
 
 // ============================================================================
 // Worker environment — extended additively by later sprints.
@@ -17,6 +17,7 @@ export type Bindings = {
 
 export type Variables = {
   currentUser: CurrentUser
+  bank: BankContract
 }
 
 // ============================================================================
@@ -57,3 +58,17 @@ export const MAX_PAGE_LIMIT = 100
 export const IMPORT_BATCH_ROWS = 50
 
 export const IMAGES_ROUTE_PREFIX = "/api/images"
+
+// ============================================================================
+// QUIZZING creation — PRD.md §"QUIZ-8"; QUIZZING.md §4.
+// ============================================================================
+
+export const MAX_GRADED_QUESTION_COUNT = 100
+export const MAX_SEAT_CAP = 120
+
+// Human-readable room code, e.g. "QNT-8417" (PRD.md QUIZ-8) — a section prefix plus random digits.
+export const ROOM_CODE_PREFIX_BY_TYPE = { verbal: "VRB", quant: "QNT", lr: "LGR" } as const
+export const ROOM_CODE_DIGIT_LENGTH = 4
+export const ROOM_CODE_MAX_COLLISION_RETRIES = 10
+
+export const QUIZ_NUMBER_MAX_COLLISION_RETRIES = 10
