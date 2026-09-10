@@ -1,0 +1,64 @@
+/* ============================================================================
+   Sprint S10 screens — admin: schedule & reports. Layout only; components
+   live in components.css. Shared across schedule.html, report.html,
+   manage-admins.html.
+
+   GRID/FLEX BLOWOUT (SYSTEM-GAPS #34) — recurred in S7, S8 and S9. Every
+   grid/flex container below that can hold a long name, stem or sentence
+   gets an explicit min-width:0 on its children.
+   ========================================================================= */
+
+/* ---------- schedule.html — status cards + template cards ----------------- */
+.schedgrid{display:grid;gap:var(--sp-5);grid-template-columns:1fr;min-width:0}
+.schedgrid>*{min-width:0}
+@media (min-width:640px){
+  .schedgrid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+}
+
+/* ---------- report.html — the closed-quiz report page ---------------------
+   One continuous scrolling page (summary, participants, item analysis,
+   export) rather than a tabbed split — a real report is read top to bottom
+   the first time, then scanned; nothing here is mutually exclusive the way
+   the schedule/templates toggle is. */
+.report{display:grid;gap:var(--sp-9);min-width:0}
+.report>*{min-width:0}
+.reporthead{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-5);flex-wrap:wrap;min-width:0}
+.reporthead>*{min-width:0}
+
+/* participants table toolbar: sort note + export sits above the table */
+.pttoolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap;min-width:0}
+.pttoolbar>*{min-width:0}
+
+/* export-action A: button + a static-open format menu beside it, not a
+   floating popover, so it can sit inline in the toolbar without a demo
+   `--demo` shell (there is only one export control on this page, unlike
+   S9's lock dialog which needed two states to stack in one file). */
+.exportmenu{position:relative;display:inline-flex}
+.exportmenu .menu{position:absolute;top:calc(100% + var(--sp-2));right:0;z-index:5;min-width:220px}
+
+/* mobile participant cards stand in for the table below 640px, same
+   contract as S7's .bankcards / .tablewrap pairing (components.css §57). */
+.ptcards{display:grid;gap:var(--sp-3);min-width:0}
+@media (min-width:640px){
+  .ptcards{display:none}
+}
+
+.itemlist{display:grid;gap:var(--sp-3);min-width:0}
+
+/* ---------- manage-admins.html — role groups + the promote/demote dialog -- */
+.roles{display:grid;gap:var(--sp-6);min-width:0}
+.roles>*{min-width:0}
+.rolegroup{display:grid;gap:var(--sp-3);min-width:0}
+/* .rolegroup is display:grid (single implicit column): its own children
+   default min-width to their max-content, which is exactly SYSTEM-GAPS #34
+   (recurred in S7/S8/S9) — .rowflex-between rows and the .stack wrapping
+   them both need the override explicitly, at every depth. */
+.rolegroup>*{min-width:0}
+.rolegroup .stack>*{min-width:0}
+.rolegroup__head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-3);flex-wrap:wrap;min-width:0}
+
+/* `.stage`/`.confirmpage` reuse S9's exact modal-sheet harness (§ screens-s9
+   .stage) — deliberately re-declared here rather than imported, per the
+   running S0-S9 convention that each sprint's screen CSS is self-contained. */
+.stage{position:relative;min-height:420px;border-radius:var(--r-lg);overflow:hidden;background:var(--surface-sunken);display:grid;place-items:center;padding:var(--sp-6)}
+.confirmpage{display:grid;gap:var(--sp-4);min-width:0;max-width:480px;filter:saturate(.65) opacity(80%)}

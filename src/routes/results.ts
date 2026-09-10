@@ -1,0 +1,1 @@
+// Participant-only leaderboard/review after atomic board completion; own history hides active score. Review contains per-question outcomes and a separate per-unit timing collection — API.md; QUIZZING.md §6.

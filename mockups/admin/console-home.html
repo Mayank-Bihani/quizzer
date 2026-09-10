@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console home — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a class="on" href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a class="on" href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="eyebrow">Wednesday, 2 September</div>
+        <h1 class="phdr__title">Console home</h1>
+        <p class="phdr__sub">Signed in as admin &middot; Rohan Sethi. Promoted by a superadmin on 12 Aug — see <a href="manage-admins.html">Admins</a>.</p>
+      </div>
+
+      <section aria-labelledby="attn-h">
+        <h2 id="attn-h" class="h2" style="margin-bottom:var(--sp-4)">Needs attention</h2>
+        <div class="stack">
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>The <b>Weekly Quant Sprint</b> recurring template needs <span class="num">62</span> unused Medium questions across its next <span class="num">6</span> occurrences (incl. <b>#28</b>, drawing now), but only <span class="num">41</span> remain in the bank. This week's draw is unaffected — import more Medium before occurrence 4 or the draw will fall back to reusing questions with a flag. <a href="builder-draw.html">Open the draw</a>.</span>
+          </div>
+          <div class="alert a-info">
+            <span aria-hidden="true">i</span>
+            <span>The CSV import from <span class="num">2 Sep</span>, <span class="num">6:14 PM</span> committed <span class="num">194</span> of <span class="num">200</span> rows — <span class="num">6</span> errors were skipped, nothing else was affected. <a href="import-commit.html">Review the import log</a>.</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="sections-h">
+        <h2 id="sections-h" class="h2" style="margin-bottom:var(--sp-4)">Sections</h2>
+        <div class="dashgrid">
+          <a class="card panel--link dashcard" href="bank.html">
+            <span class="eyebrow">Bank</span>
+            <span class="dashcard__stat"><span class="num">1,412</span> questions</span>
+            <span class="tiny"><span class="num">88</span> unused this week &middot; <span class="num">6</span> passage groups</span>
+          </a>
+          <a class="card panel--link dashcard" href="builder-define.html">
+            <span class="eyebrow">Quizzes</span>
+            <span class="dashcard__stat"><span class="num">1</span> live now</span>
+            <span class="tiny"><span class="num">3</span> scheduled &middot; <span class="num">1</span> draft &middot; build a new quiz</span>
+          </a>
+          <a class="card panel--link dashcard" href="schedule.html">
+            <span class="eyebrow">Schedule</span>
+            <span class="dashcard__stat">Thu <span class="num">3 Sep</span>, <span class="num">9:00 PM</span></span>
+            <span class="tiny">Reading Comprehension Set 12 &middot; next to open</span>
+          </a>
+          <a class="card panel--link dashcard" href="report.html">
+            <span class="eyebrow">Reports</span>
+            <span class="dashcard__stat"><span class="num">2</span> quizzes awaiting a report</span>
+            <span class="tiny">Weekly Quant Sprint #26 closed <span class="num">31 Aug</span></span>
+          </a>
+          <a class="card panel--link dashcard" href="manage-admins.html">
+            <span class="eyebrow">Admins</span>
+            <span class="dashcard__stat"><span class="num">4</span> admins</span>
+            <span class="tiny"><span class="num">1</span> promotion under consideration</span>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

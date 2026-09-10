@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S3 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:860px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S3 — responsive proof</h1>
+    <p class="tiny">Every S3 run-edge screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths, so what you see is the breakpoint behaviour, not a scaled image.</p>
+    <p class="tiny">Relayout to watch for: the passage set is the one screen that genuinely relayouts — a capped, independently-scrolling pane above the question on phone, a two-column split with the passage uncapped (full available height) from <span class="num">900</span>px up. The full-screen interstitials (resumed, late-join, deadline-cut) simply recentre — same `.state` / `.lockcard` content at every width, per "do not equalise".</p>
+    <p class="tiny">The rotate overlay cannot be captured by a portrait screenshot at any of these three widths — its real trigger is <code>@media (orientation:landscape) and (max-width:899px)</code>. The proof below uses the forced-open demo copy so the markup is still reviewable here.</p>
+  </div>
+
+  <section>
+    <h2>Question — passage set</h2>
+    <p class="tiny">First question of the set (Q1 of 4) and mid-set (Q3 of 4) — same passage both times, only the right-hand question changes.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone — passage pane above, capped and scrolling</figcaption><div class="shell"><iframe src="student/run-passage.html" title="Passage set at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet — split pane begins at 900, still stacked here</figcaption><div class="shell"><iframe src="student/run-passage.html" title="Passage set at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop — split pane, passage uncapped</figcaption><div class="shell"><iframe src="student/run-passage.html" title="Passage set at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Reconnecting · resumed · late join</h2>
+    <p class="tiny">The reconnecting strip over a live, still-answerable question; the connection-strip family as a component reference; resumed-after-disconnect; joined-late.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-interrupt.html" title="Interruption states at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-interrupt.html" title="Interruption states at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-interrupt.html" title="Interruption states at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Timeout advance · deadline mid-question</h2>
+    <p class="tiny">Time expired (the 900ms hold, then the next question with a notice) and the hard deadline cutting off a question mid-run with no warning.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-deadline.html" title="Deadline states at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-deadline.html" title="Deadline states at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-deadline.html" title="Deadline states at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rotate-to-portrait overlay</h2>
+    <p class="tiny">Forced-open demo, plus the real trigger attached to a live question (invisible here — it only fires in landscape below 900px).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-rotate.html" title="Rotate overlay at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-rotate.html" title="Rotate overlay at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-rotate.html" title="Rotate overlay at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manage admins — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+<link rel="stylesheet" href="../css/screens-s10.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a class="on" href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a class="on" href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="eyebrow">Wednesday, 2 September</div>
+        <h1 class="phdr__title">Manage admins</h1>
+        <p class="phdr__sub">Signed in as admin &middot; Rohan Sethi. Any admin can see the roster; only a superadmin can change a role (AUTH-5, ADMIN-3) &mdash; the controls below are disabled for this session for that reason.</p>
+      </div>
+
+      <!-- ===================================================================
+           manage-admins-row B (grouped by role). Extends S4/S6's identity
+           row (.namerow + .av) rather than a fourth avatar-row shape — see
+           components.css §23/§42/§52's running "extend, don't invent"
+           precedent. No new component needed for this state.
+           =================================================================== -->
+      <div class="mock-state" id="roster"><b>State &mdash; roster, viewed as an admin</b> <span>read-only for this session</span></div>
+
+      <div class="roles">
+
+        <section aria-labelledby="super-h" class="card card--solid rolegroup">
+          <div class="rolegroup__head">
+            <span id="super-h" class="wlabel" style="margin:0">Superadmin &middot; 1</span>
+          </div>
+          <div class="namerow">
+            <div class="av" aria-hidden="true">PM</div>
+            <div class="grow">
+              <div class="namerow__name">Priya Menon</div>
+              <div class="namerow__meta">Established from the deploy secret (AUTH-4) &mdash; never a promotion</div>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="admins-h" class="card card--solid rolegroup">
+          <div class="rolegroup__head">
+            <span id="admins-h" class="wlabel" style="margin:0">Admins &middot; 3</span>
+          </div>
+          <div class="stack">
+            <div class="rowflex-between">
+              <div class="namerow grow">
+                <div class="av" aria-hidden="true">RS</div>
+                <div class="grow">
+                  <div class="namerow__name">Rohan Sethi <span class="tiny">you</span></div>
+                  <div class="namerow__meta truncate">rohan.sethi@example.com &middot; promoted 12 Aug</div>
+                </div>
+              </div>
+              <button class="btn sec" type="button" disabled aria-disabled="true">Change role</button>
+            </div>
+            <div class="rowflex-between">
+              <div class="namerow grow">
+                <div class="av" aria-hidden="true">DN</div>
+                <div class="grow">
+                  <div class="namerow__name">Divya Nair</div>
+                  <div class="namerow__meta truncate">divya.nair@example.com &middot; promoted 3 Jul</div>
+                </div>
+              </div>
+              <button class="btn sec" type="button" disabled aria-disabled="true">Change role</button>
+            </div>
+            <div class="rowflex-between">
+              <div class="namerow grow">
+                <div class="av" aria-hidden="true">SV</div>
+                <div class="grow">
+                  <div class="namerow__name">Sanjay Verma</div>
+                  <div class="namerow__meta truncate">sanjay.verma@example.com &middot; promoted 3 Jul</div>
+                </div>
+              </div>
+              <button class="btn sec" type="button" disabled aria-disabled="true">Change role</button>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="students-h" class="card card--solid rolegroup">
+          <div class="rolegroup__head">
+            <span id="students-h" class="wlabel" style="margin:0">Students &middot; 96</span>
+            <button class="btn ghost" type="button" disabled aria-disabled="true">View all</button>
+          </div>
+          <span class="tiny">Any student can be promoted from here by a superadmin &mdash; see the state below.</span>
+        </section>
+
+      </div>
+
+      <!-- ===================================================================
+           Same roster, as a superadmin — the only session that can act.
+           Following S1's profile.html precedent of switching the signed-in
+           identity for a stacked state that genuinely needs a different
+           session, rather than pretending the disabled buttons above
+           become live with no visible cause.
+           =================================================================== -->
+      <div class="mock-state"><b>State &mdash; roster, viewed as a superadmin</b> <span>Priya Menon &middot; promote and demote are live</span></div>
+
+      <div class="card card--solid rolegroup">
+        <div class="rolegroup__head">
+          <span class="wlabel" style="margin:0">Admins &middot; 3</span>
+        </div>
+        <div class="rowflex-between">
+          <div class="namerow grow">
+            <div class="av" aria-hidden="true">SV</div>
+            <div class="grow">
+              <div class="namerow__name">Sanjay Verma</div>
+              <div class="namerow__meta truncate">sanjay.verma@example.com</div>
+            </div>
+          </div>
+          <a class="btn sec" href="#demote">Demote to student</a>
+        </div>
+      </div>
+
+      <div class="card card--solid rolegroup">
+        <div class="rolegroup__head">
+          <span class="wlabel" style="margin:0">Students &middot; 96</span>
+        </div>
+        <div class="rowflex-between">
+          <div class="namerow grow">
+            <div class="av" aria-hidden="true">AK</div>
+            <div class="grow">
+              <div class="namerow__name">Ananya Krishnamurthy</div>
+              <div class="namerow__meta truncate">ananya.k@example.com &middot; 14 quizzes taken</div>
+            </div>
+          </div>
+          <a class="btn" href="#promote">Promote</a>
+        </div>
+        <div class="rowflex-between">
+          <div class="namerow grow">
+            <div class="av" aria-hidden="true">PM</div>
+            <div class="grow">
+              <div class="namerow__name">Priya Menon <span class="tiny">you</span></div>
+            </div>
+          </div>
+          <button class="btn sec" type="button" disabled aria-disabled="true">Can&rsquo;t change own role</button>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           destructive-confirm A (consequence list + weighted buttons) on
+           modal-sheet A — the sibling S9 left unbuilt (§71's B is
+           type-to-confirm, reserved for the quiz lock). Reversible actions
+           get a lighter confirm than an irreversible one; typing a
+           confirmation word here would overstate the risk.
+           =================================================================== -->
+      <div id="promote" class="mock-state"><b>State &mdash; promote confirm</b> <span>reversible &middot; one click, no typing</span></div>
+
+      <div class="stage">
+        <div class="confirmpage" aria-hidden="true">
+          <span class="wlabel" style="margin:0">Behind the dialog</span>
+          <p>Students &middot; 96 &middot; Ananya Krishnamurthy selected</p>
+        </div>
+        <div class="scrim" aria-hidden="true"></div>
+
+        <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="promo-h">
+          <h2 id="promo-h" class="h2">Promote Ananya Krishnamurthy to admin?</h2>
+          <ul class="confirmlist">
+            <li>Gains access to the question bank, quiz builder, schedule and every student's results.</li>
+            <li>Keeps their student account &mdash; they can still take quizzes.</li>
+            <li>This can be reversed at any time by demoting them again.</li>
+          </ul>
+          <div class="rowflex" style="justify-content:flex-end">
+            <button class="btn ghost" type="button">Cancel</button>
+            <button class="btn" type="button">Promote to admin</button>
+          </div>
+        </div>
+
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="promo2-h">
+          <span class="grabber" aria-hidden="true"></span>
+          <h2 id="promo2-h" class="h2">Promote Ananya Krishnamurthy to admin?</h2>
+          <ul class="confirmlist">
+            <li>Gains access to the question bank, quiz builder, schedule and every student's results.</li>
+            <li>Keeps their student account &mdash; they can still take quizzes.</li>
+            <li>This can be reversed at any time by demoting them again.</li>
+          </ul>
+          <button class="btn" type="button">Promote to admin</button>
+          <button class="btn ghost" type="button">Cancel</button>
+        </div>
+      </div>
+
+      <div id="demote" class="mock-state"><b>State &mdash; demote confirm</b> <span>reversible &middot; takes effect on their next request (AJ-1)</span></div>
+
+      <div class="stage">
+        <div class="confirmpage" aria-hidden="true">
+          <span class="wlabel" style="margin:0">Behind the dialog</span>
+          <p>Admins &middot; 3 &middot; Sanjay Verma selected</p>
+        </div>
+        <div class="scrim" aria-hidden="true"></div>
+
+        <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="demo-h">
+          <h2 id="demo-h" class="h2">Demote Sanjay Verma to student?</h2>
+          <ul class="confirmlist">
+            <li>Loses access to the question bank, quiz builder, schedule and reports on their next request &mdash; not mid-session.</li>
+            <li>Any quiz they already built or scheduled is unaffected.</li>
+            <li>This can be reversed at any time by promoting them again.</li>
+          </ul>
+          <div class="rowflex" style="justify-content:flex-end">
+            <button class="btn ghost" type="button">Cancel</button>
+            <button class="btn dgr" type="button">Demote to student</button>
+          </div>
+        </div>
+
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="demo2-h">
+          <span class="grabber" aria-hidden="true"></span>
+          <h2 id="demo2-h" class="h2">Demote Sanjay Verma to student?</h2>
+          <ul class="confirmlist">
+            <li>Loses access to the question bank, quiz builder, schedule and reports on their next request &mdash; not mid-session.</li>
+            <li>Any quiz they already built or scheduled is unaffected.</li>
+            <li>This can be reversed at any time by promoting them again.</li>
+          </ul>
+          <button class="btn dgr" type="button">Demote to student</button>
+          <button class="btn ghost" type="button">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

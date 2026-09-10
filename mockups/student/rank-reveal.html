@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank reveal &amp; score breakdown — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s4.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html" aria-current="page">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <!-- =================================================================
+           Tier 3 of the disclosure ladder (RESULT-3, 4, 7) — post-deadline
+           only. Unlike finish/holding, normal navigation is back (Home,
+           History, review, leaderboard are all live choices again), so this
+           is a page inside the app shell, not a captive interstitial.
+           This is the first place `--rv-*` correctness colour and a rank may
+           appear anywhere in the product — selections.md's disclosure-ladder
+           rule for tier 3, honoured by every earlier sprint's run screens
+           carrying none of it. =============================================
+      -->
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <div class="eyebrow">Result · window closed <span class="num">9:55 PM</span> IST</div>
+            <h1 class="phdr__title">Weekly Quant Sprint #<span class="num">27</span></h1>
+            <p class="phdr__sub">Room <span class="num">QNT-8417</span> · <span class="num">83</span> participants</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — rank reveal + score breakdown</b> <span>rank-reveal B (neighbours) · score-breakdown-tiles B (reconciling ledger) — one screen, unlocked together</span></div>
+
+      <!-- rank-reveal B — rank in context. Shows the two students either side,
+           which is what makes the rank meaningful and the gap concrete; the
+           boards are public anyway, so this publishes nothing new. -->
+      <section class="card stack" aria-labelledby="rank-h">
+        <h2 id="rank-h" class="wlabel">Your rank</h2>
+        <div class="rowflex" style="align-items:baseline;gap:var(--sp-3)">
+          <span class="hero num" style="font-size:var(--fs-48)">4</span>
+          <span class="tiny">of <span class="num">83</span></span>
+        </div>
+        <div class="stack" style="gap:var(--sp-2)">
+          <div class="rankrow">
+            <span class="rankrow__pos num">3</span>
+            <span class="av sm" aria-hidden="true">MP</span>
+            <span class="namerow__name grow truncate">Meera Pillai</span>
+            <span class="rankrow__score num">39.0</span>
+          </div>
+          <div class="rankrow you">
+            <span class="rankrow__pos num">4</span>
+            <span class="av sm" aria-hidden="true">AK</span>
+            <span class="namerow__name grow truncate" style="font-weight:var(--fw-semibold)">You</span>
+            <span class="rankrow__score num">38.5</span>
+          </div>
+          <div class="rankrow">
+            <span class="rankrow__pos num">5</span>
+            <span class="av sm" aria-hidden="true">DO</span>
+            <span class="namerow__name grow truncate">Devansh Oberoi</span>
+            <span class="rankrow__score num">37.5</span>
+          </div>
+        </div>
+        <p class="tiny"><span class="num">0.5</span> marks from rank <span class="num">3</span>. Tie-break is total time.</p>
+        <div class="rowflex">
+          <a class="btn lg" href="review.html">Review answers</a>
+          <a class="btn ghost sm" href="leaderboard-quiz.html">See leaderboard</a>
+        </div>
+      </section>
+
+      <!-- score-breakdown-tiles B — reconciling ledger. Every row is signed
+           and the total is the arithmetic sum of the rows above it, which
+           pre-empts every "why is my score X" question. Correct/wrong text
+           colour is the first use of `--rv-*` in this screen's own flow —
+           legitimate here, tier 3, post-deadline. -->
+      <section class="stack" aria-labelledby="breakdown-h">
+        <h2 id="breakdown-h" class="h3">Score breakdown</h2>
+        <div class="ledger">
+          <div class="ledger__row"><span>✓ Correct <span class="tiny">14 × +3</span></span><span class="ledger__val ledger__ok">+42.00</span></div>
+          <div class="ledger__row"><span>✕ Wrong <span class="tiny">4 × −1</span></span><span class="ledger__val ledger__no">−4.00</span></div>
+          <div class="ledger__row"><span>– Skipped <span class="tiny">2 × 0</span></span><span class="ledger__val">0.00</span></div>
+          <div class="ledger__row"><span>◌ Not reached <span class="tiny">0 × 0</span></span><span class="ledger__val">0.00</span></div>
+          <div class="ledger__row"><span>Speed bonus</span><span class="ledger__val">+0.50</span></div>
+          <div class="ledger__row ledger__row--total"><span>Total</span><span class="ledger__val">38.50</span></div>
+          <div class="ledger__row"><span class="tiny">Total time</span><span class="ledger__val tiny">7:12</span></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holding — waiting for the deadline — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s4.css">
+</head>
+<body>
+
+<main class="resultpage">
+
+  <!-- ===================================================================
+       Tier 2 of the disclosure ladder (RESULT-2). holding-state B —
+       waiting-room, illustration-led: warmest and least refresh-inducing,
+       picked over A (bare countdown hero) because this can be a long wait.
+       "How many have finished" is the only social fact permitted — a count,
+       never names, never scores. Reuses countdown-timer A (`.pill-clock`)
+       for the "time to go" chip: this is exactly its intended generic use,
+       unlike the live-run clocks in S2/S3, which specialise it instead. ===
+  -->
+  <div class="mock-state"><b>State — holding, mid-wait</b> <span>holding-state B · own score, finisher count, countdown · no names, no ranks</span></div>
+
+  <div class="state">
+    <img src="../assets/illustrations/shade-waiting.svg" alt="">
+    <h1 class="h3">Holding for the room</h1>
+    <p class="tiny"><span class="num">64</span> of <span class="num">83</span> students have finished Weekly Quant Sprint #<span class="num">27</span>. Ranks, correct answers and the leaderboard open together when the window closes.</p>
+    <span class="pill-clock"><span aria-hidden="true">◷</span><span class="num">28:41</span><span>to go · 9:55 PM IST</span></span>
+    <div class="panel">
+      <span class="wlabel">Your score</span>
+      <span class="numhero__value num">38.5</span>
+      <span class="tiny"><span class="num">18</span> of <span class="num">20</span> answered</span>
+    </div>
+    <div class="state__actions">
+      <a class="btn sec" href="home.html">Back to Home</a>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       Second state: the last two minutes of the window. Same component,
+       escalated — the pill goes urgent, matching the escalation language
+       S2/S3 already established for the run's own clocks (colour + words,
+       never colour alone). Still no countdown-induced pressure to act:
+       there is nothing left for the student to do but wait. =============
+  -->
+  <div class="mock-state"><b>State — holding, final two minutes</b> <span>countdown-timer A escalated · same content, nothing to act on</span></div>
+
+  <div class="state">
+    <img src="../assets/illustrations/shade-waiting.svg" alt="">
+    <h1 class="h3">Holding for the room</h1>
+    <p class="tiny"><span class="num">81</span> of <span class="num">83</span> students have finished Weekly Quant Sprint #<span class="num">27</span>. Ranks, correct answers and the leaderboard open together when the window closes.</p>
+    <span class="pill-clock urgent"><span aria-hidden="true">◷</span><span class="num">01:47</span><span>to go · closing soon</span></span>
+    <div class="panel">
+      <span class="wlabel">Your score</span>
+      <span class="numhero__value num">38.5</span>
+      <span class="tiny"><span class="num">18</span> of <span class="num">20</span> answered</span>
+    </div>
+    <div class="state__actions">
+      <a class="btn sec" href="home.html">Back to Home</a>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

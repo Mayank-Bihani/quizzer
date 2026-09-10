@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  .shell{display:grid;grid-template-rows:auto 1fr;height:100dvh}
+  .bar{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;padding:var(--sp-4) var(--gutter-desktop);
+       background:var(--glass-bg-strong);backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--border-1)}
+  .body{display:grid;grid-template-columns:1fr;min-height:0}
+  .dir{overflow:auto;padding:var(--sp-6) var(--gutter-mobile);display:grid;gap:var(--sp-6);align-content:start}
+  .dir h4{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin-bottom:var(--sp-3)}
+  .dir a{display:block;padding:8px 10px;border-radius:var(--r-sm);font:var(--type-body-sm);color:var(--text-2);text-decoration:none;min-height:var(--tap-min);display:flex;align-items:center}
+  .dir a:hover{background:var(--surface-subtle);color:var(--text-1)}
+  .dir a.on{background:var(--accent-50);color:var(--accent-700);font-weight:var(--fw-medium)}
+  .dir a.todo{color:var(--text-disabled);pointer-events:none}
+  .stagewrap{display:none;min-height:0;background:var(--surface-sunken);border-left:1px solid var(--border-1);
+             padding:var(--sp-6);overflow:auto;justify-items:center}
+  .stagewrap.show{display:grid}
+  .frame{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden;max-width:100%}
+  .frame iframe{display:block;border:0;width:100%;height:76dvh}
+  .fcap{font:var(--type-caption);color:var(--text-3);text-align:center;margin-bottom:var(--sp-3)}
+  @media (min-width:900px){ .body{grid-template-columns:300px minmax(0,1fr)} .dir{border-right:1px solid var(--border-1)} .stagewrap{display:grid} }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header class="bar">
+    <span class="brandmark">Quizzer mockups</span>
+    <span class="tiny">Sprints S0–S7 · foundations, shell, auth &amp; entry, the run, results, review, history &amp; boards, admin bank</span>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="Preview width">
+      <button type="button" data-w="390"  class="on">390 phone</button>
+      <button type="button" data-w="820">820 tablet</button>
+      <button type="button" data-w="1440">1440 laptop</button>
+      <button type="button" data-w="full">Fill</button>
+    </div>
+  </header>
+
+  <div class="body">
+    <nav class="dir" aria-label="Screens">
+      <div>
+        <h4>Student</h4>
+        <a href="student/home.html" data-screen class="on">Home <span class="tiny">· S0 reference</span></a>
+        <a href="student/signin.html" data-screen>Sign-in <span class="tiny">· S1</span></a>
+        <a href="student/quiz-detail.html" data-screen>Quiz detail <span class="tiny">· S1</span></a>
+        <a href="student/join.html" data-screen>Join by room code <span class="tiny">· S1</span></a>
+        <a href="student/lobby.html" data-screen>Lobby <span class="tiny">· S1</span></a>
+        <a href="student/room-full.html" data-screen>Room full <span class="tiny">· S1</span></a>
+        <a href="student/profile.html" data-screen>Profile <span class="tiny">· S1</span></a>
+        <a href="student/errors.html" data-screen>403 · 404 · session expired <span class="tiny">· S1</span></a>
+        <a href="student/run-mcq.html" data-screen>Question — MCQ <span class="tiny">· S2</span></a>
+        <a href="student/run-tita.html" data-screen>Question — TITA <span class="tiny">· S2</span></a>
+        <a href="student/run-image.html" data-screen>Question — with an image <span class="tiny">· S2</span></a>
+        <a href="student/run-passage.html" data-screen>Question — passage set <span class="tiny">· S3</span></a>
+        <a href="student/run-interrupt.html" data-screen>Reconnecting · resumed · late join <span class="tiny">· S3</span></a>
+        <a href="student/run-deadline.html" data-screen>Timeout advance · deadline mid-question <span class="tiny">· S3</span></a>
+        <a href="student/run-rotate.html" data-screen>Rotate-to-portrait overlay <span class="tiny">· S3</span></a>
+        <a href="student/finish.html" data-screen>Finish — own score only <span class="tiny">· S4</span></a>
+        <a href="student/holding.html" data-screen>Holding — waiting for the deadline <span class="tiny">· S4</span></a>
+        <a href="student/rank-reveal.html" data-screen>Rank reveal &amp; score breakdown <span class="tiny">· S4</span></a>
+        <a href="student/review.html" data-screen>Review — 5 outcomes, distribution, navigator <span class="tiny">· S5</span></a>
+        <a href="student/history.html" data-screen>History — populated &amp; empty <span class="tiny">· S6</span></a>
+        <a href="student/leaderboard-quiz.html" data-screen>Leaderboard — per quiz <span class="tiny">· S6</span></a>
+        <a href="student/leaderboard-weekly.html" data-screen>Leaderboard — weekly, tabs + week picker <span class="tiny">· S6</span></a>
+        <a href="student/leaderboard-empty.html" data-screen>Board empty — too early · no entries · no quiz <span class="tiny">· S6</span></a>
+        <a href="student/did-not-take.html" data-screen>You did not take this quiz <span class="tiny">· S6</span></a>
+      </div>
+      <div>
+        <h4>Admin</h4>
+        <a href="admin/console-home.html" data-screen>Console home <span class="tiny">· S7</span></a>
+        <a href="admin/bank.html" data-screen>Question bank — browse, filters, empty <span class="tiny">· S7</span></a>
+        <a href="admin/item-editor.html" data-screen>Question editor — MCQ &amp; TITA <span class="tiny">· S7</span></a>
+        <a href="admin/passage-group.html" data-screen>Passage group detail <span class="tiny">· S7</span></a>
+        <a href="admin/import-upload.html" data-screen>Import — upload <span class="tiny">· S8</span></a>
+        <a href="admin/import-preview.html" data-screen>Import — validation preview <span class="tiny">· S8</span></a>
+        <a href="admin/import-commit.html" data-screen>Import — commit confirm &amp; failed <span class="tiny">· S8</span></a>
+        <a href="admin/builder-define.html" data-screen>Quiz builder — define <span class="tiny">· S9</span></a>
+        <a href="admin/builder-draw.html" data-screen>Quiz builder — draw &amp; composition <span class="tiny">· S9</span></a>
+        <a href="admin/builder-scoring.html" data-screen>Quiz builder — scoring &amp; bonus curve <span class="tiny">· S9</span></a>
+        <a href="admin/builder-schedule.html" data-screen>Quiz builder — schedule <span class="tiny">· S9</span></a>
+        <a href="admin/builder-lock.html" data-screen>Quiz builder — lock confirm <span class="tiny">· S9</span></a>
+        <a href="admin/schedule.html" data-screen>Schedule list &amp; recurring templates <span class="tiny">· S10</span></a>
+        <a href="admin/report.html" data-screen>Quiz report — participants, item analysis, export <span class="tiny">· S10</span></a>
+        <a href="admin/manage-admins.html" data-screen>Manage admins — promote / demote <span class="tiny">· S10</span></a>
+      </div>
+      <div>
+        <h4>Responsive proofs</h4>
+        <a href="proof-s1.html">S1 — auth &amp; entry <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s2.html">S2 — run: core <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s3.html">S3 — run: edges <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s4.html">S4 — results <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s5.html">S5 — review <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s6.html">S6 — history &amp; boards <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s7.html">S7 — admin: bank <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s8.html">S8 — admin: import <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s9.html">S9 — admin: builder <span class="tiny">· 390 / 820 / 1440</span></a>
+        <a href="proof-s10.html">S10 — admin: schedule &amp; reports <span class="tiny">· 390 / 820 / 1440</span></a>
+      </div>
+      <div>
+        <h4>Reference</h4>
+        <a href="PROGRESS.md">PROGRESS.md</a>
+        <a href="SYSTEM-GAPS.md">SYSTEM-GAPS.md</a>
+        <a href="../design-system/guidelines/selections.md">Locked selections</a>
+      </div>
+    </nav>
+
+    <div class="stagewrap" id="stagewrap">
+      <div>
+        <div class="fcap" id="cap">student/home.html · 390px</div>
+        <div class="frame" id="frame" style="width:390px">
+          <iframe id="stage" src="student/home.html" title="Screen preview"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var stage = document.getElementById('stage'),
+      frame = document.getElementById('frame'),
+      cap   = document.getElementById('cap'),
+      wrap  = document.getElementById('stagewrap'),
+      width = '390', src = 'student/home.html';
+
+  function paint(){
+    frame.style.width = (width === 'full') ? '100%' : width + 'px';
+    cap.textContent = src + ' · ' + (width === 'full' ? 'fill' : width + 'px');
+  }
+  document.querySelectorAll('[data-w]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-w]').forEach(function(x){ x.classList.remove('on'); });
+      b.classList.add('on'); width = b.dataset.w; paint();
+    });
+  });
+  document.querySelectorAll('[data-screen]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.querySelectorAll('[data-screen]').forEach(function(x){ x.classList.remove('on'); });
+      a.classList.add('on');
+      src = a.getAttribute('href'); stage.src = src; wrap.classList.add('show'); paint();
+    });
+  });
+  paint();
+</script>
+</body>
+</html>

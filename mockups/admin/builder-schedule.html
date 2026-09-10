@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz builder — Schedule — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s9.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a class="on" href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a class="on" href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="builder-scoring.html"><span aria-hidden="true">&larr;</span> Scoring</a>
+        <h1 class="phdr__title">Weekly Quant Sprint #28</h1>
+        <p class="phdr__sub">Everything below is Asia/Kolkata. The room code does not exist yet — it is assigned at lock (QUIZ-8) and withheld from students until T&minus;5 minutes either way.</p>
+      </div>
+
+      <nav class="steps" aria-label="Quiz builder steps">
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Define</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Draw</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Scoring</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step on" aria-current="step"><span class="n" aria-hidden="true">4</span>Schedule</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">5</span>Lock</span>
+      </nav>
+
+      <!-- ===================================================================
+           State 1 — schedule-picker A: date + time + duration, with the
+           derived close time stated in plain language (the fact an admin
+           actually needs to check). Window length reuses `.chip`/`.chip.on`
+           (S0) rather than a new control.
+           =================================================================== -->
+      <div class="mock-state" id="sched"><b>State — one-off, valid window</b> <span>schedule-picker A &middot; derived close time stated in copy</span></div>
+
+      <form class="card builderform stack-lg" aria-labelledby="sch-h">
+        <h2 id="sch-h" class="h2">Schedule</h2>
+
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <legend class="lbl" style="padding:0;margin-bottom:var(--sp-3)">One-off or recurring?</legend>
+          <div class="seg">
+            <button type="button" class="on" style="min-height:var(--tap-min)">One-off</button>
+            <button type="button" style="min-height:var(--tap-min)">Recurring</button>
+          </div>
+        </fieldset>
+
+        <div class="rowflex">
+          <div class="field grow">
+            <label class="lbl" for="sd-date">Date</label>
+            <input class="inp" id="sd-date" value="9 Sep 2026">
+          </div>
+          <div class="field grow">
+            <label class="lbl" for="sd-time">Opens (IST)</label>
+            <input class="inp num" id="sd-time" value="21:30">
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lbl" id="sd-win-lbl">Window length</span>
+          <div class="rowflex chiprow" role="group" aria-labelledby="sd-win-lbl">
+            <span class="chip">15m</span>
+            <span class="chip on">25m</span>
+            <span class="chip">40m</span>
+          </div>
+          <span class="help">20 questions &times; 45s = 15 minutes minimum, plus slack (QUIZ-10).</span>
+        </div>
+
+        <div class="alert a-info">
+          <span aria-hidden="true">◇</span>
+          <span>Opens <b>9 Sep, 9:30 PM IST</b> &middot; closes <b>9:55 PM IST</b> &middot; room code releases <b>9:25 PM</b>.</span>
+        </div>
+
+        <div class="rowflex-between">
+          <a class="btn sec" href="builder-scoring.html">&larr; Back</a>
+          <span class="tiny">Nothing is published until step 5</span>
+          <a class="btn" href="builder-lock.html">Continue</a>
+        </div>
+      </form>
+
+      <!-- ===================================================================
+           State 2 — recurring (recurrence-editor A). The "62 Medium across
+           6 occurrences" figure console-home.html's needs-attention alert
+           states is this template's own end rule, made concrete here.
+           =================================================================== -->
+      <div class="mock-state"><b>State — recurring</b> <span>recurrence-editor A &middot; weekday chips + end rule &middot; reconciles with console-home's needs-attention note</span></div>
+
+      <form class="card builderform stack-lg" aria-labelledby="rec-h">
+        <h2 id="rec-h" class="h2">Schedule</h2>
+
+        <fieldset class="field" style="border:0;padding:0;margin:0">
+          <legend class="lbl" style="padding:0;margin-bottom:var(--sp-3)">One-off or recurring?</legend>
+          <div class="seg">
+            <button type="button" style="min-height:var(--tap-min)">One-off</button>
+            <button type="button" class="on" style="min-height:var(--tap-min)">Recurring</button>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <span class="lbl" id="rec-days-lbl">Repeats on</span>
+          <div class="rowflex chiprow" role="group" aria-labelledby="rec-days-lbl">
+            <span class="chip">Mon</span><span class="chip">Tue</span><span class="chip on">Wed</span>
+            <span class="chip">Thu</span><span class="chip">Fri</span><span class="chip">Sat</span><span class="chip">Sun</span>
+          </div>
+        </div>
+
+        <div class="rowflex">
+          <div class="field grow">
+            <label class="lbl" for="rec-time">At (IST)</label>
+            <input class="inp num" id="rec-time" value="21:30">
+          </div>
+          <div class="field grow">
+            <label class="lbl" for="rec-end">Ends</label>
+            <input class="inp" id="rec-end" value="After 6 occurrences">
+          </div>
+        </div>
+
+        <div class="alert a-info">
+          <span aria-hidden="true">◇</span>
+          <span>Next 3: <b>9 Sep</b>, 16 Sep, 23 Sep &mdash; each draws a fresh set of questions at build time. Generates <b class="num">6</b> quizzes; each is its own draft until you lock it &mdash; recurrence never auto-locks.</span>
+        </div>
+        <p class="tiny">Across its 6 occurrences this template needs roughly <span class="num">62</span> unused Medium Quant questions in total &mdash; see the needs-attention note on Console home.</p>
+
+        <div class="rowflex-between">
+          <a class="btn sec" href="builder-scoring.html">&larr; Back</a>
+          <span class="tiny">Nothing is published until step 5</span>
+          <a class="btn" href="builder-lock.html">Continue</a>
+        </div>
+      </form>
+
+      <!-- ===================================================================
+           State 3 — window too short for QUIZ-10 ("long enough to reach
+           every question at the per-question limit, plus slack"). Not
+           modelled by any guideline variant (schedule-picker B's own error
+           is only "close before open") — built directly from the
+           requirement. Logged as a judgement call in SYSTEM-GAPS.
+           =================================================================== -->
+      <div class="mock-state"><b>State — window too short</b> <span>QUIZ-10 validation &middot; not in any guideline variant</span></div>
+
+      <form class="card builderform stack" aria-labelledby="sch2-h" style="max-width:480px">
+        <h2 id="sch2-h" class="h2">Schedule</h2>
+        <div class="field">
+          <span class="lbl" id="sd2-win-lbl">Window length</span>
+          <div class="rowflex chiprow" role="group" aria-labelledby="sd2-win-lbl">
+            <span class="chip on">10m</span>
+            <span class="chip">25m</span>
+            <span class="chip">40m</span>
+          </div>
+        </div>
+        <div class="alert a-dgr">
+          <span aria-hidden="true">✕</span>
+          <span><b>10 minutes is too short.</b> 20 questions &times; 45s need at least 15 minutes, plus slack for reading and connection lag. Increase the window or reduce the question count.</span>
+        </div>
+        <button class="btn" type="button" disabled aria-disabled="true">Continue</button>
+      </form>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

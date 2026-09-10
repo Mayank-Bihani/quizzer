@@ -1,0 +1,27 @@
+/* ============================================================================
+   Sprint S7 — admin: bank. Layout only; every component lives in
+   components.css. Follows the S0–S6 convention that each sprint's screen CSS
+   is self-contained rather than importing another sprint's wrapper.
+   ========================================================================= */
+
+/* console home: quick-link cards into each admin section, two columns once
+   there is room. Built from existing utilities (.card/.panel--link/.facts) —
+   no new shared component needed for a one-off dashboard grid. */
+.dashgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--sp-5)}
+.dashcard{display:grid;gap:var(--sp-3)}
+.dashcard__stat{font:var(--type-numeric);font-variant-numeric:var(--numeric-features);color:var(--text-1)}
+
+/* bank: toolbar (filters) above the table/card list, pager below. */
+.bankhead{display:grid;gap:var(--sp-4)}
+.banktoolbar{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap}
+
+/* mobile card list stands in for the table below 640px (`.tablewrap`'s
+   complementary half — that swap is the shared component contract, in
+   components.css §57; this file only names the bank-specific container). */
+.bankcards{display:grid;gap:var(--sp-3)}
+@media (min-width:640px){
+  .bankcards{display:none}
+}
+
+/* editor: format toggle sits above the two-pane/stacked form. */
+.editorhead{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap}

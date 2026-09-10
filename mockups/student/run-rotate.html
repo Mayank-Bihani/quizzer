@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run — rotate to portrait overlay — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s2.css">
+<link rel="stylesheet" href="../css/screens-s3.css">
+</head>
+<body>
+
+<main class="runpage">
+
+  <!-- ===================================================================
+       State — rotate-to-portrait overlay, forced open for review. The real
+       trigger is `@media (orientation:landscape) and (max-width:899px)`
+       (components.css §39), which a static screenshot at a fixed portrait
+       width can never show — so this copy uses `.rotate-lock--demo` to
+       render the identical markup unconditionally. The quiz clock keeps
+       running underneath: this is a prompt, not a pause.
+       =================================================================== -->
+  <div class="mock-state"><b>State — rotate to portrait</b> <span>forced open for review · phones only, below the 900px breakpoint · tablets and laptops in landscape are unaffected</span></div>
+
+  <div class="rotate-lock--demo" role="alert" aria-live="assertive">
+    <svg class="rotate-lock__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="20" y="6" width="24" height="40" rx="4"></rect>
+      <line x1="32" y1="38" x2="32" y2="38"></line>
+      <path d="M50 32a18 18 0 1 1-5.3-12.7"></path>
+      <path d="M50 12v9h-9"></path>
+    </svg>
+    <h1 class="rotate-lock__t">Turn your phone back to portrait</h1>
+    <p class="rotate-lock__p">Quizzer runs in portrait only on phones. Your window clock is still running — rotate back to keep going.</p>
+  </div>
+
+  <!-- ===================================================================
+       Component reference — the real trigger, live. Resize this window
+       below 900px and switch the device/emulator to landscape to see the
+       overlay in components.css §39 fire on its own; it will not appear in
+       a static screenshot taken in portrait, which is expected.
+       =================================================================== -->
+  <div class="mock-state"><b>State — the real trigger</b> <span>same markup, gated by @media (orientation:landscape) and (max-width:899px) · invisible here on purpose</span></div>
+
+  <div class="runref">
+    <section class="qcard" aria-label="Question 6, with the rotate overlay attached" style="min-height:auto">
+      <div class="rotate-lock" role="alert" aria-live="assertive">
+        <svg class="rotate-lock__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="20" y="6" width="24" height="40" rx="4"></rect>
+          <line x1="32" y1="38" x2="32" y2="38"></line>
+          <path d="M50 32a18 18 0 1 1-5.3-12.7"></path>
+          <path d="M50 12v9h-9"></path>
+        </svg>
+        <h2 class="rotate-lock__t">Turn your phone back to portrait</h2>
+        <p class="rotate-lock__p">Quizzer runs in portrait only on phones. Your window clock is still running — rotate back to keep going.</p>
+      </div>
+      <header class="qcard__hdr">
+        <div class="qcard__idrow">
+          <span class="qidx">Q<span class="num">6</span> of <span class="num">20</span></span>
+          <span class="chip-sec b-quant">Quant</span>
+          <span class="grow"></span>
+          <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:19:05</span><span class="clock-win__note">left in the window</span></span>
+        </div>
+      </header>
+      <div class="qcard__body">
+        <p class="stem">Ordinary question content sits underneath, unchanged. The overlay only covers it while the phone is in landscape below 900px.</p>
+      </div>
+    </section>
+    <p class="tiny">`.rotate-lock` is `display:none` until that exact media query matches, then it becomes a fixed, full-viewport cover (`z-index:60`) — above the clocks, above Submit &amp; lock, above everything.</p>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,16 @@
+/* Sprint S3 — run: edges. Layout only.
+   Loaded alongside css/screens-s2.css, which still owns .runpage / .mock-state
+   / .runref — the same review harness the passage, interrupt, deadline and
+   rotate screens stack inside. Every shared component this sprint needed was
+   appended to components.css §37–40; what's left is page-specific layout. */
+
+/* ---- full-screen run interstitial: resumed, late-join, deadline-cut ---
+   Same shape as S1's .deadend (screens-s1.css), rebuilt here rather than
+   shared across sprints — each sprint's screen CSS is self-contained, per
+   S0/S1/S2 convention. Unlike S1's dead ends, these sit mid-run: there is
+   still no app shell (S2's note), but "Back to Home" is a live choice again
+   once the run itself has stopped asking anything of the student. */
+.runstate{min-height:100dvh;display:grid;align-content:center;justify-items:center;padding:var(--sp-11) var(--gutter-mobile)}
+.runstate > .state{width:100%;max-width:46ch;padding:var(--sp-9) var(--sp-7)}
+.runstate > .lockcard{width:100%;max-width:46ch}
+.runstate .state__actions{display:flex;gap:var(--sp-4);flex-wrap:wrap;justify-content:center}

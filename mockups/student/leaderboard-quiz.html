@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard — per quiz — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s6.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html" class="on" aria-current="page">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <!-- =================================================================
+           leaderboard-row A (flat row, medal rule) + podium-top3 B (no
+           podium metaphor — consequence 5 — the medal rule on rank 1-3's row
+           IS the whole "podium"). Per BOARD-1/BOARD-2: computed once at the
+           hard deadline, visible to this quiz's 83 participants only.
+           Continuity: same attempt as finish.html / holding.html /
+           rank-reveal.html / review.html — Weekly Quant Sprint #27, room
+           QNT-8417, you are rank 4 of 83 at 38.5, neighbours Meera Pillai
+           (39.0) and Devansh Oberoi (37.5) match rank-reveal.html exactly. =
+      -->
+      <div class="boardhead">
+        <div class="phdr">
+          <a class="phdr__back" href="rank-reveal.html"><span aria-hidden="true">←</span> Result</a>
+          <div class="phdr__row">
+            <div>
+              <div class="eyebrow">Per-quiz leaderboard · participants only</div>
+              <h1 class="phdr__title">Weekly Quant Sprint #<span class="num">27</span></h1>
+              <p class="phdr__sub">Room <span class="num">QNT-8417</span> · closed <span class="num">9:55 PM</span> IST · <span class="num">83</span> participants · ties broken by total time</p>
+            </div>
+          </div>
+        </div>
+        <div class="rowflex" style="justify-content:flex-end">
+          <a class="btn sec" href="#you-row">Jump to my rank ↓</a>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — per-quiz board</b> <span>ranks 1–5, a tie mid-table, the long-name and negative-score cases at the bottom — truncated with "N more" between chunks rather than all 83 rows</span></div>
+
+      <div class="boardlist">
+        <div class="rankrow rankrow--list r1">
+          <span class="rankrow__pos num r1">1</span>
+          <span class="av sm" aria-hidden="true">SV</span>
+          <span class="namerow__name grow truncate">Sanjay Verma</span>
+          <span class="rankrow__tb num">6:04</span>
+          <span class="rankrow__score num">44.0</span>
+        </div>
+        <div class="rankrow rankrow--list r2">
+          <span class="rankrow__pos num r2">2</span>
+          <span class="av sm" aria-hidden="true">DN</span>
+          <span class="namerow__name grow truncate">Divya Nair</span>
+          <span class="rankrow__tb num">6:41</span>
+          <span class="rankrow__score num">41.5</span>
+        </div>
+        <div class="rankrow rankrow--list r3">
+          <span class="rankrow__pos num r3">3</span>
+          <span class="av sm" aria-hidden="true">MP</span>
+          <span class="namerow__name grow truncate">Meera Pillai</span>
+          <span class="rankrow__tb num">7:02</span>
+          <span class="rankrow__score num">39.0</span>
+        </div>
+        <div class="rankrow rankrow--list you" id="you-row">
+          <span class="rankrow__pos num">4</span>
+          <span class="av sm" aria-hidden="true">AK</span>
+          <span class="namerow__name grow truncate" style="font-weight:var(--fw-semibold)">You</span>
+          <span class="badge b-you">You</span>
+          <span class="rankrow__tb num">7:12</span>
+          <span class="rankrow__score num">38.5</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">5</span>
+          <span class="av sm" aria-hidden="true">DO</span>
+          <span class="namerow__name grow truncate">Devansh Oberoi</span>
+          <span class="rankrow__tb num">7:48</span>
+          <span class="rankrow__score num">37.5</span>
+        </div>
+
+        <div class="boardgap"><span class="tiny">⋯ <span class="num">35</span> more ⋯</span></div>
+
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">41</span>
+          <span class="av sm" aria-hidden="true">AF</span>
+          <span class="namerow__name grow truncate">Aisha Fernandes</span>
+          <span class="rankrow__tb num">6:58</span>
+          <span class="rankrow__score num">24.0</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">42</span>
+          <span class="av sm" aria-hidden="true">RS</span>
+          <span class="namerow__name grow truncate">Rohit Sharma</span>
+          <span class="rankrow__tb num">7:41</span>
+          <span class="rankrow__score num">24.0</span>
+        </div>
+        <p class="tiny">Ranks <span class="num">41</span> and <span class="num">42</span> tie on <span class="num">24.0</span> — tie-break is total answer time, shown so the order is never mysterious.</p>
+
+        <div class="boardgap"><span class="tiny">⋯ <span class="num">38</span> more ⋯</span></div>
+
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">81</span>
+          <span class="av sm" aria-hidden="true">PK</span>
+          <span class="namerow__name grow truncate">Pranav Kulkarni</span>
+          <span class="rankrow__tb num">9:50</span>
+          <span class="rankrow__score num">10.5</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">82</span>
+          <span class="av sm" aria-hidden="true">LV</span>
+          <span class="namerow__name grow truncate">Lakshminarayanan Venkataraghavan</span>
+          <span class="rankrow__tb num">11:02</span>
+          <span class="rankrow__score num">9.5</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">83</span>
+          <span class="av sm" aria-hidden="true">KS</span>
+          <span class="namerow__name grow truncate">Karthik Subramaniam</span>
+          <span class="rankrow__tb num">12:30</span>
+          <span class="rankrow__score num">−2.5</span>
+        </div>
+        <p class="tiny">Last place is negative — <span class="num">6</span> wrong answers at <span class="num">−1</span> each, no correct answers to offset it. Negative marking has no floor at zero.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

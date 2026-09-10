@@ -1,0 +1,1 @@
+// Dual-channel failure-alert sender, called from SCHEDULER's minute tick (SCHEDULER.md §4.1) — both TELEGRAM_ALERT_CHAT_ID and EMAIL_ALERT_ADDRESS (via the ALERT_EMAIL send_email binding, or a third-party email API if no custom domain is attached), neither replacing the other. Owned by SCHEDULER, not a separate module — MODULES.md §6

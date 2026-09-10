@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz builder — Draw &amp; composition — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s9.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a class="on" href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a class="on" href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="builder-define.html"><span aria-hidden="true">&larr;</span> Define</a>
+        <h1 class="phdr__title">Weekly Quant Sprint #28</h1>
+        <p class="phdr__sub">Questions are auto-picked from the never-used pool only (QUIZ-2). Re-draw as many times as you like — nothing locks until step 5.</p>
+      </div>
+
+      <nav class="steps" aria-label="Quiz builder steps">
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Define</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step on" aria-current="step"><span class="n" aria-hidden="true">2</span>Draw</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">3</span>Scoring</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">4</span>Schedule</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">5</span>Lock</span>
+      </nav>
+
+      <!-- ===================================================================
+           State 1 — draw-preview A + composition-report A, composed on one
+           screen, per JOURNEYS' single "draw, composition report, reshuffle"
+           entry. THE SPRINT'S ONE GENUINE RELAYOUT (MOCKUP_PROMPT: "Quiz
+           builder — stacked steps on a phone, two-column form-left/live-
+           draw-preview-right on tablet/laptop", see screens-s9.css
+           .drawgrid). All 20 questions are standalone this time — Quant has
+           no passage-set content, so the composition sentence says so
+           plainly rather than mentioning sets at all (a genuine zero, not a
+           stub — see SYSTEM-GAPS). The passage-set case is demonstrated
+           separately below, on a quiz that actually has one.
+           =================================================================== -->
+      <div class="mock-state" id="drawn"><b>State — drawn, all standalone</b> <span>draw-preview A &middot; composition-report A &middot; two-column from 900px</span></div>
+
+      <div class="drawgrid">
+        <div class="card stack">
+          <span class="wlabel" style="margin:0">Composition</span>
+          <p><b>All 20 questions are standalone.</b> No passage sets were drawn this time — Quant has none in rotation this week.</p>
+          <table class="spec">
+            <tbody>
+              <tr><td>Passage sets</td><td class="n">0</td></tr>
+              <tr><td>Standalone</td><td class="n">20</td></tr>
+              <tr><td>Easy / Medium / Hard</td><td class="n">6 / 10 / 4</td></tr>
+              <tr><td>With images</td><td class="n">1</td></tr>
+              <tr><td>TITA</td><td class="n">4</td></tr>
+              <tr><td>Previously used</td><td class="n">0</td></tr>
+              <tr><td>Max score</td><td class="n">60 + 10 bonus</td></tr>
+            </tbody>
+          </table>
+          <div class="alert a-ok">
+            <span aria-hidden="true">✓</span>
+            <span>Difficulty mix matches the target 6 / 10 / 4.</span>
+          </div>
+          <div class="rowflex-between">
+            <span class="tiny">Drawn 20 of 20 &middot; seed <span class="num">a7f3</span></span>
+            <button class="btn sec" type="button">↻ Re-draw all</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0">
+          <div class="rowflex-between" style="padding:var(--sp-5) var(--sp-5) 0">
+            <span class="wlabel" style="margin:0">Drawn questions</span>
+            <span class="tiny">Row 3 was re-drawn</span>
+          </div>
+          <div class="stack" style="gap:0;margin-top:var(--sp-3)">
+            <div class="drawrow"><span class="ln">1</span><span class="drawrow__stem">Find the HCF of <span class="num">84</span> and <span class="num">126</span>.</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 1">↻</button></div>
+            <div class="drawrow"><span class="ln">2</span><span class="drawrow__stem">A train travels <span class="num">240</span> km at a uniform speed…</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 2">↻</button></div>
+            <div class="drawrow drawrow--swapped"><span class="ln">3</span><span class="drawrow__stem">If <span class="math">x<sup>2</sup>&minus;5x+6=0</span> and <span class="math">x&gt;2</span>, find <span class="math">x<sup>3</sup>&minus;8</span>. <span class="tiny">(swapped)</span></span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 3">↻</button></div>
+            <div class="drawrow"><span class="ln">4</span><span class="drawrow__stem">A vessel holds <span class="num">40</span> litres of milk; <span class="num">8</span> litres are drawn and replaced with water, twice. Milk remaining? <span class="badge b-draft">TITA</span></span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 4">↻</button></div>
+            <div class="drawrow"><span class="ln">5</span><span class="drawrow__stem">A trader marks goods <span class="num">40</span>% above cost and gives a <span class="num">10</span>% discount. Find the profit %.</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 5">↻</button></div>
+            <div class="drawrow"><span class="ln">6</span><span class="drawrow__stem">A can finish a job in <span class="num">12</span> days, B in <span class="num">18</span>. Together?</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 6">↻</button></div>
+            <div class="drawrow"><span class="ln">7</span><span class="drawrow__stem">Two dice are rolled. Find <span class="math">P(sum = 8)</span>.</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 7">↻</button></div>
+            <div class="drawrow"><span class="ln">8</span><span class="drawrow__stem">Find the area of the triangle with vertices <span class="num">(1,1), (4,5), (7,2)</span>. <span class="badge b-draft">TITA</span> <span class="tiny">▤ image</span></span><span class="badge sq b-hard">H</span><button class="btn ghost" type="button" aria-label="Swap row 8">↻</button></div>
+            <details style="padding:0 var(--sp-5)">
+              <summary class="tiny" style="cursor:pointer;padding:var(--sp-3) 0">Show the remaining 12 drawn questions ▾</summary>
+              <div class="stack" style="gap:0;margin:0 calc(-1 * var(--sp-5))">
+                <div class="drawrow"><span class="ln">9</span><span class="drawrow__stem">Divide ₹720 in the ratio <span class="num">2:3:4</span>. Find the smallest share.</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 9">↻</button></div>
+                <div class="drawrow"><span class="ln">10</span><span class="drawrow__stem">The average of <span class="num">5</span> consecutive integers is <span class="num">42</span>. Find the largest.</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 10">↻</button></div>
+                <div class="drawrow"><span class="ln">11</span><span class="drawrow__stem">What is <span class="math">&radic;1764</span>?</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 11">↻</button></div>
+                <div class="drawrow"><span class="ln">12</span><span class="drawrow__stem">A shirt priced ₹1200 is discounted <span class="num">15</span>%. Find the sale price.</span><span class="badge sq b-easy">E</span><button class="btn ghost" type="button" aria-label="Swap row 12">↻</button></div>
+                <div class="drawrow"><span class="ln">13</span><span class="drawrow__stem">Find the remainder when <span class="math">2<sup>100</sup></span> is divided by 7. <span class="badge b-draft">TITA</span></span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 13">↻</button></div>
+                <div class="drawrow"><span class="ln">14</span><span class="drawrow__stem">If <span class="math">a:b = 3:4</span> and <span class="math">b:c = 5:6</span>, find <span class="math">a:c</span>.</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 14">↻</button></div>
+                <div class="drawrow"><span class="ln">15</span><span class="drawrow__stem">The average weight of <span class="num">8</span> students is <span class="num">54</span> kg. A 9th joins and the average becomes <span class="num">55</span> kg. Find the new student's weight.</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 15">↻</button></div>
+                <div class="drawrow"><span class="ln">16</span><span class="drawrow__stem">Arrange the letters of "TABLE" so the vowels stay together. How many arrangements?</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 16">↻</button></div>
+                <div class="drawrow"><span class="ln">17</span><span class="drawrow__stem">A number is increased by <span class="num">20</span>% then decreased by <span class="num">20</span>%. Find the net % change.</span><span class="badge sq b-med">M</span><button class="btn ghost" type="button" aria-label="Swap row 17">↻</button></div>
+                <div class="drawrow"><span class="ln">18</span><span class="drawrow__stem">A works twice as fast as B and thrice as fast as C. Together they finish in <span class="num">6</span> days. Find B's time alone.</span><span class="badge sq b-hard">H</span><button class="btn ghost" type="button" aria-label="Swap row 18">↻</button></div>
+                <div class="drawrow"><span class="ln">19</span><span class="drawrow__stem">Find the number of integer solutions to <span class="math">x<sup>2</sup> &minus; y<sup>2</sup> = 45</span>.</span><span class="badge sq b-hard">H</span><button class="btn ghost" type="button" aria-label="Swap row 19">↻</button></div>
+                <div class="drawrow"><span class="ln">20</span><span class="drawrow__stem">Trains <span class="num">150</span> m and <span class="num">120</span> m long cross in opposite directions at <span class="num">54</span> and <span class="num">36</span> km/h. Find the crossing time. <span class="badge b-draft">TITA</span></span><span class="badge sq b-hard">H</span><button class="btn ghost" type="button" aria-label="Swap row 20">↻</button></div>
+              </div>
+            </details>
+          </div>
+          <p class="tiny" style="padding:0 var(--sp-5) var(--sp-5)">A passage set (if drawn) would show one row for the whole group, with no per-row swap — it is re-drawn only as a unit (BANK-6, QUIZ-3).</p>
+        </div>
+      </div>
+
+      <div class="rowflex-between">
+        <a class="btn sec" href="builder-define.html">&larr; Back</a>
+        <a class="btn" href="builder-scoring.html">Continue</a>
+      </div>
+
+      <!-- ===================================================================
+           Bonus state — composition report where a passage set IS drawn, to
+           demonstrate the component's actual point (QUIZ-3): a different,
+           genuinely Verbal quiz, since Quant carries no passage content.
+           =================================================================== -->
+      <div class="mock-state"><b>State — composition with a passage set</b> <span>a Verbal quiz (Reading Comprehension Set 13) &middot; composition-report A's canonical case</span></div>
+
+      <div class="card stack" style="max-width:560px">
+        <span class="wlabel" style="margin:0">Composition &middot; Reading Comprehension Set 13</span>
+        <p><b>1 four-question RC set + 16 standalone = 20 questions.</b> Passage sets stay intact and appear consecutively in the run.</p>
+        <table class="spec">
+          <tbody>
+            <tr><td>Passage sets</td><td class="n">1 (4 questions)</td></tr>
+            <tr><td>Standalone</td><td class="n">16</td></tr>
+            <tr><td>Easy / Medium / Hard</td><td class="n">5 / 11 / 4</td></tr>
+            <tr><td>With images</td><td class="n">0</td></tr>
+            <tr><td>TITA</td><td class="n">0</td></tr>
+            <tr><td>Previously used</td><td class="n">0</td></tr>
+            <tr><td>Max score</td><td class="n">60 + 10 bonus</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ===================================================================
+           Bonus state — pool exhaustion (PRD open question 1: "fail loudly,
+           draw fewer, or reuse with a warning?"). Resolved here as reuse
+           with an explicit, visible flag — never silent — the same
+           direction admin.html's own difficulty-mix note points ("asking
+           for more will reuse questions"). A judgement call, logged in
+           SYSTEM-GAPS since JOURNEYS leaves it open.
+           =================================================================== -->
+      <div class="mock-state"><b>State — pool exhaustion, resolved by reuse</b> <span>a different quiz &middot; LR Sprint 7 &middot; not enough unused Hard remain</span></div>
+
+      <div class="card stack" style="max-width:640px">
+        <span class="wlabel" style="margin:0">Composition &middot; LR Sprint 7</span>
+        <div class="alert a-warn">
+          <span aria-hidden="true">▲</span>
+          <span>Only <b class="num">6</b> unused Hard questions remain in Logical Reasoning; this draw wants <b class="num">8</b>. The remaining <b class="num">2</b> slots are filled by previously-used questions, flagged below rather than left empty or drawn from an easier bucket silently.</span>
+        </div>
+        <div class="stack" style="gap:0">
+          <div class="drawrow"><span class="ln">7</span><span class="drawrow__stem">Six friends sit in a row facing north. Ravi is not at either end…</span><span class="badge sq b-hard">H</span><span class="badge b-used">Reused</span></div>
+          <div class="drawrow"><span class="ln">8</span><span class="drawrow__stem">Assertion&ndash;Reason: every LR puzzle with 6 entities has a unique solution…</span><span class="badge sq b-hard">H</span><span class="badge b-used">Reused</span></div>
+        </div>
+        <p class="tiny">Reused questions are still retired at lock like any other drawn question — reuse does not exempt them from QUIZ-5.</p>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

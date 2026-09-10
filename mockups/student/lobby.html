@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lobby — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html" class="on" aria-current="page">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <!-- ===== lobby-block A — fact grid + countdown hero ================
+           Seat is claimed; the quiz has not opened. Everything a student
+           needs before committing is on one screen without scrolling. -->
+      <div class="lobby">
+        <div class="lobby__head">
+          <span class="chip-sec b-quant">Quant</span>
+          <span class="badge b-open">● Room open · seat held</span>
+        </div>
+        <h1 class="lobby__title">Weekly Quant Sprint #27</h1>
+
+        <!-- countdown-timer A — digits + label. Rendered at a fixed value;
+             nothing counts down in a mockup. -->
+        <div class="card lobby__hero">
+          <span class="tiny">Opens in</span>
+          <div class="cd-digits">00:04:12</div>
+          <span class="tiny">Wed <span class="num">2 Sep 2026</span>, <span class="num">9:30 PM</span> IST</span>
+        </div>
+
+        <dl class="facts">
+          <div class="fact"><dt>Questions</dt><dd>20</dd></div>
+          <div class="fact"><dt>Per question</dt><dd>45<small>s</small></dd></div>
+          <div class="fact"><dt>Window</dt><dd>25<small> min</small></dd></div>
+          <div class="fact"><dt>Seats left</dt><dd>89<small> of 120</small></dd></div>
+        </dl>
+
+        <!-- Both irreversible rules, stated here because after the first
+             question there is nowhere left to say them. Marks come from the
+             quiz, never from a hardcoded scheme. -->
+        <div class="alert a-warn">
+          <span aria-hidden="true">▲</span>
+          <span><span class="num">+3</span> correct · <span class="num">−1</span> wrong · up to <span class="num">+0.5</span> speed bonus. Answers lock on submit, and a skipped question cannot be returned to.</span>
+        </div>
+
+        <div class="alert a-info">
+          <span aria-hidden="true">●</span>
+          <span>You go at your own pace. Nobody waits for anyone, and nothing about anyone else's progress is shown until the window closes.</span>
+        </div>
+
+        <div class="lobby__foot">
+          <button class="btn block" type="button" disabled>Opens at 9:30 PM</button>
+          <span class="tiny">The window closes at <span class="num">9:55 PM</span> IST for everyone, finished or not.</span>
+        </div>
+      </div>
+
+      <!-- ---------------- stacked states ---------------- -->
+
+      <div class="mock-state"><b>State — window open</b> <span>the countdown now runs to the hard deadline, not to the start</span></div>
+      <div class="lobby">
+        <div class="lobby__head">
+          <span class="chip-sec b-quant">Quant</span>
+          <span class="badge b-live">● Live</span>
+        </div>
+        <h1 class="lobby__title">Weekly Quant Sprint #27</h1>
+        <div class="card lobby__hero">
+          <span class="tiny">Window closes in</span>
+          <div class="cd-digits">00:24:37</div>
+          <span class="tiny">At <span class="num">9:55 PM</span> IST · <span class="num">20</span> questions need about <span class="num">15</span> minutes</span>
+        </div>
+        <dl class="facts">
+          <div class="fact"><dt>Questions</dt><dd>20</dd></div>
+          <div class="fact"><dt>Per question</dt><dd>45<small>s</small></dd></div>
+          <div class="fact"><dt>Window left</dt><dd>24<small> min</small></dd></div>
+          <div class="fact"><dt>Seats left</dt><dd>31<small> of 120</small></dd></div>
+        </dl>
+        <div class="alert a-warn">
+          <span aria-hidden="true">▲</span>
+          <span><span class="num">+3</span> correct · <span class="num">−1</span> wrong · up to <span class="num">+0.5</span> speed bonus. Answers lock on submit, and a skipped question cannot be returned to.</span>
+        </div>
+        <div class="lobby__foot">
+          <a class="btn block" href="lobby.html">Start quiz</a>
+          <span class="tiny">The clock on question 1 starts the moment this screen goes.</span>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — no negative marking</b> <span>a different quiz; the rules strip states the absence rather than hiding</span></div>
+      <div class="lobby">
+        <div class="lobby__head">
+          <span class="chip-sec b-verbal">Verbal</span>
+          <span class="badge b-open">● Room open · seat held</span>
+        </div>
+        <h1 class="lobby__title">Reading Comprehension Set 12</h1>
+        <div class="card lobby__hero">
+          <span class="tiny">Opens in</span>
+          <div class="cd-digits">00:01:48</div>
+          <span class="tiny">Thu <span class="num">3 Sep 2026</span>, <span class="num">9:00 PM</span> IST</span>
+        </div>
+        <dl class="facts">
+          <div class="fact"><dt>Questions</dt><dd>16</dd></div>
+          <div class="fact"><dt>Per question</dt><dd>90<small>s</small></dd></div>
+          <div class="fact"><dt>Window</dt><dd>30<small> min</small></dd></div>
+          <div class="fact"><dt>Seats left</dt><dd>104<small> of 120</small></dd></div>
+        </dl>
+        <div class="alert a-info">
+          <span aria-hidden="true">●</span>
+          <span><span class="num">+2</span> correct · <span class="num">no negative marking</span> · up to <span class="num">+0.4</span> speed bonus. A wrong answer scores the same as a blank one. Answers still lock on submit.</span>
+        </div>
+        <div class="lobby__foot">
+          <button class="btn block" type="button" disabled>Opens at 9:00 PM</button>
+          <span class="tiny">Four passages, four questions each. Each passage stays on screen for its whole set.</span>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — last seats</b> <span>near the cap; the next student may be turned away</span></div>
+      <div class="lobby">
+        <div class="lobby__head">
+          <span class="chip-sec b-quant">Quant</span>
+          <span class="badge b-live">● Live</span>
+        </div>
+        <h1 class="lobby__title">Weekly Quant Sprint #27</h1>
+        <div class="card lobby__hero">
+          <span class="tiny">Window closes in</span>
+          <div class="cd-digits">00:11:02</div>
+          <span class="tiny">At <span class="num">9:55 PM</span> IST</span>
+        </div>
+        <dl class="facts">
+          <div class="fact"><dt>Questions</dt><dd>20</dd></div>
+          <div class="fact"><dt>Per question</dt><dd>45<small>s</small></dd></div>
+          <div class="fact"><dt>Window left</dt><dd>11<small> min</small></dd></div>
+          <div class="fact"><dt>Seats left</dt><dd>3<small> of 120</small></dd></div>
+        </dl>
+        <div class="alert a-dgr">
+          <span aria-hidden="true">▲</span>
+          <span><span class="num">3</span> seats left. Your seat is already held — leaving this screen does not give it up, but the room may be full for anyone still deciding.</span>
+        </div>
+        <div class="lobby__foot">
+          <a class="btn block" href="lobby.html">Start quiz</a>
+          <span class="tiny"><span class="num">11</span> minutes is enough for about <span class="num">14</span> of <span class="num">20</span> questions at <span class="num">45</span>s each.</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

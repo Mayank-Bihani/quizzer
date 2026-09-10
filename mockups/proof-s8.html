@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S8 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S8 — responsive proof</h1>
+    <p class="tiny">Every S8 screen at <span class="num">390</span>, <span class="num">820</span> and <span class="num">1440</span>. Frames are real iframes at exact CSS widths. Picks built: file-dropzone A (single zone, two file types) · csv-validation-preview B (errors first, valid collapsed) · import-error-summary A (grouped by cause) · import-commit-bar A (sticky footer bar). Verified with headless Chrome (<code class="tiny">body.scrollWidth === clientWidth</code>) at 390/820/1440 on all three files, including with every <code class="tiny">&lt;details&gt;</code> disclosure forced open — zero overflow, zero touch targets under 44px.</p>
+    <p class="tiny">Schema note: every column name and error message here quotes the real bank schema (<code class="tiny">[[BANK]] §3</code>) — <code class="tiny">type, topic, subtopic, difficulty, format, passage_ref, body, image, option_a..d, correct, numeric_answer, tolerance, explanation, source</code> — not the design-system guideline's invented <code class="tiny">stem, section, correct_option</code>, which appears exactly once, deliberately, as the legacy file rejected in the "nothing importable" state.</p>
+    <p class="tiny">Continuity with earlier sprints: the 200-rows / 194-valid / 6-errors numbers reconcile exactly with console-home.html's (S7) "needs attention" alert — "The CSV import from 2 Sep, 6:14 PM committed 194 of 200 rows — 6 errors were skipped." That alert's "Review the import log" link and both of bank.html's "Import CSV" buttons, placeholders since S7, now point at real S8 screens.</p>
+  </div>
+
+  <section>
+    <h2>Import — upload</h2>
+    <p class="tiny">file-dropzone A: idle · drag-over · uploading (CSV done, ZIP in progress, reusing S2's <code class="tiny">.pbar</code>) · upload failed (transport error, before any CSV parsing).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/import-upload.html" title="Import upload at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/import-upload.html" title="Import upload at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/import-upload.html" title="Import upload at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Import — validation preview</h2>
+    <p class="tiny">csv-validation-preview B (errors first, valid collapsed) + import-error-summary A (grouped by cause) · states: mixed (200 rows, 6 errors across 6 causes, 194 valid — open "Show 194 valid rows" to see the zero-JS <code class="tiny">&lt;details&gt;</code> disclosure) · all valid · nothing importable (rejected legacy header).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/import-preview.html" title="Import preview at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/import-preview.html" title="Import preview at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/import-preview.html" title="Import preview at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Import — commit confirm &amp; import failed</h2>
+    <p class="tiny">import-commit-bar A (sticky footer bar) · states: commit confirm (nothing written yet) · committing (chunked, reuses <code class="tiny">.pbar</code>) · success (194 added, reconciles with console-home) · import failed (a mid-commit chunk failure rolls the whole import back per <code class="tiny">[[BANK]] §3.3</code>'s <code class="tiny">import_id</code> mechanism — the bank is stated as unchanged, never "partially imported").</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/import-commit.html" title="Import commit at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/import-commit.html" title="Import commit at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/import-commit.html" title="Import commit at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

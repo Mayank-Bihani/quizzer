@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Join by room code — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html" class="on" aria-current="page">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <h1 class="phdr__title">Join by room code</h1>
+            <p class="phdr__sub">Three letters, then four digits. Codes appear here and in the Telegram group five minutes before a quiz opens.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="join">
+        <div class="card join__form">
+          <!-- join-room-code A. The eight boxes are decoration: the real control
+               is one <input>, so paste, autofill, the caret and a screen reader
+               all work. The hyphen is ignored on paste and the value is
+               uppercased. Validation happens on submit only — validating per
+               character would leak whether a room exists. -->
+          <div class="field">
+            <label class="lbl" for="code-idle">Room code</label>
+            <div class="codefield">
+              <input id="code-idle" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="8" placeholder="QNT-0000" aria-describedby="code-help">
+              <div class="codeslots" aria-hidden="true">
+                <span class="slot empty">Q</span>
+                <span class="slot empty">N</span>
+                <span class="slot empty">T</span>
+                <span class="dash">–</span>
+                <span class="slot empty">0</span>
+                <span class="slot empty">0</span>
+                <span class="slot empty">0</span>
+                <span class="slot empty">0</span>
+              </div>
+            </div>
+            <p class="help" id="code-help">The three letters tell you the section — QNT is Quant, VRB is Verbal, LRN is Logical Reasoning.</p>
+          </div>
+          <button class="btn block" type="button" disabled>Join quiz</button>
+        </div>
+
+        <div class="join__alt">
+          <span class="tiny">You do not need a code for a quiz that is already on your Home screen.</span>
+          <a class="btn ghost" href="home.html">Pick an open quiz instead</a>
+        </div>
+      </div>
+
+      <!-- ---------------- stacked states ---------------- -->
+
+      <div class="mock-state"><b>State — typing</b> <span>four characters entered, caret on slot 5</span></div>
+      <div class="card join__form">
+        <div class="field">
+          <label class="lbl" for="code-typing">Room code</label>
+          <div class="codefield">
+            <input id="code-typing" type="text" value="QNT8" autocomplete="off" spellcheck="false" maxlength="8">
+            <div class="codeslots" aria-hidden="true">
+              <span class="slot">Q</span>
+              <span class="slot">N</span>
+              <span class="slot">T</span>
+              <span class="dash">–</span>
+              <span class="slot on">8</span>
+              <span class="slot empty"> </span>
+              <span class="slot empty"> </span>
+              <span class="slot empty"> </span>
+            </div>
+          </div>
+        </div>
+        <button class="btn block" type="button" disabled>Join quiz</button>
+      </div>
+
+      <div class="mock-state"><b>State — invalid code</b> <span>submitted; no open room matches</span></div>
+      <div class="card join__form">
+        <div class="field">
+          <label class="lbl" for="code-err">Room code</label>
+          <div class="codefield">
+            <input id="code-err" type="text" value="QNT0000" autocomplete="off" spellcheck="false" maxlength="8" aria-invalid="true" aria-describedby="code-err-msg">
+            <div class="codeslots" aria-hidden="true">
+              <span class="slot err">Q</span>
+              <span class="slot err">N</span>
+              <span class="slot err">T</span>
+              <span class="dash">–</span>
+              <span class="slot err">0</span>
+              <span class="slot err">0</span>
+              <span class="slot err">0</span>
+              <span class="slot err">0</span>
+            </div>
+          </div>
+          <!-- The message never distinguishes "wrong code" from "room not open
+               yet", so the field cannot be used to probe for live rooms. -->
+          <p class="help err" id="code-err-msg" role="alert"><span aria-hidden="true">▲</span> No open room with that code. Codes are released five minutes before a quiz opens.</p>
+        </div>
+        <button class="btn block" type="button">Join quiz</button>
+        <a class="btn ghost" href="home.html">Back to Home</a>
+      </div>
+
+      <div class="mock-state"><b>State — joining</b> <span>claiming a seat</span></div>
+      <div class="card join__form">
+        <div class="field">
+          <label class="lbl" for="code-busy">Room code</label>
+          <div class="codefield">
+            <input id="code-busy" type="text" value="QNT8417" autocomplete="off" spellcheck="false" maxlength="8" disabled>
+            <div class="codeslots" aria-hidden="true">
+              <span class="slot">Q</span>
+              <span class="slot">N</span>
+              <span class="slot">T</span>
+              <span class="dash">–</span>
+              <span class="slot">8</span>
+              <span class="slot">4</span>
+              <span class="slot">1</span>
+              <span class="slot">7</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn block" type="button" disabled>
+          <span class="spin" aria-hidden="true"></span>
+          Taking your seat…
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

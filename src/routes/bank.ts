@@ -1,0 +1,1 @@
+// POST /api/bank/import/preview, POST /api/bank/import/commit, GET /api/bank/questions, GET|PATCH|DELETE /api/bank/questions/:id (PATCH 400s on correctOption/numericAnswer/imageUrl, and on optionA..D once the question is used), GET /api/bank/passages — BANK.md §5

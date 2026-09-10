@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student home — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s0.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html" class="on" aria-current="page">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <div class="eyebrow">Wednesday, 2 September</div>
+            <h1 class="phdr__title">Good evening, Ananya</h1>
+            <p class="phdr__sub">You have taken <span class="num">14</span> quizzes. Weekly boards refresh on Monday.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- open now -->
+      <section class="home-section" aria-labelledby="open-h">
+        <div class="home-section__head">
+          <h2 id="open-h">Open now</h2>
+          <span class="badge b-open">● Room open</span>
+        </div>
+        <div class="quiz-grid">
+          <article class="card quiz-card">
+            <div class="quiz-card__head">
+              <div>
+                <span class="chip-sec b-quant">Quant</span>
+                <div class="quiz-card__name">Weekly Quant Sprint #27</div>
+              </div>
+              <span class="badge b-live">● Live</span>
+            </div>
+            <div class="quiz-card__facts tiny">
+              <div><b class="num">20</b> questions</div>
+              <div><b class="num">45</b>s per question</div>
+              <div>Window <b class="num">25</b> min</div>
+              <div><b class="num">31</b>/120 seats</div>
+            </div>
+            <div class="alert a-warn">
+              <span aria-hidden="true">⏱</span>
+              <span>Closes at <b class="num">9:55 PM</b> IST for everyone, whether or not you have finished.</span>
+            </div>
+            <div class="quiz-card__foot">
+              <span class="tiny">Room <b class="num">QNT-8417</b></span>
+              <a class="btn" href="home.html">Join quiz</a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- upcoming -->
+      <section class="home-section" aria-labelledby="up-h">
+        <div class="home-section__head">
+          <h2 id="up-h">Upcoming</h2>
+          <span class="tiny">Room codes appear 5 minutes before start</span>
+        </div>
+        <div class="quiz-grid">
+          <article class="card quiz-card">
+            <div class="quiz-card__head">
+              <div>
+                <span class="chip-sec b-verbal">Verbal</span>
+                <div class="quiz-card__name">Reading Comprehension Set 12</div>
+              </div>
+              <span class="badge b-sched">◇ Scheduled</span>
+            </div>
+            <div class="quiz-card__facts tiny">
+              <div><b class="num">16</b> questions</div>
+              <div><b class="num">90</b>s per question</div>
+              <div>Window <b class="num">30</b> min</div>
+            </div>
+            <div class="quiz-card__foot">
+              <span class="tiny">Thu <b class="num">3 Sep</b>, <b class="num">9:00 PM</b> IST</span>
+              <span class="tiny">in <b class="num">21</b> hours</span>
+            </div>
+          </article>
+          <article class="card quiz-card">
+            <div class="quiz-card__head">
+              <div>
+                <span class="chip-sec b-lr">Logical Reasoning</span>
+                <div class="quiz-card__name">Arrangements &amp; Puzzles — Friday Drill</div>
+              </div>
+              <span class="badge b-sched">◇ Scheduled</span>
+            </div>
+            <div class="quiz-card__facts tiny">
+              <div><b class="num">18</b> questions</div>
+              <div><b class="num">60</b>s per question</div>
+              <div>Window <b class="num">25</b> min</div>
+            </div>
+            <div class="quiz-card__foot">
+              <span class="tiny">Fri <b class="num">4 Sep</b>, <b class="num">9:00 PM</b> IST</span>
+              <span class="tiny">in <b class="num">2</b> days</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- recent -->
+      <section class="home-section" aria-labelledby="rec-h">
+        <div class="home-section__head">
+          <h2 id="rec-h">Your recent quizzes</h2>
+          <a class="tiny" href="home.html">See all 14</a>
+        </div>
+        <div class="card stack">
+          <a class="panel panel--link" href="home.html">
+            <div class="result-row">
+              <div class="grow">
+                <div class="rowflex" style="gap:var(--sp-3)">
+                  <span class="chip-sec b-quant">Quant</span>
+                  <span class="tiny">31 Aug, 9:00 PM</span>
+                </div>
+                <div class="truncate">Weekly Quant Sprint #26</div>
+              </div>
+              <div style="text-align:right">
+                <div class="result-row__score num">54.4</div>
+                <div class="tiny">Rank <b class="num">7</b> of <b class="num">87</b></div>
+              </div>
+            </div>
+          </a>
+          <a class="panel panel--link" href="home.html">
+            <div class="result-row">
+              <div class="grow">
+                <div class="rowflex" style="gap:var(--sp-3)">
+                  <span class="chip-sec b-verbal">Verbal</span>
+                  <span class="tiny">29 Aug, 9:00 PM</span>
+                </div>
+                <div class="truncate">Para Jumbles &amp; Summary — Set 9</div>
+              </div>
+              <div style="text-align:right">
+                <div class="result-row__score num">38.0</div>
+                <div class="tiny">Rank <b class="num">23</b> of <b class="num">74</b></div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- states stacked for review -->
+      <div class="mock-state"><b>State — empty</b> <span>a new student, before their first quiz</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>No quizzes yet</h5>
+        <p>When an admin schedules a quiz it will appear here, and in the Telegram group two hours before it starts.</p>
+      </div>
+
+      <div class="mock-state"><b>State — loading</b> <span>first paint</span></div>
+      <div class="card stack" aria-hidden="true">
+        <div class="skel" style="height:14px;width:38%"></div>
+        <div class="skel" style="height:52px"></div>
+        <div class="skel" style="height:52px;width:82%"></div>
+      </div>
+
+      <div class="mock-state"><b>State — error</b> <span>list failed to load</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-error.svg" alt="">
+        <h5>Could not load your quizzes</h5>
+        <p>Check your connection and try again. Your history and results are safe.</p>
+        <button class="btn sec">Retry</button>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

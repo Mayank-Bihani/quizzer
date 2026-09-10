@@ -1,0 +1,1 @@
+// QUIZZING results: finalize expired runs via the runtime closure path, rank stored totals and publish board atomically, participant review with separate unit timings, history and report queries. No duplicate answer-write path — QUIZZING.md §6-7.

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>You did not take this quiz — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s6.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html" class="on" aria-current="page">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <h1 class="phdr__title">You did not take this quiz</h1>
+        <p class="phdr__sub">SJ-10: a non-participant sees neither the review nor the per-quiz leaderboard for a quiz they missed. This is a normal outcome, not an error — no error-red, no exclamation glyph, same neutral illustration History's own empty state uses.</p>
+      </div>
+
+      <!-- ===================================================================
+           Reached from History's "not attempted" row. Back-link returns to
+           History, where this row already lives. ===========================
+      -->
+      <div class="mock-state"><b>State — reached from History</b> <span>tapped "Details →" on the muted "not attempted" row</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>Seating Arrangements — Circular Set 6</h5>
+        <p>You weren't in the room when this one ran on <span class="num">27 Aug</span>, so there's no attempt to review and no rank to show — both are limited to students who took the quiz.</p>
+        <a class="btn sec" href="history.html">Back to History</a>
+      </div>
+
+      <!-- ===================================================================
+           Reached from a shared link — e.g. someone pasted the per-quiz
+           leaderboard URL for a quiz this student missed. No "back to
+           History" affordance, because History isn't where they came from;
+           point at Home instead. =============================================
+      -->
+      <div class="mock-state"><b>State — reached from a shared link</b> <span>a classmate shared their per-quiz leaderboard URL for a quiz you missed</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>Weekly Verbal Sprint #14</h5>
+        <p>This leaderboard is only visible to students who took the quiz. You weren't a participant, so there's nothing here for you to see — but the weekly boards that aggregate everyone are still open.</p>
+        <div class="rowflex" style="justify-content:center">
+          <a class="btn" href="leaderboard-weekly.html">See weekly boards</a>
+          <a class="btn ghost sm" href="home.html">Home</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

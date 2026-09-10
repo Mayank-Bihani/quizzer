@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1390 2600" role="img" aria-labelledby="title desc" font-family="system-ui, sans-serif">
+<title id="title">Quizzer — V1 data schema · 13 tables</title><desc id="desc">2026-09-09 · Columns generated from migrations/0001_init.sql · FK lists identify referenced tables · Full constraints: DATA_MODEL.md</desc>
+<rect width="1390" height="2600" fill="#f5f7fb"/>
+<text x="30" y="42" font-size="25" fill="#142033" font-weight="700">Quizzer — V1 data schema · 13 tables</text>
+<text x="30" y="69" font-size="13" fill="#526075" font-weight="400">2026-09-09 · Columns generated from migrations/0001_init.sql · FK lists identify referenced tables · Full constraints: DATA_MODEL.md</text>
+<rect x="30" y="104" width="430" height="246" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="48" y="133" font-size="19" fill="#285fbd" font-weight="700">users</text>
+<text x="48" y="153" font-size="11" fill="#65718a" font-weight="600">AUTH</text>
+<text x="48" y="178" font-size="13" fill="#243247" font-weight="400">id: TEXT [PK]</text>
+<text x="48" y="199" font-size="13" fill="#243247" font-weight="400">google_sub: TEXT</text>
+<text x="48" y="220" font-size="13" fill="#243247" font-weight="400">email: TEXT</text>
+<text x="48" y="241" font-size="13" fill="#243247" font-weight="400">name: TEXT</text>
+<text x="48" y="262" font-size="13" fill="#243247" font-weight="400">picture_url: TEXT</text>
+<text x="48" y="283" font-size="13" fill="#243247" font-weight="400">role: TEXT</text>
+<text x="48" y="304" font-size="13" fill="#243247" font-weight="400">telegram_id: TEXT</text>
+<text x="48" y="325" font-size="13" fill="#243247" font-weight="400">created_at: INTEGER</text>
+<rect x="480" y="104" width="430" height="347" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="498" y="133" font-size="19" fill="#26744e" font-weight="700">passages</text>
+<text x="498" y="153" font-size="11" fill="#65718a" font-weight="600">BANK</text>
+<text x="498" y="178" font-size="13" fill="#243247" font-weight="400">id: TEXT [PK]</text>
+<text x="498" y="199" font-size="13" fill="#243247" font-weight="400">type: TEXT</text>
+<text x="498" y="220" font-size="13" fill="#243247" font-weight="400">topic: TEXT</text>
+<text x="498" y="241" font-size="13" fill="#243247" font-weight="400">title: TEXT</text>
+<text x="498" y="262" font-size="13" fill="#243247" font-weight="400">body_md: TEXT</text>
+<text x="498" y="283" font-size="13" fill="#243247" font-weight="400">image_key: TEXT</text>
+<text x="498" y="304" font-size="13" fill="#243247" font-weight="400">source: TEXT</text>
+<text x="498" y="325" font-size="13" fill="#243247" font-weight="400">used_in_quiz_id: TEXT</text>
+<text x="498" y="346" font-size="13" fill="#243247" font-weight="400">import_id: TEXT</text>
+<text x="498" y="367" font-size="13" fill="#243247" font-weight="400">created_by: TEXT</text>
+<text x="498" y="388" font-size="13" fill="#243247" font-weight="400">created_at: INTEGER</text>
+<text x="498" y="415" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<text x="498" y="434" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="930" y="104" width="430" height="639" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="948" y="133" font-size="19" fill="#26744e" font-weight="700">questions</text>
+<text x="948" y="153" font-size="11" fill="#65718a" font-weight="600">BANK</text>
+<text x="948" y="178" font-size="13" fill="#243247" font-weight="400">id: TEXT [PK]</text>
+<text x="948" y="199" font-size="13" fill="#243247" font-weight="400">type: TEXT</text>
+<text x="948" y="220" font-size="13" fill="#243247" font-weight="400">topic: TEXT</text>
+<text x="948" y="241" font-size="13" fill="#243247" font-weight="400">subtopic: TEXT</text>
+<text x="948" y="262" font-size="13" fill="#243247" font-weight="400">difficulty: TEXT</text>
+<text x="948" y="283" font-size="13" fill="#243247" font-weight="400">format: TEXT</text>
+<text x="948" y="304" font-size="13" fill="#243247" font-weight="400">passage_id: TEXT</text>
+<text x="948" y="325" font-size="13" fill="#243247" font-weight="400">group_position: INTEGER</text>
+<text x="948" y="346" font-size="13" fill="#243247" font-weight="400">body_md: TEXT</text>
+<text x="948" y="367" font-size="13" fill="#243247" font-weight="400">image_key: TEXT</text>
+<text x="948" y="388" font-size="13" fill="#243247" font-weight="400">option_a: TEXT</text>
+<text x="948" y="409" font-size="13" fill="#243247" font-weight="400">option_b: TEXT</text>
+<text x="948" y="430" font-size="13" fill="#243247" font-weight="400">option_c: TEXT</text>
+<text x="948" y="451" font-size="13" fill="#243247" font-weight="400">option_d: TEXT</text>
+<text x="948" y="472" font-size="13" fill="#243247" font-weight="400">correct_option: TEXT</text>
+<text x="948" y="493" font-size="13" fill="#243247" font-weight="400">numeric_answer: REAL</text>
+<text x="948" y="514" font-size="13" fill="#243247" font-weight="400">numeric_tolerance: REAL</text>
+<text x="948" y="535" font-size="13" fill="#243247" font-weight="400">explanation_md: TEXT</text>
+<text x="948" y="556" font-size="13" fill="#243247" font-weight="400">source: TEXT</text>
+<text x="948" y="577" font-size="13" fill="#243247" font-weight="400">used_in_quiz_id: TEXT</text>
+<text x="948" y="598" font-size="13" fill="#243247" font-weight="400">used_in_quiz_number: INTEGER</text>
+<text x="948" y="619" font-size="13" fill="#243247" font-weight="400">import_id: TEXT</text>
+<text x="948" y="640" font-size="13" fill="#243247" font-weight="400">created_by: TEXT</text>
+<text x="948" y="661" font-size="13" fill="#243247" font-weight="400">created_at: INTEGER</text>
+<text x="948" y="688" font-size="12" fill="#586a80" font-weight="400">FK -&gt; passages</text>
+<text x="948" y="707" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<text x="948" y="726" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="30" y="767" width="430" height="391" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="48" y="796" font-size="19" fill="#9c4b19" font-weight="700">quiz_templates</text>
+<text x="48" y="816" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="48" y="841" font-size="13" fill="#243247" font-weight="400">id: TEXT [PK]</text>
+<text x="48" y="862" font-size="13" fill="#243247" font-weight="400">name: TEXT</text>
+<text x="48" y="883" font-size="13" fill="#243247" font-weight="400">type: TEXT</text>
+<text x="48" y="904" font-size="13" fill="#243247" font-weight="400">question_count: INTEGER</text>
+<text x="48" y="925" font-size="13" fill="#243247" font-weight="400">difficulty_mix: TEXT</text>
+<text x="48" y="946" font-size="13" fill="#243247" font-weight="400">timing_policy: TEXT</text>
+<text x="48" y="967" font-size="13" fill="#243247" font-weight="400">slack_sec: INTEGER</text>
+<text x="48" y="988" font-size="13" fill="#243247" font-weight="400">join_window_sec: INTEGER</text>
+<text x="48" y="1009" font-size="13" fill="#243247" font-weight="400">marks_correct: REAL</text>
+<text x="48" y="1030" font-size="13" fill="#243247" font-weight="400">marks_wrong: REAL</text>
+<text x="48" y="1051" font-size="13" fill="#243247" font-weight="400">seat_cap: INTEGER</text>
+<text x="48" y="1072" font-size="13" fill="#243247" font-weight="400">rrule: TEXT</text>
+<text x="48" y="1093" font-size="13" fill="#243247" font-weight="400">active: INTEGER</text>
+<text x="48" y="1114" font-size="13" fill="#243247" font-weight="400">created_by: TEXT</text>
+<text x="48" y="1141" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="480" y="767" width="430" height="641" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="498" y="796" font-size="19" fill="#9c4b19" font-weight="700">quizzes</text>
+<text x="498" y="816" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="498" y="841" font-size="13" fill="#243247" font-weight="400">id: TEXT [PK]</text>
+<text x="498" y="862" font-size="13" fill="#243247" font-weight="400">quiz_number: INTEGER</text>
+<text x="498" y="883" font-size="13" fill="#243247" font-weight="400">template_id: TEXT</text>
+<text x="498" y="904" font-size="13" fill="#243247" font-weight="400">title: TEXT</text>
+<text x="498" y="925" font-size="13" fill="#243247" font-weight="400">type: TEXT</text>
+<text x="498" y="946" font-size="13" fill="#243247" font-weight="400">question_count: INTEGER</text>
+<text x="498" y="967" font-size="13" fill="#243247" font-weight="400">unit_count: INTEGER</text>
+<text x="498" y="988" font-size="13" fill="#243247" font-weight="400">difficulty_mix: TEXT</text>
+<text x="498" y="1009" font-size="13" fill="#243247" font-weight="400">timing_policy: TEXT</text>
+<text x="498" y="1030" font-size="13" fill="#243247" font-weight="400">slack_sec: INTEGER</text>
+<text x="498" y="1051" font-size="13" fill="#243247" font-weight="400">join_window_sec: INTEGER</text>
+<text x="498" y="1072" font-size="13" fill="#243247" font-weight="400">scheduled_at: INTEGER</text>
+<text x="498" y="1093" font-size="13" fill="#243247" font-weight="400">lobby_opens_at: INTEGER</text>
+<text x="498" y="1114" font-size="13" fill="#243247" font-weight="400">ends_at: INTEGER</text>
+<text x="498" y="1135" font-size="13" fill="#243247" font-weight="400">status: TEXT</text>
+<text x="498" y="1156" font-size="13" fill="#243247" font-weight="400">room_code: TEXT</text>
+<text x="498" y="1177" font-size="13" fill="#243247" font-weight="400">seat_cap: INTEGER</text>
+<text x="498" y="1198" font-size="13" fill="#243247" font-weight="400">window_sec: INTEGER</text>
+<text x="498" y="1219" font-size="13" fill="#243247" font-weight="400">marks_correct: REAL</text>
+<text x="498" y="1240" font-size="13" fill="#243247" font-weight="400">marks_wrong: REAL</text>
+<text x="498" y="1261" font-size="13" fill="#243247" font-weight="400">created_by: TEXT</text>
+<text x="498" y="1282" font-size="13" fill="#243247" font-weight="400">created_at: INTEGER</text>
+<text x="498" y="1303" font-size="13" fill="#243247" font-weight="400">opened_at: INTEGER</text>
+<text x="498" y="1324" font-size="13" fill="#243247" font-weight="400">ended_at: INTEGER</text>
+<text x="498" y="1345" font-size="13" fill="#243247" font-weight="400">board_computed_at: INTEGER</text>
+<text x="498" y="1372" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quiz_templates</text>
+<text x="498" y="1391" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="930" y="767" width="430" height="221" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="948" y="796" font-size="19" fill="#9c4b19" font-weight="700">quiz_units</text>
+<text x="948" y="816" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="948" y="841" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="948" y="862" font-size="13" fill="#243247" font-weight="400">unit_position: INTEGER [PK]</text>
+<text x="948" y="883" font-size="13" fill="#243247" font-weight="400">kind: TEXT</text>
+<text x="948" y="904" font-size="13" fill="#243247" font-weight="400">passage_id: TEXT</text>
+<text x="948" y="925" font-size="13" fill="#243247" font-weight="400">time_limit_sec: INTEGER</text>
+<text x="948" y="952" font-size="12" fill="#586a80" font-weight="400">FK -&gt; passages</text>
+<text x="948" y="971" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<rect x="30" y="1432" width="430" height="240" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="48" y="1461" font-size="19" fill="#9c4b19" font-weight="700">quiz_questions</text>
+<text x="48" y="1481" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="48" y="1506" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="48" y="1527" font-size="13" fill="#243247" font-weight="400">question_id: TEXT</text>
+<text x="48" y="1548" font-size="13" fill="#243247" font-weight="400">position: INTEGER [PK]</text>
+<text x="48" y="1569" font-size="13" fill="#243247" font-weight="400">unit_position: INTEGER</text>
+<text x="48" y="1590" font-size="13" fill="#243247" font-weight="400">sub_position: INTEGER</text>
+<text x="48" y="1617" font-size="12" fill="#586a80" font-weight="400">FK -&gt; questions</text>
+<text x="48" y="1636" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quiz_units</text>
+<text x="48" y="1655" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<rect x="480" y="1432" width="430" height="200" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="498" y="1461" font-size="19" fill="#9c4b19" font-weight="700">quiz_seats</text>
+<text x="498" y="1481" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="498" y="1506" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="498" y="1527" font-size="13" fill="#243247" font-weight="400">seat_no: INTEGER [PK]</text>
+<text x="498" y="1548" font-size="13" fill="#243247" font-weight="400">user_id: TEXT</text>
+<text x="498" y="1569" font-size="13" fill="#243247" font-weight="400">claimed_at: INTEGER</text>
+<text x="498" y="1596" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<text x="498" y="1615" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="930" y="1432" width="430" height="389" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="948" y="1461" font-size="19" fill="#9c4b19" font-weight="700">participants</text>
+<text x="948" y="1481" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="948" y="1506" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="948" y="1527" font-size="13" fill="#243247" font-weight="400">user_id: TEXT [PK]</text>
+<text x="948" y="1548" font-size="13" fill="#243247" font-weight="400">seat_no: INTEGER</text>
+<text x="948" y="1569" font-size="13" fill="#243247" font-weight="400">started_at: INTEGER</text>
+<text x="948" y="1590" font-size="13" fill="#243247" font-weight="400">current_unit_position: INTEGER</text>
+<text x="948" y="1611" font-size="13" fill="#243247" font-weight="400">finished_at: INTEGER</text>
+<text x="948" y="1632" font-size="13" fill="#243247" font-weight="400">total_score: REAL</text>
+<text x="948" y="1653" font-size="13" fill="#243247" font-weight="400">correct_count: INTEGER</text>
+<text x="948" y="1674" font-size="13" fill="#243247" font-weight="400">wrong_count: INTEGER</text>
+<text x="948" y="1695" font-size="13" fill="#243247" font-weight="400">skipped_count: INTEGER</text>
+<text x="948" y="1716" font-size="13" fill="#243247" font-weight="400">unanswered_count: INTEGER</text>
+<text x="948" y="1737" font-size="13" fill="#243247" font-weight="400">total_time_ms: INTEGER</text>
+<text x="948" y="1758" font-size="13" fill="#243247" font-weight="400">rank: INTEGER</text>
+<text x="948" y="1785" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<text x="948" y="1804" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="30" y="1845" width="430" height="347" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="48" y="1874" font-size="19" fill="#9c4b19" font-weight="700">participant_units</text>
+<text x="48" y="1894" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="48" y="1919" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="48" y="1940" font-size="13" fill="#243247" font-weight="400">user_id: TEXT [PK]</text>
+<text x="48" y="1961" font-size="13" fill="#243247" font-weight="400">unit_position: INTEGER [PK]</text>
+<text x="48" y="1982" font-size="13" fill="#243247" font-weight="400">started_at: INTEGER</text>
+<text x="48" y="2003" font-size="13" fill="#243247" font-weight="400">deadline_at: INTEGER</text>
+<text x="48" y="2024" font-size="13" fill="#243247" font-weight="400">submit_by_at: INTEGER</text>
+<text x="48" y="2045" font-size="13" fill="#243247" font-weight="400">closed_at: INTEGER</text>
+<text x="48" y="2066" font-size="13" fill="#243247" font-weight="400">close_reason: TEXT</text>
+<text x="48" y="2087" font-size="13" fill="#243247" font-weight="400">elapsed_ms: INTEGER</text>
+<text x="48" y="2108" font-size="13" fill="#243247" font-weight="400">submission_id: TEXT</text>
+<text x="48" y="2129" font-size="13" fill="#243247" font-weight="400">payload_hash: TEXT</text>
+<text x="48" y="2156" font-size="12" fill="#586a80" font-weight="400">FK -&gt; participants</text>
+<text x="48" y="2175" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quiz_units</text>
+<rect x="480" y="1845" width="430" height="326" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="498" y="1874" font-size="19" fill="#9c4b19" font-weight="700">answers</text>
+<text x="498" y="1894" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="498" y="1919" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT [PK]</text>
+<text x="498" y="1940" font-size="13" fill="#243247" font-weight="400">user_id: TEXT [PK]</text>
+<text x="498" y="1961" font-size="13" fill="#243247" font-weight="400">question_id: TEXT</text>
+<text x="498" y="1982" font-size="13" fill="#243247" font-weight="400">position: INTEGER [PK]</text>
+<text x="498" y="2003" font-size="13" fill="#243247" font-weight="400">unit_position: INTEGER</text>
+<text x="498" y="2024" font-size="13" fill="#243247" font-weight="400">status: TEXT</text>
+<text x="498" y="2045" font-size="13" fill="#243247" font-weight="400">chosen_option: TEXT</text>
+<text x="498" y="2066" font-size="13" fill="#243247" font-weight="400">numeric_value: REAL</text>
+<text x="498" y="2087" font-size="13" fill="#243247" font-weight="400">is_correct: INTEGER</text>
+<text x="498" y="2108" font-size="13" fill="#243247" font-weight="400">marks: REAL</text>
+<text x="498" y="2135" font-size="12" fill="#586a80" font-weight="400">FK -&gt; participant_units</text>
+<text x="498" y="2154" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quiz_questions</text>
+<rect x="930" y="1845" width="430" height="223" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="948" y="1874" font-size="19" fill="#9c4b19" font-weight="700">weekly_boards</text>
+<text x="948" y="1894" font-size="11" fill="#65718a" font-weight="600">QUIZZING</text>
+<text x="948" y="1919" font-size="13" fill="#243247" font-weight="400">week_start: TEXT [PK]</text>
+<text x="948" y="1940" font-size="13" fill="#243247" font-weight="400">type: TEXT [PK]</text>
+<text x="948" y="1961" font-size="13" fill="#243247" font-weight="400">user_id: TEXT [PK]</text>
+<text x="948" y="1982" font-size="13" fill="#243247" font-weight="400">quizzes_taken: INTEGER</text>
+<text x="948" y="2003" font-size="13" fill="#243247" font-weight="400">total_score: REAL</text>
+<text x="948" y="2024" font-size="13" fill="#243247" font-weight="400">rank: INTEGER</text>
+<text x="948" y="2051" font-size="12" fill="#586a80" font-weight="400">FK -&gt; users</text>
+<rect x="30" y="2216" width="430" height="265" rx="12" fill="white" stroke="#d4dce7"/>
+<text x="48" y="2245" font-size="19" fill="#087d8c" font-weight="700">telegram_posts</text>
+<text x="48" y="2265" font-size="11" fill="#65718a" font-weight="600">TELEGRAM</text>
+<text x="48" y="2290" font-size="13" fill="#243247" font-weight="400">quiz_id: TEXT</text>
+<text x="48" y="2311" font-size="13" fill="#243247" font-weight="400">kind: TEXT</text>
+<text x="48" y="2332" font-size="13" fill="#243247" font-weight="400">week_start: TEXT</text>
+<text x="48" y="2353" font-size="13" fill="#243247" font-weight="400">status: TEXT</text>
+<text x="48" y="2374" font-size="13" fill="#243247" font-weight="400">message_id: TEXT</text>
+<text x="48" y="2395" font-size="13" fill="#243247" font-weight="400">error: TEXT</text>
+<text x="48" y="2416" font-size="13" fill="#243247" font-weight="400">claimed_at: INTEGER</text>
+<text x="48" y="2437" font-size="13" fill="#243247" font-weight="400">sent_at: INTEGER</text>
+<text x="48" y="2464" font-size="12" fill="#586a80" font-weight="400">FK -&gt; quizzes</text>
+<text x="30" y="2519" font-size="14" fill="#243247" font-weight="400">Unit clocks and final responses belong to QUIZZING. BANK owns content and grouping; SCHEDULER owns no tables.</text>
+<text x="30" y="2545" font-size="14" fill="#243247" font-weight="400">All timestamps: epoch milliseconds. Allowances: seconds. No V1 speed-bonus or per-question timing fields.</text>
+</svg>

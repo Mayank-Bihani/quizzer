@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run — interruption, resume, late join — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s2.css">
+<link rel="stylesheet" href="../css/screens-s3.css">
+</head>
+<body>
+
+<main class="runpage">
+
+  <!-- ===================================================================
+       State 1 — reconnecting. The strip persists while the condition
+       holds, takes no focus and never disables the question underneath —
+       SJ-5: "does not steal focus or block answering."
+       =================================================================== -->
+  <div class="mock-state"><b>State — reconnecting</b> <span>inline-alert C · the question stays fully answerable while this shows · the per-question clock keeps running</span></div>
+
+  <section class="qcard" aria-label="Question 11, reconnecting">
+    <h1 class="sr-only">Question 11 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">11</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:15:52</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:50%"></span></span>
+        <span class="tiny num" aria-hidden="true">50%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Speed bonus decaying</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:22</span><span>this question</span></span>
+        </div>
+        <div class="tbar" aria-hidden="true">
+          <span class="tbar__grace" style="width:22%"></span>
+          <span class="tbar__mark" style="left:22%"></span>
+          <span class="tbar__fill" style="width:51%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <div class="strip a-warn" role="status" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Reconnecting… your timer is still running.</span>
+      </div>
+      <p class="stem">A train <span class="num">150</span> m long crosses a platform <span class="num">250</span> m long in <span class="num">20</span> seconds. What is the speed of the train in km/h?</p>
+      <fieldset class="opts">
+        <legend class="sr-only">Choose one option for question 11</legend>
+        <input class="sr-only" type="radio" name="q11" id="q11a">
+        <label class="opt" for="q11a"><span class="k" aria-hidden="true">A</span><span class="opt__txt"><span class="num">54</span> km/h</span></label>
+        <input class="sr-only" type="radio" name="q11" id="q11b" checked>
+        <label class="opt" for="q11b"><span class="k" aria-hidden="true">B</span><span class="opt__txt"><span class="num">72</span> km/h</span></label>
+        <input class="sr-only" type="radio" name="q11" id="q11c">
+        <label class="opt" for="q11c"><span class="k" aria-hidden="true">C</span><span class="opt__txt"><span class="num">80</span> km/h</span></label>
+        <input class="sr-only" type="radio" name="q11" id="q11d">
+        <label class="opt" for="q11d"><span class="k" aria-hidden="true">D</span><span class="opt__txt"><span class="num">90</span> km/h</span></label>
+      </fieldset>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button">Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       Component reference — the connection strip's three substates. Not a
+       separate counted screen state, just the family this sprint's
+       "reconnecting" state belongs to.
+       =================================================================== -->
+  <div class="mock-state"><b>State — connection strip, every substate</b> <span>inline-alert C, reserved for connection state during a run — never shares the toast surface (selections.md consequence 1)</span></div>
+
+  <div class="runref">
+    <div class="card stack">
+      <h2 class="h3">Connection strip — every substate</h2>
+      <div class="strip a-warn" role="status"><span class="dot" aria-hidden="true"></span><span>Reconnecting… your timer is still running.</span></div>
+      <div class="strip a-dgr" role="status"><span aria-hidden="true">⛌</span><span>Offline — your answer will submit when you're back.</span></div>
+      <div class="strip a-ok" role="status"><span aria-hidden="true">✓</span><span>Reconnected · 22 seconds left on this question.</span></div>
+      <p class="tiny">Slides in over the header, never covers the clocks, never takes focus, never disables Submit &amp; lock. Persists only while the condition holds.</p>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       State 2 — resumed after a longer disconnect. resumed-after-disconnect
+       B: the student chooses when to step back in, and the copy is explicit
+       that the clock did not pause (SJ-5, ROOM-13).
+       =================================================================== -->
+  <div class="mock-state"><b>State — resumed after disconnect</b> <span>resumed-after-disconnect B · one tap to continue · same question, less time</span></div>
+
+  <div class="runstate">
+    <div class="state">
+      <img src="../assets/illustrations/shade-waiting.svg" alt="">
+      <h1 class="h2">You're back</h1>
+      <p>You were on Q<span class="num">11</span> of Weekly Quant Sprint #27. <span class="num">18</span> seconds remain on this question — the clock kept running while you were away.</p>
+      <div class="state__actions">
+        <button class="btn" type="button">Continue Q<span class="num">11</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       State 3 — joined after the window opened. joined-late A: the
+       arithmetic is done for the student before the first question, and
+       the copy never states a marks scheme (that stays the lobby's job).
+       =================================================================== -->
+  <div class="mock-state"><b>State — joined late</b> <span>joined-late A · reality-check card, shown once before Q1 · no marks scheme repeated here</span></div>
+
+  <div class="runstate">
+    <div class="state">
+      <h1 class="h2">14 minutes left in this window</h1>
+      <p>Enough for about <span class="num">18</span> of <span class="num">24</span> questions at <span class="num">35</span>s each. Unanswered questions score <span class="num">0</span> — there is no penalty for not reaching them.</p>
+      <div class="state__actions">
+        <button class="btn" type="button">Start anyway</button>
+        <a class="btn ghost" href="home.html">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

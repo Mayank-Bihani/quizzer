@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+      <a href="profile.html" class="on" aria-current="page">Profile</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <h1 class="phdr__title">Profile</h1>
+            <p class="phdr__sub">Your identity comes from Google. There is nothing to edit here.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="profile">
+        <div class="profile__main">
+
+          <!-- avatar-name-row A. The photo falls back to initials on the
+               section gradient — never to a generic silhouette. -->
+          <div class="card stack">
+            <div class="profile__id">
+              <span class="av lg" aria-hidden="true">AK</span>
+              <div class="grow">
+                <div class="profile__name">Ananya Krishnamurthy</div>
+                <div class="tiny truncate">ananya.krishnamurthy@example.com</div>
+              </div>
+              <span class="badge b-draft">Student</span>
+            </div>
+          </div>
+
+          <div class="card stack">
+            <h2 class="h2">Account</h2>
+            <dl class="deflist">
+              <div><dt>Name</dt><dd>Ananya Krishnamurthy</dd></div>
+              <div><dt>Email</dt><dd class="truncate">ananya.krishnamurthy@example.com</dd></div>
+              <div><dt>Role</dt><dd>Student</dd></div>
+              <div><dt>Member since</dt><dd><span class="num">14 Jul 2026</span></dd></div>
+              <div><dt>Quizzes taken</dt><dd class="num">14</dd></div>
+            </dl>
+            <p class="tiny">Your name and photo are shown publicly on every leaderboard, exactly as Google provides them. Quizzer does not store a nickname and cannot change either.</p>
+          </div>
+
+        </div>
+
+        <aside class="profile__aside">
+          <!-- account-menu. "Switch to admin console" is absent for a student:
+               roles are granted by a superadmin, never requested in-app. -->
+          <nav class="menu" aria-label="Account">
+            <a href="home.html">Your history</a>
+            <a href="home.html">Weekly leaderboards</a>
+            <hr>
+            <button class="dgr" type="button">Sign out</button>
+          </nav>
+        </aside>
+      </div>
+
+      <!-- ---------------- stacked states ---------------- -->
+
+      <div class="mock-state"><b>State — admin</b> <span>an admin is also a student, so the console is a switch, not a separate login</span></div>
+      <div class="profile">
+        <div class="profile__main">
+          <div class="card stack">
+            <div class="profile__id">
+              <span class="av lg" aria-hidden="true">RS</span>
+              <div class="grow">
+                <div class="profile__name">Rohit Sharma</div>
+                <div class="tiny truncate">rohit.sharma@example.com</div>
+              </div>
+              <span class="badge b-sched">Admin</span>
+            </div>
+          </div>
+          <div class="card stack">
+            <h2 class="h2">Account</h2>
+            <dl class="deflist">
+              <div><dt>Name</dt><dd>Rohit Sharma</dd></div>
+              <div><dt>Email</dt><dd class="truncate">rohit.sharma@example.com</dd></div>
+              <div><dt>Role</dt><dd>Admin <span class="tiny">· promoted 2 Aug 2026</span></dd></div>
+              <div><dt>Member since</dt><dd><span class="num">3 Jun 2026</span></dd></div>
+              <div><dt>Quizzes taken</dt><dd class="num">22</dd></div>
+            </dl>
+            <div class="alert a-info">
+              <span aria-hidden="true">●</span>
+              <span>Admins take quizzes like everyone else. Building a quiz does not exclude you from sitting it, but you will have seen the questions.</span>
+            </div>
+          </div>
+        </div>
+        <aside class="profile__aside">
+          <nav class="menu" aria-label="Account">
+            <a href="home.html">Your history</a>
+            <a href="home.html">Weekly leaderboards</a>
+            <hr>
+            <a href="home.html">Switch to admin console</a>
+            <hr>
+            <button class="dgr" type="button">Sign out</button>
+          </nav>
+        </aside>
+      </div>
+
+      <div class="mock-state"><b>State — long name</b> <span>truncation at 390px; the leaderboard row shows the same form</span></div>
+      <div class="profile">
+        <div class="profile__main">
+          <div class="card stack">
+            <div class="profile__id">
+              <span class="av lg" aria-hidden="true">LV</span>
+              <div class="grow">
+                <div class="profile__name">Lakshminarayanan Venkataraghavan</div>
+                <div class="tiny truncate">lakshminarayanan.venkataraghavan@example.com</div>
+              </div>
+              <span class="badge b-draft">Student</span>
+            </div>
+            <div class="namerow you">
+              <span class="av sm" aria-hidden="true">LV</span>
+              <span class="namerow__name grow truncate">Lakshminarayanan Venkataraghavan</span>
+              <span class="badge b-sched">You</span>
+            </div>
+            <p class="tiny">The board row and the profile header show the same full name from Google — never a shortened or edited one.</p>
+          </div>
+        </div>
+        <aside class="profile__aside">
+          <nav class="menu" aria-label="Account">
+            <a href="home.html">Your history</a>
+            <a href="home.html">Weekly leaderboards</a>
+            <hr>
+            <button class="dgr" type="button">Sign out</button>
+          </nav>
+        </aside>
+      </div>
+
+      <div class="mock-state"><b>State — signing out</b> <span>no confirmation dialog: signing out destroys nothing</span></div>
+      <div class="card stack">
+        <div class="alert a-info">
+          <span aria-hidden="true">●</span>
+          <span>Signing out ends this session only. Your history, your scores and your place on the weekly boards are kept.</span>
+        </div>
+        <button class="btn sec" type="button" disabled>
+          <span class="spin" aria-hidden="true"></span>
+          Signing out…
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

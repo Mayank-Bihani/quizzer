@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run — timeout advance, deadline mid-question — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s2.css">
+<link rel="stylesheet" href="../css/screens-s3.css">
+</head>
+<body>
+
+<main class="runpage">
+
+  <!-- ===================================================================
+       State 1a — the per-question clock reaches 0:00. Canonical transition
+       (guidelines, no variants): a 900ms hold, option list goes INERT, not
+       locked — nothing was submitted. Same visual language as a lock
+       (.lockcard), neutral icon, so it reads as "the system decided this",
+       not as a second kind of failure.
+       =================================================================== -->
+  <div class="mock-state"><b>State — time expired, the hold</b> <span>question timer at 0:00 · options inert, none submitted · 900ms before the auto-advance</span></div>
+
+  <section class="qcard" aria-label="Question 14, time expired">
+    <h1 class="sr-only">Question 14 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">14</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:16:40</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:65%"></span></span>
+        <span class="tiny num" aria-hidden="true">65%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Time up — moving on</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:00</span><span>this question</span></span>
+        </div>
+        <div class="tbar tbar--expired" aria-hidden="true">
+          <span class="tbar__fill" style="width:0"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <p class="stem">A cistern can be filled by pipe A in <span class="num">12</span> hours and emptied by pipe B in <span class="num">18</span> hours. If both pipes are opened together, how long will it take to fill the empty cistern?</p>
+      <fieldset class="opts" disabled aria-busy="true">
+        <legend class="sr-only">Question 14 — no answer was chosen before time ran out</legend>
+        <input class="sr-only" type="radio" name="q14" id="q14a" disabled>
+        <label class="opt dimmed" for="q14a"><span class="k" aria-hidden="true">A</span><span class="opt__txt"><span class="num">30</span> hours</span></label>
+        <input class="sr-only" type="radio" name="q14" id="q14b" disabled>
+        <label class="opt dimmed" for="q14b"><span class="k" aria-hidden="true">B</span><span class="opt__txt"><span class="num">36</span> hours</span></label>
+        <input class="sr-only" type="radio" name="q14" id="q14c" disabled>
+        <label class="opt dimmed" for="q14c"><span class="k" aria-hidden="true">C</span><span class="opt__txt"><span class="num">42</span> hours</span></label>
+        <input class="sr-only" type="radio" name="q14" id="q14d" disabled>
+        <label class="opt dimmed" for="q14d"><span class="k" aria-hidden="true">D</span><span class="opt__txt"><span class="num">48</span> hours</span></label>
+      </fieldset>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="lockcard" role="status">
+        <div class="lockring" aria-hidden="true">⌛</div>
+        <p class="lockcard__t">Time up — moving on</p>
+        <p class="tiny">Q<span class="num">14</span> · no answer recorded · serving Q<span class="num">15</span>…</p>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       State 1b — arrival at the next question. Same visual pattern as
+       S2's just-skipped notice (.alert.a-warn): a statement, not an offer
+       to undo. Skip and timeout score identically (JOURNEYS §SJ-4).
+       =================================================================== -->
+  <div class="mock-state"><b>State — time expired, next question served</b> <span>Q15 already served · notice states what happened, nothing to undo</span></div>
+
+  <section class="qcard" aria-label="Question 15, after question 14 timed out">
+    <h1 class="sr-only">Question 15 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">15</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:16:22</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <p class="sr-only">Question 15 of 20. 14 behind you.</p>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:70%"></span></span>
+        <span class="tiny num" aria-hidden="true">70%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Grace — full speed bonus</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:45</span><span>this question</span></span>
+        </div>
+        <div class="tbar tbar--grace" aria-hidden="true">
+          <span class="tbar__grace" style="width:22%"></span>
+          <span class="tbar__mark" style="left:22%"></span>
+          <span class="tbar__fill" style="width:100%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <div class="alert a-warn" role="status">
+        <span aria-hidden="true">◷</span>
+        <span>Q<span class="num">14</span> — time ran out. No answer was recorded, and you cannot return to it.</span>
+      </div>
+      <p class="stem">A shopkeeper buys apples at <span class="num">6</span> for ₹<span class="num">30</span> and sells them at <span class="num">5</span> for ₹<span class="num">30</span>. What is the profit percentage?</p>
+      <fieldset class="opts">
+        <legend class="sr-only">Choose one option for question 15</legend>
+        <input class="sr-only" type="radio" name="q15t" id="q15ta">
+        <label class="opt" for="q15ta"><span class="k" aria-hidden="true">A</span><span class="opt__txt"><span class="num">15%</span></span></label>
+        <input class="sr-only" type="radio" name="q15t" id="q15tb">
+        <label class="opt" for="q15tb"><span class="k" aria-hidden="true">B</span><span class="opt__txt"><span class="num">20%</span></span></label>
+        <input class="sr-only" type="radio" name="q15t" id="q15tc">
+        <label class="opt" for="q15tc"><span class="k" aria-hidden="true">C</span><span class="opt__txt"><span class="num">24%</span></span></label>
+        <input class="sr-only" type="radio" name="q15t" id="q15td">
+        <label class="opt" for="q15td"><span class="k" aria-hidden="true">D</span><span class="opt__txt"><span class="num">30%</span></span></label>
+      </fieldset>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button" disabled>Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       State 2 — the hard window deadline closes while a question is open.
+       deadline-mid-question B: a silent cut, no T-10s warning (selections.md
+       consequence 4). The finish card (S4) states plainly which question
+       was not submitted, because this screen gave no chance to see it coming.
+       =================================================================== -->
+  <div class="mock-state"><b>State — deadline mid-question</b> <span>deadline-mid-question B · silent cut, no warning · goes straight to the finish card (S4)</span></div>
+
+  <div class="runstate">
+    <div class="lockcard">
+      <div class="lockring" aria-hidden="true">⌛</div>
+      <h1 class="lockcard__t">Time's up</h1>
+      <p class="tiny">The window for Weekly Quant Sprint #27 closed at <span class="num">9:55 PM</span> IST. <span class="num">17</span> of <span class="num">20</span> answered — Q<span class="num">18</span> was not submitted and scores <span class="num">0</span>.</p>
+      <p class="tiny">Continuing to your results…</p>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S10 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S10 — responsive proof</h1>
+    <p class="tiny">Every S10 screen at <span class="num">390</span>, <span class="num">820</span> and <span class="num">1440</span>. Frames are real iframes at exact CSS widths. Last sprint of the build. Picks: quiz-card-schedule A (card with status header) &middot; report-summary-tiles B (tiles + score histogram) &middot; participants-table A (dense sortable, + mandatory &lt;640px card fallback) &middot; item-analysis-row A (row with % correct bar) &middot; export-action A (button + format menu) &middot; manage-admins-row B (grouped by role) &middot; destructive-confirm A (consequence list + weighted buttons) on modal-sheet A.</p>
+    <p class="tiny">Deliberately absent: any "Monitor" or "Void quiz" control on a schedule card. Live-quiz-monitor (AJ-7, PRD open question 5) and quiz-void (AJ-9, PRD open question 6) are both undecided product questions the design system itself flags as speculative — building either affordance here would silently resolve a question this sprint was never asked to close. See SYSTEM-GAPS.</p>
+    <p class="tiny">Cross-sprint continuity: <b>Weekly Quant Sprint</b> (recurring template, active) generates #26 (closed 31 Aug, this sprint's flagship report), #27 (live, room QNT-8417, from S1&ndash;S6) and #28 (scheduled, room QNT-9103, locked in S9). <b>Friday Drill</b> (recurring template, paused) reconciles a closed 28&nbsp;Aug occurrence and an upcoming 4&nbsp;Sep one, both already referenced in S1's quiz-detail.html. Ananya Krishnamurthy (the signed-in student throughout the student app) is the promote candidate in manage-admins.html; Priya Menon is introduced as the superadmin, established from the deploy secret (AUTH-4), never a promotion.</p>
+  </div>
+
+  <section>
+    <h2>Schedule</h2>
+    <p class="tiny">quiz-card-schedule A on .card--solid, across draft &middot; scheduled (locked, nothing left to do) &middot; live &middot; closed &middot; plus the Templates view (recurring templates, read-only recap &mdash; editing hands off to S9's existing recurrence-editor A). The seg control is decorative navigation between the two static views below, not a live JS tab, matching S9's own schedule-picker precedent.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 &middot; phone</figcaption><div class="shell"><iframe src="admin/schedule.html" title="Schedule at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 &middot; tablet</figcaption><div class="shell"><iframe src="admin/schedule.html" title="Schedule at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 &middot; laptop</figcaption><div class="shell"><iframe src="admin/schedule.html" title="Schedule at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Report &middot; participants &middot; export</h2>
+    <p class="tiny">One continuous report page for Weekly Quant Sprint #26 (closed 31 Aug, 87 participants) &mdash; report-summary-tiles B (4 tiles + score histogram), participants-table A (data-table A's own &lt;640px card fallback, reusing S7's .tablewrap/.bankcard contract), item-analysis-row A (PRD open question 7, resolved as a mockup judgement call &mdash; see SYSTEM-GAPS), export-action A (button + static-open format menu, reusing S1's .menu). Ananya Krishnamurthy's row (rank 7, 54.4) reconciles with history.html (S6).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 &middot; phone &mdash; card fallback</figcaption><div class="shell"><iframe src="admin/report.html" title="Report at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 &middot; tablet &mdash; table</figcaption><div class="shell"><iframe src="admin/report.html" title="Report at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 &middot; laptop &mdash; table</figcaption><div class="shell"><iframe src="admin/report.html" title="Report at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Manage admins &middot; promote / demote</h2>
+    <p class="tiny">manage-admins-row B (grouped by role), extending S4/S6's .namerow rather than a fourth avatar-row shape. Two sessions stacked: Rohan Sethi (admin) sees the roster read-only, since AUTH-5/ADMIN-3 restrict role changes to a superadmin; Priya Menon (superadmin) can act. Promote/demote use destructive-confirm A (consequence list + weighted buttons) &mdash; the sibling S9 explicitly left unbuilt (its own B is type-to-confirm, reserved for the irreversible quiz lock) &mdash; on the same modal-sheet A (.stage/.scrim/.dlg/.sheet) harness S9 built. Compare the 390 frame (bottom sheet) against 820/1440 (dialog).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 &middot; phone &mdash; bottom sheet</figcaption><div class="shell"><iframe src="admin/manage-admins.html" title="Manage admins at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 &middot; tablet &mdash; dialog</figcaption><div class="shell"><iframe src="admin/manage-admins.html" title="Manage admins at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 &middot; laptop &mdash; dialog</figcaption><div class="shell"><iframe src="admin/manage-admins.html" title="Manage admins at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

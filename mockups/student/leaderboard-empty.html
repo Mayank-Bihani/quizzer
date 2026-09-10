@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard empty states — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s6.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html" class="on" aria-current="page">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="leaderboard-weekly.html"><span aria-hidden="true">←</span> Leaderboards</a>
+        <div class="phdr__row">
+          <div>
+            <h1 class="phdr__title">Board empty</h1>
+            <p class="phdr__sub">Three different nothings — leaderboard-empty A (embargo notice) reused for all three, since the guidelines' variant C ("redirect to what exists") is a losing variant and never reaches this build.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           "Too early" — the per-quiz board before the hard deadline (BOARD-1:
+           computed once, at the deadline; there is no partial board — BOARD-2).
+           This is the default, and the only one the guidelines actually
+           recommend A for. ================================================= -->
+      <div class="mock-state"><b>State — too early (per-quiz)</b> <span>Speed Drill 9, room still open — matches history.html's "Held" row</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-waiting.svg" alt="">
+        <h5>Ranks open at 11:00 PM IST</h5>
+        <p>Nothing is shown before the window closes, including partial standings — that's the same rule for every student, whether you've finished or not.</p>
+        <a class="btn sec" href="history.html">Back to History</a>
+      </div>
+
+      <!-- ===================================================================
+           "No entries" — the window closed but nobody completed an attempt.
+           Content rule: a zero-participant leaderboard is a required awkward
+           case. Not an error — a normal, if unusual, outcome. ==============
+      -->
+      <div class="mock-state"><b>State — no entries</b> <span>zero-participant leaderboard — the room ran, nobody finished</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>No one finished this quiz</h5>
+        <p>The window for Circular Motion Drill 3 closed with zero completed attempts, so there is no ranking to show.</p>
+        <a class="btn sec" href="history.html">Back to History</a>
+      </div>
+
+      <!-- ===================================================================
+           "No quiz" — nothing was scheduled for this section this week, on
+           the weekly board specifically (a per-section tab can be genuinely
+           empty while Overall and the other sections are not). ============
+      -->
+      <div class="mock-state"><b>State — no quiz this section</b> <span>weekly board, LR tab, week 37 — Overall/Verbal/Quant all have data</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>No LR quiz in week 37</h5>
+        <p>Nothing was scheduled for Logical Reasoning this week. Overall, Verbal and Quant all have a board for week 37.</p>
+        <a class="btn sec" href="leaderboard-weekly.html">See other boards</a>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

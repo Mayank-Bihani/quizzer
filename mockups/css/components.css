@@ -1,0 +1,1362 @@
+/* ============================================================================
+   Quizzer mockups — components.css
+   Sprint S0. Extracted from design-system/guidelines/*.html, reduced to the
+   variants locked in design-system/guidelines/selections.md.
+
+   RULES FOR LATER SPRINTS
+   - Shared components live here. Screen stylesheets hold layout only.
+   - Need a new shared component? Append it here. Never define one in screens-*.css.
+   - Never hardcode a colour, size, radius or shadow. Tokens only.
+
+   WHAT WAS DROPPED FROM THE GUIDELINES
+   - Catalogue chrome: .wrap .toc .lede .trio .vh .vlabel .vbadge .vname .vmeta
+     .wlabel .tok .tokens-used .flag .kb .rule .side (guidelines page furniture)
+   - .phone — a fixed 420px demo frame, three conflicting definitions. Screens are
+     real documents; the phone frame is replaced by index.html's width switcher.
+   - .adm — a 280px demo frame. Rebuilt below as a real full-height admin shell.
+   - Every losing A/B/C variant.
+
+   CONFLICTS RESOLVED (32 classes differed across guideline files)
+   - .card    glass (foundations/layout-feedback) vs opaque (admin).
+              -> .card is glass, per card-surface A. .card--solid is the opaque
+                 variant, for dense admin tables where blur hurts legibility.
+   - .av      24px accent gradient (foundations) vs 36px section gradient
+              (layout-feedback). -> layout-feedback wins; it owns avatar-name-row.
+   - .btn     .lede .inp .state .math .num .trio — trivial drift; the owning
+              artifact's definition wins in each case.
+   - Hardcoded white literals in .b-live .b-sec .fab .seg .av -> var(--n-0).
+   - .seg track was the literal rgba(16,24,40,.05); no token matches it, so it uses
+     --surface-subtle (--n-100). Opaque rather than translucent — see SYSTEM-GAPS #5.
+   ========================================================================= */
+
+/* ---------- 1. reset & base ------------------------------------------- */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  font:var(--type-body);
+  color:var(--text-1);
+  background:var(--amb-base);
+  min-height:100dvh;
+  -webkit-font-smoothing:antialiased;
+}
+/* ambient-background A — gradient mesh + grain, exactly as the guidelines apply it.
+   Two fixed layers rather than background-attachment:fixed, which is unreliable on
+   iOS Safari. The grain is not decoration: at 3.5% it is what stops the mesh
+   banding across a large flat area. */
+body::before{content:"";position:fixed;inset:0;background:var(--ambient);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background-image:var(--amb-noise);opacity:var(--amb-noise-opacity);z-index:-1;pointer-events:none}
+h1,h2,h3,h4,h5,p{margin:0}
+a{color:var(--text-link)}
+a:hover{color:var(--text-link-hover)}
+button{font-family:inherit}
+:focus-visible{outline:0;box-shadow:var(--focus-ring)}
+
+/* ---------- 2. typography helpers ------------------------------------- */
+.eyebrow{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--accent-600)}
+.tiny{font:var(--type-caption);color:var(--text-3)}
+.muted{color:var(--text-2)}
+.num{font-variant-numeric:var(--numeric-features)}
+.math{font-family:var(--font-math);font-style:italic;letter-spacing:.01em}
+.math sup{font-style:normal;font-size:.7em}
+.mathblock{display:block;text-align:center;font-family:var(--font-math);font-style:italic;font-size:1.15em;margin:var(--sp-5) 0;padding:var(--sp-4);border-radius:var(--r-sm);background:var(--surface-sunken)}
+.stem{font:var(--type-stem)}
+
+/* ---------- 3. layout utilities --------------------------------------- */
+.stack{display:flex;flex-direction:column;gap:var(--sp-4)}
+.stack-lg{display:flex;flex-direction:column;gap:var(--sp-7)}
+.rowflex{display:flex;gap:var(--sp-4);flex-wrap:wrap;align-items:center}
+.rowflex-between{display:flex;gap:var(--sp-4);align-items:center;justify-content:space-between}
+.grow{flex:1;min-width:0}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- 4. surfaces ----------------------------------------------- */
+/* card-surface A — glass */
+.card{
+  background:var(--glass-bg);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border:var(--glass-border);
+  box-shadow:var(--glass-shadow),var(--glass-ring);
+  border-radius:var(--r-lg);
+  padding:var(--sp-7);
+}
+.card--solid{background:var(--surface-raised);backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid var(--border-1);box-shadow:var(--elev-2)}
+.card--tight{padding:var(--sp-5)}
+/* nested surface — sits inside a .card without double-blurring */
+.panel{border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1);padding:var(--sp-5);display:grid;gap:var(--sp-3)}
+.panel--link{text-decoration:none;color:inherit;display:block;transition:var(--t-hover)}
+.panel--link:hover{border-color:var(--border-2);box-shadow:var(--elev-1);color:inherit}
+
+/* ---------- 5. buttons ------------------------------------------------ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-3);
+  min-height:var(--tap-min);padding:0 var(--sp-6);
+  border-radius:var(--r-md);border:1px solid transparent;
+  font:var(--type-option);cursor:pointer;text-decoration:none;
+  background:var(--action-primary-bg);color:var(--action-primary-fg);
+  transition:var(--t-hover);
+}
+.btn:hover{background:var(--action-primary-bg-hover);color:var(--action-primary-fg)}
+.btn:active{background:var(--action-primary-bg-active);transform:scale(var(--press-scale))}
+.btn.sec{background:var(--action-secondary-bg);color:var(--action-secondary-fg);border-color:var(--action-secondary-border)}
+.btn.sec:hover{background:var(--surface-raised);border-color:var(--border-strong-c);color:var(--action-secondary-fg)}
+.btn.ghost{background:transparent;color:var(--action-ghost-fg)}
+.btn.ghost:hover{background:var(--action-ghost-bg-hover);color:var(--action-ghost-fg)}
+.btn.dgr{background:var(--action-danger-bg);color:var(--action-danger-fg)}
+.btn.dgr:hover{background:var(--action-danger-bg-hover)}
+.btn.sm{min-height:36px;padding:0 var(--sp-5);font:var(--type-label)}
+.btn.block{width:100%}
+.btn[disabled],.btn[aria-disabled="true"]{background:var(--action-disabled-bg);color:var(--action-disabled-fg);cursor:not-allowed;border-color:transparent}
+
+/* ---------- 6. badges (badge-pill A) ---------------------------------- */
+.badge{display:inline-flex;align-items:center;gap:var(--sp-2);padding:4px 10px;border-radius:var(--r-pill);font:var(--type-label);border:1px solid transparent;white-space:nowrap}
+.b-open{color:var(--status-success-fg);background:var(--status-success-bg);border-color:var(--status-success-border)}
+.b-live{color:var(--n-0);background:var(--danger-600)}
+.b-sched{color:var(--status-info-fg);background:var(--status-info-bg);border-color:var(--status-info-border)}
+.b-draft{color:var(--status-neutral-fg);background:var(--status-neutral-bg);border-color:var(--status-neutral-border)}
+.b-closed{color:var(--text-3);background:transparent;border-color:var(--border-2)}
+/* section identity */
+.b-sec{color:var(--n-0)}
+.b-verbal{background:var(--sec-verbal)}
+.b-quant{background:var(--sec-quant)}
+.b-lr{background:var(--sec-lr)}
+.b-overall{background:var(--sec-overall)}
+/* quiet section chip, for use on glass */
+.chip-sec{display:inline-flex;align-items:center;gap:var(--sp-2);padding:3px 9px;border-radius:var(--r-pill);font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase}
+.chip-sec.b-verbal{background:var(--sec-verbal-tint);color:var(--sec-verbal-ink)}
+.chip-sec.b-quant{background:var(--sec-quant-tint);color:var(--sec-quant-ink)}
+.chip-sec.b-lr{background:var(--sec-lr-tint);color:var(--sec-lr-ink)}
+
+/* ---------- 7. chips (filter-bar A) ----------------------------------- */
+.chip{display:inline-flex;align-items:center;gap:var(--sp-2);padding:7px 12px;border-radius:var(--r-pill);border:1px solid var(--border-2);background:var(--action-secondary-bg);font:var(--type-label);color:var(--text-2);cursor:pointer;min-height:36px}
+.chip.on{background:var(--accent-50);border-color:var(--accent-300);color:var(--accent-700)}
+.chip .x{color:var(--text-3);font-size:12px}
+
+/* ---------- 8. form controls (form-field A) --------------------------- */
+.field{display:grid;gap:var(--sp-3)}
+.lbl{font:var(--type-label);color:var(--text-1)}
+.inp{width:100%;min-height:var(--tap-min);padding:0 var(--sp-5);border-radius:var(--r-md);border:1px solid var(--border-2);background:var(--glass-b-bg);font:var(--type-body);color:var(--text-1);transition:var(--t-hover)}
+.inp::placeholder{color:var(--text-3)}
+.inp:hover{border-color:var(--border-strong-c)}
+.inp:focus{outline:0;border-color:var(--accent-500);box-shadow:var(--focus-ring)}
+.inp.err{border-color:var(--danger-500)}
+.inp.err:focus{box-shadow:var(--focus-ring-danger)}
+.inp[disabled]{background:var(--surface-subtle);color:var(--text-disabled);border-color:var(--border-1);cursor:not-allowed}
+.help{font:var(--type-caption);color:var(--text-3)}
+.help.err{color:var(--status-danger-fg)}
+
+/* ---------- 9. segmented control (tabs-segmented A) ------------------- */
+.seg{display:inline-flex;background:var(--surface-subtle);border-radius:var(--r-pill);padding:3px;gap:2px;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:transparent;border-radius:var(--r-pill);min-height:36px;padding:0 var(--sp-5);font:var(--type-label);color:var(--text-2);cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--n-0);color:var(--text-1);box-shadow:var(--elev-1)}
+
+/* ---------- 10. avatar (avatar-name-row A) ---------------------------- */
+.av{width:36px;height:36px;border-radius:var(--r-circle);background:linear-gradient(140deg,var(--sec-quant),var(--sec-verbal));color:var(--n-0);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-13)/1 var(--font-ui);flex:0 0 36px}
+.av.sm{width:28px;height:28px;flex-basis:28px;font-size:var(--fs-11)}
+.av.lg{width:48px;height:48px;flex-basis:48px;font-size:var(--fs-16)}
+
+/* ---------- 11. app shell — student (app-shell-student A) -------------
+   Phone: sticky glass top bar, scrolling main, fixed glass bottom bar.
+   >=900px: the bottom bar's links move into the top bar and it disappears. */
+.app{min-height:100dvh;display:flex;flex-direction:column}
+.app__top{
+  position:sticky;top:0;z-index:20;
+  display:flex;align-items:center;gap:var(--sp-5);
+  padding:var(--sp-4) var(--gutter-mobile);
+  padding-top:calc(var(--sp-4) + env(safe-area-inset-top));
+  background:var(--glass-bg-strong);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border-bottom:1px solid var(--border-1);
+}
+.app__main{flex:1;padding:var(--sp-7) var(--gutter-mobile) calc(var(--sp-12) + env(safe-area-inset-bottom))}
+.brandmark{font:var(--fw-semibold) var(--fs-16)/1 var(--font-ui);letter-spacing:var(--ls-snug);color:var(--text-1);text-decoration:none}
+.navbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;
+  background:var(--glass-bg);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border-top:1px solid var(--border-1);
+  padding:var(--sp-3) var(--sp-2);
+  padding-bottom:calc(var(--sp-4) + env(safe-area-inset-bottom));
+}
+.navbar a{flex:1;display:grid;justify-items:center;gap:3px;font:var(--fs-11)/1 var(--font-ui);color:var(--text-3);text-decoration:none;min-height:var(--tap-min);align-content:center}
+.navbar a.on{color:var(--accent-600);font-weight:var(--fw-semibold)}
+.navbar .gl{font-size:16px;line-height:1}
+.topnav{display:none;gap:var(--sp-2)}
+.topnav a{font:var(--type-label);color:var(--text-2);text-decoration:none;padding:8px var(--sp-5);border-radius:var(--r-pill);min-height:36px;display:inline-flex;align-items:center}
+.topnav a.on{background:var(--accent-50);color:var(--accent-700)}
+
+/* ---------- 12. app shell — admin (app-shell-admin A) ----------------- */
+.adm{min-height:100dvh;display:grid;grid-template-rows:auto 1fr}
+.adm__bar{display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-4) var(--gutter-mobile);background:var(--glass-bg-strong);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--border-1)}
+.adm__side{display:none;background:var(--glass-bg);border-right:1px solid var(--border-1);padding:var(--sp-5) var(--sp-4);flex-direction:column;gap:2px}
+.adm__side a{font:var(--type-body-sm);color:var(--text-2);text-decoration:none;padding:8px 10px;border-radius:var(--r-sm);display:block;min-height:var(--tap-min);display:flex;align-items:center}
+.adm__side a.on{background:var(--accent-50);color:var(--accent-700);font-weight:var(--fw-medium)}
+.adm__main{padding:var(--sp-7) var(--gutter-mobile);display:grid;gap:var(--sp-7);align-content:start}
+
+/* ---------- 13. page header (page-header A — stacked) ----------------- */
+.phdr{display:flex;flex-direction:column;gap:var(--sp-4)}
+.phdr__back{display:inline-flex;align-items:center;gap:var(--sp-3);font:var(--type-caption);color:var(--text-2);text-decoration:none;min-height:32px}
+.phdr__row{display:flex;gap:var(--sp-5);align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.phdr__title{font:var(--type-h1);text-wrap:balance}
+.phdr__sub{font:var(--type-caption);color:var(--text-3);margin-top:var(--sp-2)}
+.phdr__actions{display:flex;gap:var(--sp-3);flex-wrap:wrap}
+
+/* ---------- 14. states (empty-state A · error-state A · skeleton A) --- */
+.state{display:grid;gap:var(--sp-4);justify-items:center;text-align:center;padding:var(--sp-7);border-radius:var(--r-md);background:var(--glass-bg);border:1px solid var(--border-1)}
+.state img{width:120px;height:auto}
+.state h5{font:var(--type-h3)}
+.state p{font:var(--type-body-sm);color:var(--text-2);max-width:34ch}
+.skel{background:linear-gradient(90deg,var(--n-100),var(--n-200),var(--n-100));background-size:200% 100%;animation:sk 1.4s linear infinite;border-radius:var(--r-sm)}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ---------- 15. inline alert (inline-alert A — tinted block) ---------- */
+.alert{display:flex;gap:var(--sp-4);padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);border:1px solid transparent;font:var(--type-body-sm)}
+.a-info{background:var(--status-info-bg);border-color:var(--status-info-border);color:var(--status-info-fg)}
+.a-warn{background:var(--status-warning-bg);border-color:var(--status-warning-border);color:var(--status-warning-fg)}
+.a-dgr{background:var(--status-danger-bg);border-color:var(--status-danger-border);color:var(--status-danger-fg)}
+.a-ok{background:var(--status-success-bg);border-color:var(--status-success-border);color:var(--status-success-fg)}
+
+/* ---------- 16. mockup harness only ----------------------------------
+   Not an app component. Labels a stacked state inside a screen file so a
+   reviewer can see every state of a screen in one scroll. */
+.mock-state{display:flex;align-items:baseline;gap:var(--sp-4);flex-wrap:wrap;margin:var(--sp-11) 0 var(--sp-5);padding-bottom:var(--sp-3);border-bottom:1px dashed var(--border-2)}
+.mock-state:first-of-type{margin-top:0}
+.mock-state b{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--accent-600)}
+.mock-state span{font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 17. breakpoints ------------------------------------------ */
+@media (min-width:640px){
+  .app__main,.adm__main{padding-left:var(--gutter-desktop);padding-right:var(--gutter-desktop)}
+  .app__top,.adm__bar{padding-left:var(--gutter-desktop);padding-right:var(--gutter-desktop)}
+}
+@media (min-width:900px){
+  .navbar{display:none}
+  .topnav{display:flex}
+  .app__main{padding-bottom:var(--sp-12)}
+  .adm{grid-template-columns:236px minmax(0,1fr);grid-template-rows:auto 1fr}
+  .adm__bar{grid-column:1/-1}
+  .adm__side{display:flex}
+}
+@media (prefers-reduced-motion:reduce){
+  .skel{animation:none}
+  *{transition-duration:0ms!important}
+}
+
+/* ============================================================================
+   Sprint S1 — auth & entry. Appended, not edited into the sections above.
+   Picks built: join-room-code A (segmented slots) · lobby-block A (fact grid +
+   countdown hero) · countdown-timer A (digits + label) · room-code-display A
+   (dark code block) · room-full A (illustrated block, reuses .state) ·
+   avatar-name-row A + account-menu · error-state A for 403 / 404 / expired.
+   Losing variants (join B/C, lobby B/C, room-full B/C, countdown B/C,
+   room-code B/C, avatar-name-row B/C) are deliberately absent.
+   ========================================================================= */
+
+/* ---------- 18. utilities (S1) ---------------------------------------- */
+/* visually hidden but focusable and readable — the real input behind the
+   room-code slots, and labels that only a screen reader needs. */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* section headings inside a card — S0 only styled them via .home-section__head */
+.h2{font:var(--type-h2);text-wrap:balance}
+.h3{font:var(--type-h3);text-wrap:balance}
+
+/* ---------- 19. room code slots (join-room-code A) -------------------- */
+/* Eight boxes are wide at 390px, so the slot is fluid and capped rather than
+   fixed at the guidelines' 42px — it shrinks to fit the gutter and never
+   forces a horizontal scrollbar. Height stays a comfortable tap target.
+   The slots are decorative: a real <input> sits behind them (.codefield),
+   which is what carries the label, the paste target and the focus ring. */
+.codefield{position:relative}
+.codeslots{display:flex;gap:var(--sp-3);align-items:center;justify-content:center}
+.slot{flex:1 1 0;min-width:0;max-width:42px;height:var(--tap-comfortable);border-radius:var(--r-md);border:var(--border-strong) solid var(--border-2);background:var(--n-0);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-24)/1 var(--font-num);font-variant-numeric:var(--numeric-features);text-transform:uppercase;color:var(--text-1)}
+.slot.on{border-color:var(--accent-500);box-shadow:var(--focus-ring)}
+.slot.empty{color:var(--text-3)}
+.slot.err{border-color:var(--danger-500);background:var(--danger-50);color:var(--status-danger-fg)}
+.codeslots .dash{font:var(--type-numeric);color:var(--text-3);flex:0 0 auto}
+/* the real control. Transparent over the slots so paste, caret and keyboard
+   all work; validation is on submit only, never per character. */
+.codefield input{position:absolute;inset:0;width:100%;opacity:0;border:0;background:transparent;font:inherit}
+.codefield input:focus{outline:0}
+/* the ring belongs to the group, not the invisible input */
+.codefield:focus-within{border-radius:var(--r-md);box-shadow:var(--focus-ring)}
+
+/* ---------- 20. room code display (room-code-display A) --------------- */
+.codebox{display:grid;gap:var(--sp-4);justify-items:center;text-align:center;padding:var(--sp-6);border-radius:var(--r-lg);background:var(--surface-inverse);color:var(--text-inverse)}
+.codebox .tiny{color:var(--n-400)}
+.codebox .code{font:var(--fw-semibold) var(--fs-38)/1 var(--font-num);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-caps)}
+/* before T−5m the code does not exist yet — same block, quiet, no dark break */
+.codebox--pending{background:var(--surface-subtle);color:var(--text-2)}
+.codebox--pending .tiny{color:var(--text-3)}
+.codebox--pending .code{letter-spacing:var(--ls-wide)}
+
+/* ---------- 21. countdown (countdown-timer A — digits + label) -------- */
+/* Generic. The live-run clocks in S2/S3 specialise this; do not reuse
+   .cd-digits for the per-question timer, which is question-timer B. */
+.cd{display:grid;gap:var(--sp-3);justify-items:center;text-align:center}
+.cd-digits{font:var(--type-numeric-lg);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight);color:var(--text-1)}
+.pill-clock{display:inline-flex;align-items:center;gap:var(--sp-3);padding:7px 14px;border-radius:var(--r-pill);background:var(--glass-bg-strong);border:1px solid var(--border-1);font:var(--type-timer);font-variant-numeric:var(--numeric-features);box-shadow:var(--elev-1);color:var(--text-1)}
+.pill-clock.urgent{background:var(--status-warning-bg);border-color:var(--status-warning-border);color:var(--status-warning-fg);font-weight:var(--fw-semibold)}
+
+/* ---------- 22. fact grid (lobby-block A) ----------------------------- */
+/* A <dl>: every fact is a term and a value. Two columns on a phone,
+   four once there is room. */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3);margin:0}
+.fact{border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:var(--sp-1)}
+.fact dt{font:var(--type-caption);color:var(--text-3)}
+.fact dd{margin:0;font:var(--type-numeric);font-variant-numeric:var(--numeric-features);color:var(--text-1)}
+.fact dd small{font:var(--type-label);color:var(--text-3);font-variant-numeric:normal}
+
+/* ---------- 23. avatar + name row (avatar-name-row A) ----------------- */
+.namerow{display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);min-width:0}
+.namerow.you{background:var(--rank-you-bg);box-shadow:inset 0 0 0 1px var(--rank-you-border)}
+.namerow__name{font:var(--type-body);color:var(--text-1)}
+.namerow__meta{font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 24. account menu ------------------------------------------
+   Identity comes from Google, so the menu never offers name or photo
+   editing. "Switch to admin console" appears for admin and superadmin only. */
+.menu{background:var(--glass-bg-strong);border:1px solid var(--border-1);border-radius:var(--r-md);box-shadow:var(--elev-3);padding:var(--sp-3);display:grid;gap:var(--sp-1)}
+.menu a,.menu button{display:flex;gap:var(--sp-4);align-items:center;width:100%;padding:9px var(--sp-4);border-radius:var(--r-sm);font:var(--type-body-sm);color:var(--text-1);text-decoration:none;min-height:var(--tap-min);background:transparent;border:0;cursor:pointer;text-align:left}
+.menu a:hover,.menu button:hover{background:var(--surface-subtle);color:var(--text-1)}
+.menu button.dgr{color:var(--status-danger-fg)}
+.menu hr{border:0;border-top:1px solid var(--border-1);margin:var(--sp-2) 0;width:100%}
+
+/* ---------- 25. button spinner ---------------------------------------- */
+/* Purely a pending affordance — no JS drives it; the state is static markup. */
+.spin{width:15px;height:15px;border-radius:var(--r-circle);border:var(--border-focus) solid currentColor;border-right-color:transparent;animation:sp var(--dur-5) linear infinite;flex:0 0 15px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- 26. S1 breakpoints ---------------------------------------- */
+@media (min-width:640px){
+  .facts{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .codebox .code{font-size:var(--fs-48)}
+}
+@media (prefers-reduced-motion:reduce){
+  .spin{animation:none;border-right-color:currentColor;opacity:.5}
+}
+
+/* ============================================================================
+   Sprint S2 — run: core. Appended, not edited into the sections above.
+   Picks built: question-card A (header strip + scrolling body) ·
+   mcq-option-list A (full-width rows, letter chip) · tita-answer-run A over
+   tita-numeric-input B (big display + in-app keypad) · question-timer B
+   (linear bar with grace zone) · window-deadline A (dark digit pill) ·
+   progress-indicator B (bar + counter) · submit-lock-action A (single button,
+   direct lock) — plus the skip control (ROOM-17), which the design system does
+   not have at all. See SYSTEM-GAPS #14–#16.
+   Losing variants (question-card B/C, option list B/C, timer A/C, deadline
+   B/C, progress A/C, submit B/C, tita A/C) are deliberately absent.
+
+   TWO DELIBERATE DEVIATIONS, both documented in SYSTEM-GAPS:
+   - the lock confirmation is neutral, not success-green. Green on the one
+     screen where correctness may never appear is a misreadable signal.
+   - .clock-q is a new component. .pill-clock / .cd-digits (§21) are
+     countdown-timer A, the lobby clock, and are never reused as run clocks.
+   ========================================================================= */
+
+/* ---------- 27. run screen frame (question-card A) --------------------
+   Three rows: pinned header strip, scrolling body, pinned action foot. Only
+   the body scrolls, so the index, both clocks and Submit & lock stay reachable
+   on a nine-line stem. min-height:100dvh means one .qcard is one screen — in a
+   mockup file the states stack and each still renders at full screen height. */
+.qcard{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-height:100dvh;min-width:0}
+.qcard__hdr{
+  position:sticky;top:0;z-index:2;
+  display:grid;gap:var(--sp-4);
+  padding:var(--sp-5) var(--gutter-mobile);
+  padding-top:calc(var(--sp-5) + env(safe-area-inset-top));
+  background:var(--glass-bg-strong);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border-bottom:var(--border-hairline) solid var(--border-1);
+}
+/* wraps rather than overflows: the escalated deadline pill grows by ~90px */
+.qcard__idrow{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;min-width:0}
+.qidx{font:var(--type-label);font-family:var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-2);white-space:nowrap}
+.qcard__body{min-width:0;overflow-y:auto;display:grid;gap:var(--sp-6);align-content:start;padding:var(--sp-7) var(--gutter-mobile)}
+.qcard__foot{
+  position:sticky;bottom:0;z-index:2;
+  padding:var(--sp-5) var(--gutter-mobile);
+  padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom));
+  background:var(--glass-bg-strong);
+  backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border-top:var(--border-hairline) solid var(--border-1);
+}
+/* S0's .mathblock has no overflow axis; the guidelines' live-run copy does. A
+   display equation wider than a 390px card would otherwise widen the page. */
+.mathblock{overflow-x:auto}
+
+/* ---------- 28. window deadline (window-deadline A) -------------------
+   The second clock. Always digits, always h:mm:ss, always the hourglass, on a
+   dark neutral pill so it reads as a different KIND of object from the
+   per-question clock. Never a ring, never the accent, never animated.
+   Escalation changes the fill and adds words; the shape never changes. */
+.clock-win{
+  display:inline-flex;align-items:center;gap:var(--sp-2);
+  padding:var(--sp-3) var(--sp-5);border-radius:var(--r-pill);
+  border:var(--border-hairline) solid var(--n-800);
+  background:var(--q-deadline-fill);color:var(--text-inverse);
+  font:var(--type-timer);font-variant-numeric:var(--numeric-features);
+  white-space:nowrap;
+}
+.clock-win__note{font:var(--fw-regular) var(--fs-11)/1 var(--font-ui);opacity:.85}
+.clock-win--final{background:var(--warning-600);border-color:var(--warning-700)}
+.clock-win--closing{background:var(--danger-600);border-color:var(--danger-700)}
+
+/* ---------- 29. question timer (question-timer B) ---------------------
+   Linear bar with the grace zone banded on the left and marked with a tick.
+   The band width is data (grace / seconds-per-question), so a quiz with
+   grace = 0 renders no band and nothing breaks. Urgency is never colour
+   alone: the final-seconds bar thickens, gains a 45° hatch, and the zone
+   label and the pill change with it. */
+.qtimer{display:grid;gap:var(--sp-3);min-width:0}
+.qtimer__row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);min-width:0}
+.qtimer__zone{font:var(--type-caption);color:var(--text-2);min-width:0}
+.qtimer__zone--urgent{color:var(--status-warning-fg);font-weight:var(--fw-semibold)}
+.tbar{position:relative;height:var(--sp-5);border-radius:var(--r-pill);background:var(--q-timer-track);overflow:hidden}
+.tbar__grace{position:absolute;left:0;top:0;bottom:0;background:var(--q-timer-grace);opacity:.28}
+/* the grace boundary must stay readable once the fill has covered the band, so
+   the mark sits ABOVE the fill and is cut in the surface colour — legible over
+   the grace fill, the normal fill and the bare track alike */
+.tbar__mark{position:absolute;top:0;bottom:0;z-index:1;width:var(--border-focus);background:var(--n-0)}
+.tbar__fill{position:absolute;left:0;top:0;bottom:0;border-radius:var(--r-pill);background:var(--q-timer-fill);transition:width var(--dur-1) var(--ease-linear)}
+/* inside the grace window the fill itself is drawn in the grace colour */
+.tbar--grace .tbar__fill{background:var(--q-timer-grace)}
+.tbar--final{height:var(--sp-6);background-image:repeating-linear-gradient(45deg,color-mix(in oklab,var(--q-timer-urgent) 22%,transparent) 0 var(--sp-3),transparent var(--sp-3) var(--sp-5))}
+.tbar--final .tbar__fill{background:var(--q-timer-urgent)}
+.tbar--expired{background:color-mix(in oklab,var(--q-timer-expired) 26%,transparent)}
+/* the per-question clock: light pill, clock glyph, m:ss */
+.clock-q{
+  display:inline-flex;align-items:center;gap:var(--sp-2);
+  padding:var(--sp-2) var(--sp-4);border-radius:var(--r-pill);
+  border:var(--border-hairline) solid var(--border-1);
+  background:var(--glass-bg-strong);color:var(--text-1);
+  font:var(--type-timer);font-variant-numeric:var(--numeric-features);
+  white-space:nowrap;
+}
+.clock-q--urgent{background:var(--status-warning-bg);border-color:var(--status-warning-border);color:var(--status-warning-fg);font-weight:var(--fw-semibold)}
+
+/* ---------- 30. progress (progress-indicator B) -----------------------
+   Bar + counter. Neutral fill — the accent belongs to the question timer, so
+   progress can never be mistaken for time. Answered questions are unreachable,
+   so this carries no tap target, no chevron, no hover and no focus ring; the
+   bar is aria-hidden and a single sr-only sentence carries it instead. */
+.progress{display:flex;align-items:center;gap:var(--sp-4);min-width:0}
+.pbar{flex:1;min-width:0;height:var(--sp-3);border-radius:var(--r-pill);background:var(--n-200);overflow:hidden}
+.pbar__fill{display:block;height:100%;border-radius:var(--r-pill);background:var(--n-700)}
+
+/* ---------- 31. MCQ options (mcq-option-list A) -----------------------
+   Full-width rows with a letter chip. Fixed A/B/C/D order, never shuffled
+   within a run. Implemented as a real radio group with visually hidden inputs:
+   selection is a two-step (choose, then Submit & lock), which is exactly what
+   a radio is, and it gives arrow-key navigation and a real focus ring free.
+   NO CORRECTNESS STATE EXISTS — selected is accent, locked is neutral grey,
+   and there is no third colour anywhere in this component. */
+.opts{display:grid;gap:var(--sp-4);border:0;margin:0;padding:0;min-inline-size:0}
+.opt{
+  display:flex;gap:var(--sp-4);align-items:flex-start;width:100%;min-width:0;
+  min-height:var(--tap-min);padding:var(--sp-5);
+  border-radius:var(--r-md);border:var(--border-strong) solid var(--q-option-border);
+  background:var(--q-option-bg);font:var(--type-option);color:var(--text-1);
+  text-align:left;cursor:pointer;transition:var(--t-hover);
+}
+.opt .k{width:var(--sp-9);height:var(--sp-9);flex:0 0 var(--sp-9);border-radius:var(--r-sm);background:var(--surface-subtle);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-13)/1 var(--font-num);color:var(--text-2)}
+.opt__txt{flex:1;min-width:0;overflow-wrap:anywhere;padding-top:var(--sp-3)}
+.opt:hover{border-color:var(--border-strong-c)}
+.opt:active{background:var(--surface-subtle);transform:scale(var(--press-scale))}
+.opts input:checked+.opt,.opt.selected{background:var(--q-option-selected-bg);border-color:var(--q-option-selected-border)}
+.opts input:checked+.opt .k,.opt.selected .k{background:var(--accent-500);color:var(--n-0)}
+.opts input:focus-visible+.opt{box-shadow:var(--focus-ring)}
+.opt.submitting{background:var(--q-option-selected-bg);border-color:var(--q-option-selected-border);opacity:.75;cursor:progress}
+/* locked must beat the :checked rule above — the locked answer is the checked
+   one, and it goes neutral grey, never accent. Same specificity shape, later. */
+.opt.locked,.opts input:checked+.opt.locked{background:var(--q-option-locked-bg);border-color:var(--q-option-locked-border);color:var(--q-option-locked-fg);cursor:not-allowed}
+.opt.locked .k,.opts input:checked+.opt.locked .k{background:var(--n-300);color:var(--n-700)}
+.opt.dimmed{opacity:.5;cursor:not-allowed}
+.opt__lock{margin-left:auto;flex:0 0 auto;font:var(--type-label);align-self:center}
+
+/* ---------- 32. TITA answer (tita-answer-run A + tita-numeric-input B)
+   Big display above, in-app keypad below, so the OS keyboard can never cover
+   Submit & lock. Answers may be negative and decimal, so the pad carries
+   "−" and ".". Same state set as the option list, and the same absence of a
+   correctness state: a submitted TITA answer shows only that it is locked. */
+.answerbox{display:flex;align-items:center;justify-content:center;gap:var(--sp-3);min-height:var(--sp-12);padding:0 var(--sp-5);border-radius:var(--r-md);border:var(--border-strong) solid var(--border-2);background:var(--surface-raised);color:var(--text-1);font:var(--type-numeric-lg);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-snug);overflow-x:auto}
+.answerbox::placeholder{font:var(--type-body);color:var(--text-3);letter-spacing:normal}
+/* the display is a real <input>: it carries the label, the value, paste and
+   autofill, and screen readers get a field rather than a styled <div>. The
+   keypad drives it; inputmode="decimal" keeps the OS keyboard usable too. */
+input.answerbox{width:100%;text-align:center}
+input.answerbox:focus{outline:0;border-color:var(--accent-500);box-shadow:var(--focus-ring)}
+input.answerbox[disabled]{cursor:not-allowed}
+.answerbox--filled{border-color:var(--q-option-selected-border);background:var(--q-option-selected-bg)}
+.answerbox--locked{border-color:var(--q-option-locked-border);background:var(--q-option-locked-bg);color:var(--q-option-locked-fg)}
+.answerbox__unit{font:var(--type-body-sm);color:var(--text-3);letter-spacing:normal;white-space:nowrap}
+.keypad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3)}
+.keypad button{min-height:var(--tap-comfortable);border-radius:var(--r-md);border:var(--border-hairline) solid var(--border-1);background:var(--glass-bg-strong);color:var(--text-1);font:var(--fw-medium) var(--fs-20)/1 var(--font-num);font-variant-numeric:var(--numeric-features);cursor:pointer;transition:var(--t-hover)}
+.keypad button:hover{background:var(--surface-raised);border-color:var(--border-2)}
+.keypad button:active{background:var(--surface-subtle);transform:scale(var(--press-scale))}
+.keypad button[disabled]{color:var(--text-disabled);cursor:not-allowed}
+
+/* ---------- 33. submit & skip (submit-lock-action A + ROOM-17) --------
+   One button, direct lock, no dialog — the label carries the warning.
+   Skip is NOT in the design system; it is required by ROOM-17 and it is as
+   irreversible as an answer, so it is built here as a deliberately different
+   object: secondary weight, its own row, and the consequence line physically
+   occupying the space between it and Submit & lock. That gap is the whole
+   mitigation for a mis-tap, so nothing may be inserted into it. */
+.btn.lg{min-height:var(--tap-comfortable);font:var(--fw-semibold) var(--fs-16)/1 var(--font-ui)}
+.qact{display:grid;gap:var(--sp-6);min-width:0}
+.qact__skip{display:grid;gap:var(--sp-3);justify-items:start;min-width:0}
+.qact__note{font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 34. lock confirmation -------------------------------------
+   The padlock and the word "locked" always appear together — the glyph alone
+   is never the signal. Neutral, not success-green: see the header note. */
+.lockcard{display:grid;gap:var(--sp-3);justify-items:center;text-align:center;padding:var(--sp-6);border-radius:var(--r-md);background:var(--glass-bg-strong);border:var(--border-hairline) solid var(--border-1)}
+.lockring{width:var(--sp-11);height:var(--sp-11);border-radius:var(--r-circle);background:var(--surface-subtle);border:var(--border-strong) solid var(--border-strong-c);display:grid;place-items:center;font-size:var(--fs-20);color:var(--text-2)}
+.lockcard__t{font:var(--type-h3)}
+
+/* ---------- 35. question image ----------------------------------------
+   The figure renders at its natural size and shrinks below it; it is never
+   scaled up, because a 400px diagram stretched across 1440px tells a student
+   nothing more than it did on a phone. */
+.qfig{margin:0;display:grid;gap:var(--sp-3);justify-items:start;min-width:0}
+.qfig img{max-width:100%;height:auto;border-radius:var(--r-md);border:var(--border-hairline) solid var(--border-1);background:var(--surface-raised)}
+.qfig figcaption{font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 36. S2 breakpoints ----------------------------------------
+   Reflow only. No max-width cap anywhere on this screen: a question is quiz
+   content, and the stem grows by type size rather than by a container cap. */
+@media (min-width:640px){
+  .qcard__hdr,.qcard__body,.qcard__foot{padding-left:var(--gutter-desktop);padding-right:var(--gutter-desktop)}
+  .qact{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--sp-9)}
+  .qact .btn.block{width:auto;padding-left:var(--sp-9);padding-right:var(--sp-9)}
+}
+@media (min-width:900px){
+  /* the header collapses from three rows to two: identity and the window clock
+     group at the left, progress takes the rest of the row, the question timer
+     spans below. The two clocks stay on different rows and different sides. */
+  .qcard__hdr{grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:var(--sp-9)}
+  .qcard__idrow>.grow{flex:0 0 0}
+  .qcard__hdr>.qtimer{grid-column:1/-1}
+  .qcard__body .stem{font-size:var(--fs-18)}
+}
+@media (min-width:1280px){
+  .qcard__body .stem{font-size:var(--fs-20)}
+}
+@media (prefers-reduced-motion:reduce){
+  .tbar__fill{transition:none}
+}
+
+/* ============================================================================
+   Sprint S3 — run: edges. Appended, not edited into the sections above.
+   Picks built: passage-set-layout A (split pane) · resumed-after-disconnect B
+   (resume card, one tap to continue) · joined-late A (reality-check card) ·
+   deadline-mid-question B (silent cut to the finish card) · inline-alert C
+   (`.strip` — reconnecting / offline / reconnected), the connection-state
+   component the S0/S1/S2 handovers all reserved for this sprint — plus the
+   rotate-to-portrait overlay, which the design system does not model at all
+   (see SYSTEM-GAPS). Losing variants (passage B/C, resumed A/C, deadline-
+   mid-question A/C) are deliberately absent. `resumed` and `late-join` reuse
+   `.state` (empty-state A) rather than inventing a new surface — both are
+   full-screen illustrated blocks, which is exactly what `.state` already is.
+
+   TIME-EXPIRED AUTO-ADVANCE IS NOT A VARIANT TO PICK — the guidelines'
+   Transitions table (canonical, no variants) specifies it: at 0:00 the bar
+   goes `--q-timer-expired`, a 900ms hold shows "Time up — moving on", the
+   option list goes inert (never locked — nothing was submitted), then the
+   normal cross-swap to the next question. Built as two states mirroring
+   S2's skip pair, reusing `.tbar--expired` / `.opt.dimmed` / `.lockcard` /
+   `.alert` already built — no new component required.
+   ========================================================================= */
+
+/* ---------- 37. passage set (passage-set-layout A — split pane) -------
+   Phone: the passage is a capped, independently-scrolling pane above the
+   question — read it like a PDF, the rest of the page scrolls normally.
+   >=900px this genuinely relayouts (§40): the passage takes the left column
+   at full available height, uncapped — a laptop showing more of the passage
+   without scrolling is the fairness mechanism, not a bug — the question and
+   options take the right. The passage block itself does not change between
+   questions in a set: same markup, same scroll position, only `.pset__q`
+   swaps. `display:grid` with no columns set is deliberate on phone — it just
+   stacks the two children in document order, no extra markup needed. */
+.pset{display:grid;gap:var(--sp-6);min-width:0}
+.pset__passage{
+  border-radius:var(--r-md);background:var(--glass-bg-strong);
+  border:1px solid var(--border-1);padding:var(--sp-5);
+  max-height:38vh;overflow-y:auto;overscroll-behavior:contain;min-width:0;
+}
+.pset__passage-text{font:var(--fw-regular) var(--fs-14)/var(--lh-relaxed) var(--font-ui);color:var(--text-1)}
+.pset__passage-text p+p{margin-top:var(--sp-4)}
+.pset__q{display:grid;gap:var(--sp-6);min-width:0}
+
+/* ---------- 38. connection strip (inline-alert C) ----------------------
+   Barred from ever sharing a surface with `toast` C — selections.md
+   consequence 1: the top edge belongs to the two run clocks, so connection
+   state gets its own component instead of borrowing the toast's. Persists
+   while the condition holds, never takes focus, never disables the options
+   below it. Reuses the `.a-*` status colours from `.alert` (§15) — one
+   palette decision, not two — so `<div class="strip a-warn">` etc. */
+.strip{display:flex;gap:var(--sp-3);align-items:center;padding:var(--sp-3) var(--sp-5);border-radius:var(--r-pill);border:1px solid transparent;font:var(--type-caption)}
+.strip .dot{width:7px;height:7px;border-radius:var(--r-circle);background:currentColor;flex:0 0 7px;animation:pulse var(--dur-5) linear infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ---------- 39. rotate-to-portrait overlay ------------------------------
+   Not in the design system at all — see SYSTEM-GAPS. The Screen Orientation
+   Lock API needs fullscreen and iOS Safari does not support it, so this CSS
+   fallback is load-bearing, not decorative (MOCKUP_PROMPT "Orientation").
+   The quiz clock keeps running behind it — a prompt, not a pause — so it
+   never touches `.clock-win` or `.qtimer`, only covers them. The real
+   trigger is the media query below; `.rotate-lock--demo` forces the same
+   markup visible at any width/orientation so a reviewer can see it without
+   rotating a device. */
+.rotate-lock{display:none}
+.rotate-lock__icon{width:64px;height:64px;color:var(--text-inverse)}
+.rotate-lock__t{font:var(--type-h3);color:var(--text-inverse)}
+.rotate-lock__p{font:var(--type-body-sm);color:var(--n-400);max-width:34ch}
+@media (orientation:landscape) and (max-width:899px){
+  .rotate-lock{
+    position:fixed;inset:0;z-index:60;
+    display:grid;gap:var(--sp-5);justify-items:center;align-content:center;
+    text-align:center;padding:var(--sp-7);
+    background:var(--surface-inverse);
+  }
+}
+.rotate-lock--demo{
+  display:grid;gap:var(--sp-5);justify-items:center;align-content:center;
+  text-align:center;padding:var(--sp-7);min-height:100dvh;
+  background:var(--surface-inverse);
+}
+
+/* ---------- 40. S3 breakpoints ------------------------------------------
+   The passage set is the one genuine relayout this sprint adds. No cap at
+   any width above 900px, per "do not equalise". */
+@media (min-width:900px){
+  .pset{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:var(--sp-9)}
+  .pset__passage{max-height:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .strip .dot{animation:none;opacity:.6}
+}
+
+/* ============================================================================
+   Sprint S4 — results: finish, holding, rank reveal, score breakdown.
+   Appended, not edited into the sections above.
+   Picks built: finish-card A (score hero) · holding-state B (waiting-room,
+   illustration-led) · rank-reveal B (rank in context, neighbours) ·
+   score-breakdown-tiles B (reconciling ledger). Losing variants (finish B/C,
+   holding A/C, rank-reveal A/C, breakdown A/C) are deliberately absent.
+
+   THE DISCLOSURE LADDER (selections.md, results-review.html header) drives
+   every layout choice: tier 1 (finish) is own score + answered count and
+   NOTHING else; tier 2 (holding) adds a finisher count, never names or
+   scores; tier 3 (rank reveal + breakdown) is post-deadline only and is the
+   first place `--rv-*` correctness colour is allowed to appear anywhere in
+   the product. A tier-3 component must never render before the deadline.
+   ========================================================================= */
+
+/* ---------- 41. result type helpers ------------------------------------
+   Shared by finish-card, holding-state and rank-reveal — a big number with a
+   small neutral caption above it and a quiet subline below. Two sizes: the
+   full hero (finish score, rank number) and a smaller one (holding's score
+   recap, where the hero would compete with the countdown for attention). */
+.wlabel{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3)}
+.hero{font:var(--fw-semibold) var(--fs-64)/1 var(--font-num);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight)}
+.numhero{display:grid;gap:var(--sp-2);justify-items:center;text-align:center}
+.numhero__value{font:var(--fw-semibold) var(--fs-38)/1 var(--font-num);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight);color:var(--text-1)}
+.numhero--lg .numhero__value{font-size:var(--fs-64)}
+
+/* ---------- 42. rank neighbours (rank-reveal B) -------------------------
+   Reuses S1's avatar-name-row A (`.namerow`, `.namerow.you`) rather than a
+   new leaderboard component — three rows of exactly that shape, with a rank
+   number prepended and a score appended as plain markup. S6's leaderboard-row
+   A is a superset of this (per-quiz board, medal rule) and should extend
+   `.namerow` the same way rather than inventing a second avatar row. */
+.rankrow{display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md)}
+.rankrow.you{background:var(--rank-you-bg);box-shadow:inset 0 0 0 1px var(--rank-you-border)}
+.rankrow__pos{width:var(--sp-9);flex:0 0 var(--sp-9);text-align:right;font:var(--fw-semibold) var(--fs-16)/1 var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-2)}
+.rankrow__score{flex:0 0 auto;font:var(--type-numeric);font-variant-numeric:var(--numeric-features)}
+
+/* ---------- 43. score breakdown (score-breakdown-tiles B — reconciling
+   ledger). Every row is signed and the total row is the arithmetic sum of
+   the rows above it, so a student can check it by hand. Correct/wrong text
+   colour uses the review-only `--rv-*` tokens — legitimate here because this
+   component is tier 3, post-deadline, exactly where selections.md says
+   correctness colour is first allowed to appear. Never a red or green FILL,
+   only text colour on a neutral row, per the guideline's explicit note that
+   negative marking must never look like a wrong-answer chip. */
+.ledger{border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1);overflow:hidden}
+.ledger__row{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);padding:var(--sp-3) var(--sp-5);border-bottom:1px solid var(--border-1);font:var(--type-body-sm)}
+.ledger__row:last-child{border-bottom:0}
+.ledger__row--total{background:var(--accent-50)}
+.ledger__row--total .ledger__val{font:var(--type-numeric)}
+.ledger__val{font-variant-numeric:var(--numeric-features);font-family:var(--font-num)}
+.ledger__ok{color:var(--rv-correct-fg)}
+.ledger__no{color:var(--rv-wrong-fg)}
+/* no S4 breakpoints: every result screen is either a captive centred card
+   (.resultpage, recentres only) or a single uncapped column
+   (.resultsview) — nothing in this sprint genuinely relayouts. */
+
+/* ============================================================================
+   Sprint S5 — review: 5 outcomes, distribution, time-vs-average, navigator.
+   Appended, not edited into the sections above.
+   Picks built: review-question-card **C + A composed** (collapsed index row
+   that expands in place into the annotated-option-list detail) ·
+   answer-distribution A (mini bars under the options) · time-vs-average B
+   (delta chip) · review-navigator A (sticky bottom bar + grid sheet). Losing
+   variants (review-question-card B, distribution B/C, time-vs-average A/C,
+   navigator B/C) are deliberately absent.
+
+   FIVE OUTCOMES, NOT FOUR. JOURNEYS §SJ-7 and MOCKUP_PROMPT both require
+   correct / wrong / skipped / timed out / not reached as distinct outcomes,
+   but the guidelines only model four badges (b-ok/b-no/b-skip/b-nr) — "timed
+   out" (a reached question whose per-question timer or the hard deadline
+   expired before submission) is drawn by the guidelines' own review sample
+   using the SAME b-skip badge as a deliberate skip, which contradicts
+   SJ-7's explicit five-item list. `.b-timeout` is new here, reusing
+   `--rv-skipped-*` (both outcomes score 0 with no penalty, so the same
+   colour family is correct) with a dashed border and its own glyph/word
+   (⌛ / "Timed out") so the two are never confused — see SYSTEM-GAPS #25.
+   ========================================================================= */
+
+/* ---------- 44. review question card (review-question-card A — annotated
+   in place). Relayouts at >=900px per MOCKUP_PROMPT's reflow/relayout table:
+   stem + options + distribution + time-vs-average stay together as the main
+   column, the explanation moves into a side column instead of stacking
+   beneath. `.rcard` is deliberately not `.qcard` — there is no sticky
+   header/foot and no single-question-per-screen framing here; review is a
+   normal scrolling page with free navigation (JOURNEYS §SJ-7), the opposite
+   of the run. */
+.rcard{border-radius:var(--r-lg);background:var(--glass-bg-strong);border:1px solid var(--border-1);box-shadow:var(--elev-2);padding:var(--sp-6);display:grid;gap:var(--sp-5);min-width:0}
+.rcard__hdr{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap}
+.rcard__idx{font:var(--type-label);font-family:var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-2);white-space:nowrap}
+.rcard__main{display:grid;gap:var(--sp-5);min-width:0}
+.rcard__aside{display:grid;gap:var(--sp-3);min-width:0;align-content:start}
+
+/* ---------- 45. outcome badges (review-question-card outcome vocabulary) --
+   Outcome is always a glyph AND a word AND a colour, per the guideline's own
+   rule, so it survives a screenshot, colour-blindness or greyscale print. */
+.b-ok{color:var(--rv-correct-fg);background:var(--rv-correct-bg);border-color:var(--rv-correct-border)}
+.b-no{color:var(--rv-wrong-fg);background:var(--rv-wrong-bg);border-color:var(--rv-wrong-border)}
+.b-skip{color:var(--rv-skipped-fg);background:var(--rv-skipped-bg);border-color:var(--rv-skipped-border)}
+.b-timeout{color:var(--rv-skipped-fg);background:var(--rv-skipped-bg);border-color:var(--rv-skipped-border);border-style:dashed}
+.b-nr{color:var(--rv-notreached-fg);background:transparent;border-color:var(--rv-notreached-border);border-style:dashed}
+
+/* ---------- 46. review option rows — annotated in place -------------------
+   Plain markup, not a radio group: nothing here is interactive or
+   resubmittable, unlike `.opt` in a live run. Namespaced `.ropt__k` etc.
+   rather than reusing `.opt .k` so the two components never collide. */
+.ropt{display:flex;gap:var(--sp-4);align-items:flex-start;padding:var(--sp-4);border-radius:var(--r-md);border:1px solid var(--border-2);background:var(--surface-raised);font:var(--type-option);min-width:0}
+.ropt__k{width:var(--sp-9);height:var(--sp-9);flex:0 0 var(--sp-9);border-radius:var(--r-sm);background:var(--surface-subtle);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-13)/1 var(--font-num);color:var(--text-2)}
+.ropt__txt{flex:1;min-width:0;overflow-wrap:anywhere;padding-top:var(--sp-3)}
+.ropt__tag{margin-left:auto;flex:0 0 auto;font:var(--type-caption);white-space:nowrap;padding-top:var(--sp-3)}
+.ropt.correct{border-color:var(--rv-correct-border);background:var(--rv-correct-bg)}
+.ropt.correct .ropt__k{background:var(--success-500);color:var(--n-0)}
+.ropt.wrong{border-color:var(--rv-wrong-border);background:var(--rv-wrong-bg)}
+.ropt.wrong .ropt__k{background:var(--danger-500);color:var(--n-0)}
+.ropt.muted{opacity:.72}
+
+/* ---------- 47. answer distribution (answer-distribution A — mini bars) ---
+   Sits directly under the option list, one row per option, percentage of
+   students who ANSWERED (n stated, never of the whole room). The correct
+   option and the student's own choice are marked independently so the two
+   facts don't merge into one when they differ (a wrong answer's bar is
+   never tinted as if it were correct, and vice versa). */
+.dist{display:grid;gap:var(--sp-3);min-width:0}
+.dist__row{display:grid;grid-template-columns:var(--sp-7) minmax(0,1fr) var(--sp-10);gap:var(--sp-3);align-items:center;font:var(--type-caption);min-width:0}
+.dist__opt{font:var(--fw-medium) var(--fs-13)/1 var(--font-num)}
+.dist__opt--ok{color:var(--rv-correct-fg);font-weight:var(--fw-semibold)}
+.dist__opt--mine{color:var(--rv-wrong-fg);font-weight:var(--fw-semibold)}
+.dist__bar{height:var(--sp-4);border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.dist__fill{display:block;height:100%;border-radius:var(--r-pill);background:var(--n-400)}
+.dist__fill--ok{background:var(--success-500)}
+.dist__fill--mine{background:var(--danger-500)}
+
+/* ---------- 48. time-vs-average (time-vs-average B — delta chip) ----------
+   One chip, reusing `.badge`. Wording is always "faster" / "slower" / "same
+   as room" — never "too slow" — because spending longer on a hard question
+   is not a failure (the guideline's own rule for this component). */
+.badge.tva-fast{background:var(--status-success-bg);color:var(--status-success-fg);border-color:var(--status-success-border)}
+.badge.tva-same{background:var(--n-100);color:var(--text-2)}
+.badge.tva-slow{background:var(--status-warning-bg);color:var(--status-warning-fg);border-color:var(--status-warning-border)}
+
+/* ---------- 49. review navigator (review-navigator A — sticky bar + grid
+   sheet). Here the numbered grid IS navigable — the opposite of Batch 3's
+   progress indicator (`.pbar`, S2 §30), which is why that component
+   deliberately avoids this shape. `.rgrid` runs 5 columns on a phone so
+   every cell clears the 44px tap-target rule, widening to 10 once there is
+   room (§51) — the guideline's fixed 10-column grid does not, see
+   SYSTEM-GAPS #25. Cells carry a glyph as well as a colour. */
+.rnav{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-pill);background:var(--glass-bg-strong);border:1px solid var(--border-1);box-shadow:var(--elev-2);min-width:0}
+.rnav__pos{display:inline-flex;align-items:center;gap:var(--sp-2);min-height:var(--tap-min);padding:0 var(--sp-3);border-radius:var(--r-pill);border:0;background:transparent;font:var(--type-label);color:var(--text-1);cursor:pointer}
+.rgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-width:0}
+.rcell{aspect-ratio:1;border-radius:var(--r-xs);display:grid;place-items:center;font:var(--fw-medium) var(--fs-11)/1 var(--font-num);border:1px solid transparent;text-decoration:none;color:inherit;min-height:var(--tap-min)}
+.rcell.ok{background:var(--rv-correct-bg);color:var(--rv-correct-fg);border-color:var(--rv-correct-border)}
+.rcell.no{background:var(--rv-wrong-bg);color:var(--rv-wrong-fg);border-color:var(--rv-wrong-border)}
+.rcell.skip{background:var(--rv-skipped-bg);color:var(--rv-skipped-fg);border-color:var(--rv-skipped-border)}
+.rcell.timeout{background:var(--rv-skipped-bg);color:var(--rv-skipped-fg);border-color:var(--rv-skipped-border);border-style:dashed}
+.rcell.nr{background:transparent;color:var(--rv-notreached-fg);border:1px dashed var(--rv-notreached-border)}
+.rcell.now{outline:var(--border-focus) solid var(--accent-500);outline-offset:1px}
+.rlegend{display:flex;gap:var(--sp-4) var(--sp-6);flex-wrap:wrap}
+
+/* ---------- 50. collapsed review row (review-question-card C — the index)
+   A real `<button>`, not an anchor: it expands its own `.rcard` in place
+   rather than navigating away, which is what "C opens into A" means in
+   selections.md consequence 8. */
+.rrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--sp-4);align-items:center;width:100%;min-height:var(--tap-min);padding:var(--sp-4);border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1);text-align:left;color:inherit;font:var(--type-body-sm);cursor:pointer}
+.rrow__q{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rrow__meta{font:var(--type-caption);color:var(--text-3);white-space:nowrap}
+.rrow.expanded{border-color:var(--accent-300)}
+
+/* ---------- 51. S5 breakpoints ---------------------------------------------
+   The review card is one of the eight screens that genuinely relayouts
+   (MOCKUP_PROMPT "Reflow vs. relayout"): question/options/distribution stay
+   as the main column, the explanation moves beside it instead of below. */
+@media (min-width:640px){
+  .rgrid{grid-template-columns:repeat(10,minmax(0,1fr))}
+}
+@media (min-width:900px){
+  .rcard{grid-template-columns:minmax(0,1fr) minmax(240px,300px);column-gap:var(--sp-7)}
+  .rcard__hdr{grid-column:1/-1}
+  .rcard__aside{grid-row:2}
+}
+
+/* ============================================================================
+   Sprint S6 — history & boards. Appended, not edited into the sections above.
+   Picks built: history-list-row A (two-line row) · leaderboard-row A (flat
+   row, medal rule) · podium-top3 B (ranked strip — consequence 5: no podium
+   metaphor anywhere, so top-3 is just the medal-rule treatment on the same
+   row, not a separate component) · board-switcher A (segmented sections +
+   week stepper) · leaderboard-empty A (embargo notice, reused for all three
+   "nothings"). Losing variants (history B/C, leaderboard-row B/C, podium A/C,
+   switcher B/C, empty B/C) are deliberately absent.
+
+   SYSTEM-GAPS #22 RESOLVED — leaderboard-row A extends `.rankrow` (S4 §42)
+   rather than becoming a second avatar-row component. `.rankrow` already had
+   the exact shape leaderboard-row A needs (pos + avatar + name + score); this
+   sprint adds the columns leaderboard-row A has that the rank-reveal context
+   list didn't (tie-break time, medal rule, a "You" tag, and — for the weekly
+   board only — section and quizzes-counted). All additions are opt-in
+   modifier classes or cells hidden by default, so `rank-reveal.html`'s
+   existing 3-row context list is pixel-unchanged: the new `border-left` is
+   transparent unless `.r1/.r2/.r3` is also present, and `.rankrow--list`
+   (its own surface, for a long board list) is never applied there. `.rcell`/
+   `.rgrid` (S5, review navigator) were correctly left alone — a leaderboard
+   row is a different axis (one row per OTHER student) from a review cell
+   (one cell per THIS student's OWN question), per the S5 handover note. */
+
+/* ---------- 52. leaderboard row (leaderboard-row A, extends §42's .rankrow)
+   Medal rule is colour on the numeral and a rule on the row only — never body
+   text — per the guideline's own contrast note (`--rank-1/2/3` fail contrast
+   as text). No 3px border-width token exists (SYSTEM-GAPS), so the rule uses
+   `--border-focus` (2px), the widest border token available. */
+.rankrow{border-left:var(--border-focus) solid transparent}
+.rankrow--list{background:var(--glass-bg-strong);border:1px solid var(--border-1);border-left-width:var(--border-focus);flex-wrap:wrap;min-height:var(--tap-min)}
+.rankrow.r1{border-left-color:var(--rank-1)}
+.rankrow.r2{border-left-color:var(--rank-2)}
+.rankrow.r3{border-left-color:var(--rank-3)}
+.rankrow__pos.r1{color:var(--rank-1)}
+.rankrow__pos.r2{color:var(--rank-2)}
+.rankrow__pos.r3{color:var(--rank-3)}
+/* weekly-board-only cells and the shared tie-break column: hidden on a phone,
+   revealed at >=900px — the sprint's one genuine relayout, per MOCKUP_PROMPT's
+   reflow/relayout table ("Leaderboard: phone rank+name+score; tablet/laptop
+   adds tie-break time, section, quizzes-counted"). Per-quiz rows never render
+   the section/count cells at all (nothing to show — no stub, per the
+   established grace-window precedent), only tie-break time. */
+.rankrow__tb,.rankrow__sec,.rankrow__count{display:none}
+.rankrow__tb{font:var(--type-caption);color:var(--text-3);font-family:var(--font-num);font-variant-numeric:var(--numeric-features);flex:0 0 auto}
+.rankrow__count{font:var(--type-caption);color:var(--text-3);white-space:nowrap;flex:0 0 auto}
+.badge.b-you{background:var(--accent-500);color:var(--n-0)}
+.chip-sec.b-overall{background:var(--sec-overall-tint);color:var(--sec-overall-ink)}
+
+/* ---------- 53. board switcher (board-switcher A — segmented + week stepper)
+   The segment row reuses `.seg` (tabs-segmented A) as-is; only the stepper is
+   new. The "next week" arrow is disabled, never hidden, so the edge of
+   available data stays visible rather than looking like a dead end. */
+.weekpick{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-pill);background:var(--glass-bg-strong);border:1px solid var(--border-1)}
+.weekpick button{display:inline-flex;align-items:center;justify-content:center;min-width:var(--tap-min);min-height:var(--tap-min);border-radius:var(--r-circle);border:1px solid var(--border-2);background:var(--surface-raised);color:var(--text-1);font:var(--type-label);cursor:pointer;flex:0 0 auto}
+.weekpick button:hover{border-color:var(--border-strong-c)}
+.weekpick button[disabled]{color:var(--text-disabled);cursor:not-allowed;background:var(--surface-subtle);border-color:var(--border-1)}
+.weekpick span{font:var(--type-label);color:var(--text-1);text-align:center;flex:1;min-width:0}
+
+/* ---------- 54. history row (history-list-row A — two-line row) ------------
+   A real `<a>` when the attempt has a review to open; a plain `<div>` for the
+   two states with nowhere to go yet (not attempted, results still held) —
+   same shape either way so the list doesn't jump around by row type. */
+.hrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--sp-4);align-items:center;min-height:var(--tap-min);padding:var(--sp-4);border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1);text-decoration:none;color:inherit;transition:var(--t-hover)}
+a.hrow:hover{border-color:var(--border-2);box-shadow:var(--elev-1);color:inherit}
+.hrow__name{font:var(--type-label);color:var(--text-1);display:block}
+.hrow__meta{font:var(--type-caption);color:var(--text-3);display:block}
+.hrow__aside{text-align:right;display:grid;gap:2px;justify-items:end}
+.hrow__score{font:var(--type-numeric);font-variant-numeric:var(--numeric-features)}
+.hrow--muted{opacity:.7}
+.hrow--held{border-color:var(--status-info-border);background:var(--status-info-bg)}
+.hrow--held .hrow__meta{color:var(--status-info-fg)}
+
+/* ---------- 55. S6 breakpoints --------------------------------------------
+   The only genuine relayout this sprint adds (the passage set, both navs,
+   the review card and the leaderboard are the app's relayouting screens per
+   MOCKUP_PROMPT; this is the leaderboard's). */
+@media (min-width:900px){
+  .rankrow__tb,.rankrow__sec,.rankrow__count{display:inline-flex}
+}
+
+/* ============================================================================
+   Sprint S7 — admin: bank. Appended, not edited into the sections above.
+   FIRST SPRINT TO SHIP A REAL ADMIN SCREEN — S0 built `.adm`/`.adm__bar`/
+   `.adm__side`/`.adm__main` only, as bare shell CSS with no screen ever
+   exercising it, so this sprint is where the admin shell's gaps surface for
+   real (see SYSTEM-GAPS #32).
+
+   Picks built: data-table A (dense, sticky header) + C (mobile card,
+   mandatory <640px) · pagination A (load more) · filter-bar A (chip row,
+   already `.chip`/`.chip.on` since S0) + C (sheet, mandatory <640px) ·
+   question-row A (dense table row) + C (mobile card) · question-editor A
+   (two-pane, edit left / preview right) · passage-group-card A (header +
+   child rows). Losing variants (data-table B, pagination B/C, filter-bar B,
+   question-row B, question-editor B/C, passage-group-card B/C) are
+   deliberately absent.
+
+   ADMIN SURFACE STRATEGY: selections.md's Batch-1 picks (ambient A, glass
+   A) are global — there is no separate admin ambient/glass pick in
+   selections.md, unlike the guidelines' own admin.html demo, which free-
+   lances "ambient B / glass B" in its lede. That demo commentary is not a
+   locked pick, so it is not followed here. Dense tables use `.card--solid`
+   (already resolved in S0) rather than a second ambient/glass variant.
+
+   NO CONTENT-WIDTH CAP, deliberately, even though the guidelines' own
+   `.wrap`/`.adm__main` caps at 1200–1360px "so tables and dense chunks of
+   text don't get too wide". MOCKUP_PROMPT's "Rules that apply everywhere"
+   #1 is written with no admin exception ("No artificial max-width caps on
+   content"), so `.adm__main` stays fluid. A dense table's own column
+   structure keeps 1440px from reading as empty space; no cap was needed to
+   make that true.
+   ========================================================================= */
+
+/* ---------- 56. admin mobile nav (gap-fill — not in the design system) ----
+   MOCKUP_PROMPT's reflow/relayout table requires "Admin navigation: Drawer
+   (rare, but must not break)" below 900px, but `.adm__side{display:none}`
+   below 900 (§12) is the entire mobile story S0 shipped — no drawer, no
+   trigger, nothing to tap. Built here as a real, zero-JS disclosure: native
+   `<details>/<summary>` (rule 3 bars JS-driven component behaviour, but a
+   native HTML disclosure widget is not JS and needs none). Reuses `.menu`
+   (§24) for the link list rather than inventing a second dropdown shape.
+   Hidden entirely at >=900px, where the persistent `.adm__side` takes over —
+   the two are mutually exclusive, never both visible. See SYSTEM-GAPS #32. */
+.admdrawer{position:relative}
+.admdrawer>summary{
+  list-style:none;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  width:var(--tap-min);height:var(--tap-min);border-radius:var(--r-md);
+  font-size:var(--fs-18);color:var(--text-1);
+}
+.admdrawer>summary::-webkit-details-marker{display:none}
+.admdrawer>summary::marker{content:""}
+.admdrawer:hover>summary,.admdrawer[open]>summary{background:var(--surface-subtle)}
+.admdrawer>summary:focus-visible{outline:0;box-shadow:var(--focus-ring)}
+.admdrawer .menu{position:absolute;top:calc(100% + var(--sp-2));left:0;z-index:30;min-width:200px}
+@media (min-width:900px){
+  .admdrawer{display:none}
+}
+
+/* ---------- 57. data table (data-table A — dense, sticky header) ----------
+   `#fff` in the guidelines -> `--surface-raised` (= `--n-0`, but named for
+   what it means: an opaque row surface, never glass — a translucent sticky
+   header over scrolling table body text is unreadable, per the guideline's
+   own note). Wrapped in `.tablewrap` for the one axis a table is allowed to
+   scroll on (rule: "no horizontal scrolling except inside a table that
+   declares overflow-x:auto"). Sort state is text plus an arrow, never an
+   arrow alone (`<th>Stem <span aria-hidden>↑</span></th>` in the markup). */
+/* Mobile fallbacks are mandatory (selections.md consequence 7), so the
+   dense table and its card fallback are both always in the markup; this
+   toggle is the shared contract every future data-table screen inherits —
+   min-width-only, same technique as the student shell's navbar/topnav. */
+.tablewrap{display:none;width:100%;min-width:0;overflow-x:auto}
+@media (min-width:640px){.tablewrap{display:block}}
+table.dt{width:100%;min-width:560px;border-collapse:separate;border-spacing:0;font:var(--type-table);background:var(--surface-raised);border:1px solid var(--border-1);border-radius:var(--r-md);overflow:hidden}
+table.dt th{background:var(--surface-sunken);text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2);white-space:nowrap}
+table.dt td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:0}
+table.dt tr:hover td{background:var(--n-25)}
+table.dt tr.sel td{background:var(--accent-50)}
+table.dt tr.retired{opacity:.6}
+table.dt td.n,table.dt th.n{text-align:right;font-family:var(--font-num);font-variant-numeric:var(--numeric-features)}
+table.dt input[type="checkbox"]{accent-color:var(--accent-500)}
+table.dt th.chk{width:var(--sp-8)}
+.ln{font-family:var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-3);font-size:var(--fs-12)}
+
+/* dense square badges — section identity and difficulty, distinct from the
+   pill `.badge` used everywhere else: a table cell wants a compact tag, not
+   a full pill. `.b-sec` (S0 §6) still supplies the section colour. */
+.badge.sq{border-radius:var(--r-xs);text-transform:uppercase;letter-spacing:var(--ls-caps);font:var(--type-overline);padding:3px 6px}
+.b-easy{color:var(--success-700);background:var(--success-50);border-color:var(--success-100)}
+.b-med{color:var(--warning-700);background:var(--warning-50);border-color:var(--warning-100)}
+.b-hard{color:var(--danger-700);background:var(--danger-50);border-color:var(--danger-100)}
+.b-unused{color:var(--accent-700);background:var(--accent-50);border-color:var(--accent-100)}
+.b-used{color:var(--text-2);background:var(--n-100);border-color:var(--n-200)}
+.b-retired{color:var(--text-3);background:transparent;border-color:var(--border-2);border-style:dashed}
+
+/* the persistent selection bar (§ guideline note: "a persistent selection
+   bar naming the count and its actions" — never a silent checkbox). */
+.selectbar{display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--accent-50);border:1px solid var(--accent-100)}
+.selectbar b{color:var(--accent-700);font:var(--type-label)}
+
+/* ---------- 58. question-row C (mobile card, mandatory <640px) ------------
+   Same fields as the table row, one card per question, no horizontal
+   comparison — the documented trade for the mandatory mobile fallback. */
+.bankcard{border:1px solid var(--border-1);border-radius:var(--r-md);background:var(--surface-raised);padding:var(--sp-4);display:grid;gap:var(--sp-3)}
+.bankcard--retired{opacity:.6}
+.bankcard__stem{font:var(--type-body-sm);color:var(--text-1)}
+/* the dense table's native checkbox is an accepted <44px trade for the mouse-
+   driven desktop row (data-table A's own documented "36px rows" trade), but
+   the mobile card fallback exists specifically because a phone is plausible
+   here — so its checkbox gets a real 44px hit area via a label wrapper. */
+.bankcard__check{display:inline-flex;align-items:center;justify-content:center;min-width:var(--tap-min);min-height:var(--tap-min);cursor:pointer}
+
+/* ---------- 59. pagination (pagination A — load more) ---------------------
+   Keeps scroll position, works on both surfaces (student history already
+   improvised around its absence — see SYSTEM-GAPS #30 — this is the real
+   component, built once, for both to eventually adopt). */
+.pager{display:flex;align-items:center;justify-content:center;gap:var(--sp-4);flex-wrap:wrap;padding:var(--sp-3) 0}
+
+/* ---------- 60. filter-bar C (mobile sheet, mandatory <640px) -------------
+   `.chip`/`.chip.on` (S0 §7) already IS filter-bar A's chip row — no new
+   CSS needed for the desktop half. The sheet is the only new piece: a real,
+   zero-JS `<details>` disclosure (same technique as §56's admin drawer) so
+   "Filters · N" genuinely opens on tap rather than being a static screenshot
+   of an open state. Mobile-first per the min-width-only rule: the sheet
+   shows by default and the chip row is what appears from 640px up. */
+.filterbar{display:none}
+.filtersheet{display:block}
+.filtersheet>summary{list-style:none}
+.filtersheet>summary::-webkit-details-marker{display:none}
+.filtersheet>summary::marker{content:""}
+.filtersheet__applied{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-top:var(--sp-4)}
+@media (min-width:640px){
+  .filterbar{display:flex}
+  .filtersheet{display:none}
+}
+
+/* ---------- 61. question-editor (question-editor A — two-pane) ------------
+   Edit fields left, a live student-eye preview right — the only way an
+   admin catches broken LaTeX before a quiz, per the guideline's own trade
+   note. The guideline calls for the split at "≥1000px", which is not one of
+   this build's three breakpoints (640/900/1280); substituted with 1280,
+   the nearest breakpoint at or above 1000 — see SYSTEM-GAPS #32. Below that
+   it stacks (edit, then preview), which is not a second variant, just the
+   same component reflowing — question-editor is not one of MOCKUP_PROMPT's
+   eight genuine-relayout screens. `.editor__preview` reuses `--surface-
+   sunken` (S0's `.panel` pattern) so the nested preview card inside it
+   never double-blurs. */
+.editor{display:grid;gap:var(--sp-7);min-width:0}
+.editor__form{display:grid;gap:var(--sp-6);min-width:0;align-content:start}
+.editor__preview{border-radius:var(--r-md);background:var(--surface-sunken);border:1px solid var(--border-1);padding:var(--sp-5);display:grid;gap:var(--sp-4);align-content:start;min-width:0}
+.optedit{display:flex;gap:var(--sp-3);align-items:center;min-width:0}
+.optedit .ln{flex:0 0 var(--sp-7);text-align:center}
+.optedit .inp{flex:1;min-width:0}
+textarea.inp{min-height:88px;padding:var(--sp-4) var(--sp-5);line-height:var(--lh-normal);font-family:var(--font-num);font-size:var(--fs-13);resize:vertical}
+@media (min-width:1280px){
+  .editor{grid-template-columns:minmax(0,1fr) minmax(320px,380px)}
+}
+
+/* ---------- 62. passage-group-card (passage-group-card A — header + child
+   rows). A passage group is drawn or retired as one indivisible unit
+   (BANK-6); every child row is visible at once precisely so a group of 3 or
+   6 (a validation error) is obvious without opening anything. */
+.pgroup{border:1px solid var(--border-2);border-radius:var(--r-md);background:var(--surface-raised);overflow:hidden;min-width:0}
+.pgroup__head{padding:var(--sp-5);background:var(--surface-sunken);border-bottom:1px solid var(--border-1);display:grid;gap:var(--sp-2);min-width:0}
+/* grid/flex items default min-width to their own min-content — the same
+   blowout class S1's .profile hit — so every level here is given min-width:0
+   explicitly rather than reusing S0's nowrap `.rowflex-between` as-is. */
+.pgroup__head>*{min-width:0}
+.pgroup__toprow{display:flex;gap:var(--sp-3);align-items:center;justify-content:space-between;flex-wrap:wrap;min-width:0}
+.pgroup__title{display:flex;gap:var(--sp-3);align-items:center;min-width:0;flex:1 1 auto}
+.pgroup__title b{overflow-wrap:anywhere;min-width:0}
+.pgroup__child{padding:var(--sp-3) var(--sp-5);border-bottom:1px solid var(--border-1);display:flex;gap:var(--sp-4);align-items:center;font:var(--type-table);min-width:0}
+.pgroup__child:last-child{border-bottom:0}
+.pgroup__child .grow{overflow-wrap:anywhere;min-width:0}
+.pgroup--bad{border-color:var(--danger-100)}
+.pgroup--bad .pgroup__head{background:var(--danger-50)}
+
+/* ============================================================================
+   Sprint S8 — admin: import. Appended, not edited into the sections above.
+   Picks built: file-dropzone A (single zone, two file types) ·
+   csv-validation-preview B (errors first, valid collapsed) ·
+   import-error-summary A (grouped by cause) · import-commit-bar A (sticky
+   footer bar). Losing variants (dropzone B/C, validation A/C, error-summary
+   B/C, commit-bar B/C) are deliberately absent.
+
+   REAL CSV SCHEMA, NOT THE GUIDELINE'S INVENTED ONE (closes SYSTEM-GAPS #6).
+   BANK.md §3 is canonical: type, topic, subtopic, difficulty, format,
+   passage_ref, body, image, option_a..d, correct, numeric_answer, tolerance,
+   explanation, source — never the guideline's stem/section/correct_option.
+   Every column name, error message and the "nothing importable" header
+   mismatch in this sprint quotes the real header row; the guideline's own
+   invented header is used ONCE, deliberately, as the rejected legacy file in
+   the nothing-importable state.
+   ========================================================================= */
+
+/* ---------- 63. file dropzone (file-dropzone A — single zone) -------------
+   One target, two file types (CSV required, ZIP optional) — the pairing rule
+   is explained in helper text rather than split into two drop targets. */
+.dz{display:grid;justify-items:center;gap:var(--sp-4);text-align:center;padding:var(--sp-9) var(--sp-7);border-radius:var(--r-lg);border:var(--border-strong) dashed var(--border-2);background:var(--glass-bg);min-width:0}
+.dz__icon{width:var(--sp-13);height:auto} /* 80px literal — same already-logged gap as .state img, SYSTEM-GAPS #17 */
+.dz--drag{border-color:var(--accent-500);background:var(--accent-50)}
+.dz--up,.dz--err{justify-items:stretch;text-align:left;padding:var(--sp-6);gap:var(--sp-5)}
+.dz--err{border-style:solid;border-color:var(--danger-200)}
+.filerow{display:flex;align-items:center;gap:var(--sp-4);min-width:0}
+.filerow__nm{flex:1;min-width:0;overflow-wrap:anywhere;font:var(--type-label);color:var(--text-1)}
+.filerow__sz{flex:0 0 auto;font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 64. row status badge (csv-validation-preview) ------------------
+   `.b-open` (§6, already success-tinted) covers "Valid" by reuse. There is
+   no plain danger pill anywhere else — `.b-hard` is difficulty-scoped and
+   `.b-live` is a filled solid reserved for a running quiz — so `.b-err` is
+   genuinely new, not a rename of an existing status. */
+.b-err{color:var(--status-danger-fg);background:var(--status-danger-bg);border-color:var(--status-danger-border)}
+
+/* ---------- 65. commit bar (import-commit-bar A — sticky footer) ----------
+   One shape, three tones: neutral (ready to commit / committing), success,
+   danger (failed — BANK.md §3.3's atomic-rollback guarantee is stated in
+   copy on this exact state, never merely implied). Reuses `.pbar`/`.pbar__
+   fill` (S2 §30) for the committing-progress fill rather than a second
+   progress-bar component, and `.facts`/`.fact` (S1 §22) for the write
+   summary rather than a new stats-table shape. */
+.commitbar{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap;padding:var(--sp-5);border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1)}
+.commitbar--ok{background:var(--status-success-bg);border-color:var(--status-success-border)}
+.commitbar--err{background:var(--status-danger-bg);border-color:var(--status-danger-border)}
+.commitbar__msg{flex:1 1 260px;min-width:0;font:var(--type-body-sm)}
+
+/* ============================================================================
+   Sprint S9 — admin: builder (define, draw + composition, params + bonus
+   curve, schedule, lock confirm). Appended, not edited into the sections
+   above.
+
+   Picks built: quiz-builder-wizard A (horizontal stepper) ·
+   difficulty-mix-control A (three steppers + running total) ·
+   composition-report A (sentence + breakdown table) · draw-preview A (list
+   with per-row swap) · scoring-parameter-panel A (field list + live decay
+   curve) · schedule-picker A (date + time + duration) · recurrence-editor A
+   (weekday chips + end rule) · destructive-confirm B (type-to-confirm, for
+   the lock) built on modal-sheet A (dialog >=640px / bottom sheet below).
+   Losing variants (wizard B/C, mix B/C, composition B/C, draw B/C, scoring
+   B/C, schedule B/C, recurrence B/C, destructive-confirm A/C) are
+   deliberately absent. `room-code-display` A is NOT built on the schedule
+   step — see the judgement call in SYSTEM-GAPS: the code is assigned at
+   lock (QUIZ-8), so it does not exist yet while scheduling.
+
+   FIRST SPRINT TO BUILD modal-sheet AND destructive-confirm, both deferred
+   since S0's "deliberately not built yet" list. Built as real, always-open
+   static markup (constraint 3 bars JS-driven open/close), matching the
+   precedent `.menu` (S1) and `.admdrawer` (S7) set for showing an
+   interactive overlay in its open state. */
+
+/* ---------- 66. quiz-builder-wizard (A — horizontal stepper) --------------
+   Five steps matching this sprint's own five screens: Define, Draw,
+   Scoring, Schedule, Lock — a deliberate relabelling of the guideline's own
+   five-step sample (Define/Draw/Review/Schedule/Lock), whose "Review" step
+   the guideline's own body copy describes as showing "draw preview and
+   composition report" — i.e. the same content as this build's Draw step.
+   Nothing is published until the final step, which every screen states. */
+.steps{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap;min-width:0}
+.step{display:flex;align-items:center;gap:var(--sp-3);font:var(--type-label);color:var(--text-3);white-space:nowrap}
+.step .n{width:24px;height:24px;flex:0 0 24px;border-radius:var(--r-circle);border:1px solid var(--border-2);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-12)/1 var(--font-num);background:var(--surface-raised);color:var(--text-2)}
+.step.done{color:var(--text-2)}
+.step.done .n{background:var(--success-500);border-color:var(--success-500);color:var(--n-0)}
+.step.on{color:var(--text-1);font-weight:var(--fw-semibold)}
+.step.on .n{background:var(--accent-500);border-color:var(--accent-500);color:var(--n-0)}
+.step .sep{width:18px;height:1px;background:var(--border-2);flex:0 0 18px}
+
+/* ---------- 67. difficulty mix (difficulty-mix-control A — three steppers +
+   running total). Consequence 3 (selections.md): three independent numbers
+   can sum to != N, so the total row is live and blocks Continue until it
+   reconciles — never a silent clamp. Bar colours reuse the same
+   success/warning/danger-500 family the difficulty badges (§57 `.b-easy`
+   etc.) already tint from, one palette decision for "difficulty" shared by
+   both components. */
+.mix{display:grid;gap:var(--sp-3);min-width:0}
+.mixrow{display:grid;grid-template-columns:64px minmax(0,1fr) 48px;gap:var(--sp-4);align-items:center;font:var(--type-body-sm);min-width:0}
+.mixrow input[type="range"]{width:100%;accent-color:var(--accent-500);min-width:0}
+.mixbar{height:var(--sp-5);border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.mixbar i{display:block;height:100%;border-radius:var(--r-pill)}
+.mixtotal{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--surface-subtle)}
+.mixtotal.ok{background:var(--status-success-bg);color:var(--status-success-fg)}
+.mixtotal.err{background:var(--status-danger-bg);color:var(--status-danger-fg)}
+
+/* ---------- 68. spec table (composition-report A — sentence + breakdown) --
+   A quiet key/value table, distinct from `table.dt` (§57): no sticky
+   header, no row hover, no sort — this is a read-only summary, never a
+   dataset to scan or select from. Reusable anywhere a report needs the
+   same "label, right-aligned number" shape (S10's report tiles group is
+   the likely next user). */
+table.spec{width:100%;border-collapse:collapse;font:var(--type-body-sm);min-width:0}
+table.spec th{text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.spec td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:top}
+table.spec tr:last-child td{border-bottom:0}
+table.spec td.n{text-align:right;font-family:var(--font-num);font-variant-numeric:var(--numeric-features)}
+
+/* ---------- 69. draw preview row (draw-preview A — list, per-row swap) ----
+   A passage set draws and re-draws as one whole unit (BANK-6, QUIZ-3), so
+   its row carries no per-row swap control — only a standalone question
+   does. `.drawrow--swapped` marks the one row a re-draw touched, so the
+   admin can see what changed without re-reading the whole list. */
+.drawrow{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:var(--sp-4);align-items:center;padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);font:var(--type-table);min-width:0}
+.drawrow:last-child{border-bottom:0}
+.drawrow__stem{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.drawrow--swapped{background:var(--accent-50)}
+.drawrow--group{grid-template-columns:28px minmax(0,1fr) auto}
+
+/* ---------- 70. modal-sheet (A — dialog >=640px / bottom sheet below) -----
+   Scoped to a positioned ancestor the screen provides (`.stage` in
+   screens-s9.css) rather than the viewport — the design system's own
+   artifact never modelled the real fixed-to-viewport overlay, only ever
+   showing this boxed for cataloguing, so this build matches that rather
+   than inventing production portal behaviour on its own authority. A real
+   app would render `.scrim`/`.dlg`/`.sheet` into a viewport-covering
+   portal; that is ordinary implementation detail, not a variant choice.
+   Toggled purely by width (same min-width-only technique as
+   `.tablewrap`/`.filtersheet`) — never both visible. Built static-open:
+   constraint 3 bars a JS-driven open/close, so every screen that needs
+   this renders it already in its open state, the same choice S1's `.menu`
+   and S7's `.admdrawer` made. Focus-trap and Esc-to-close are real-app
+   behaviour with nothing to demonstrate in static markup. */
+.scrim{position:absolute;inset:0;z-index:1;background:var(--scrim);backdrop-filter:blur(var(--scrim-blur));-webkit-backdrop-filter:blur(var(--scrim-blur))}
+.dlg{position:relative;z-index:2;background:var(--glass-bg-strong);border-radius:var(--r-lg);box-shadow:var(--elev-4);padding:var(--sp-7);display:none;gap:var(--sp-5);width:100%;max-width:400px}
+.sheet{position:absolute;z-index:2;left:0;right:0;bottom:0;background:var(--glass-bg-strong);border-radius:var(--r-2xl) var(--r-2xl) 0 0;box-shadow:var(--elev-4);padding:var(--sp-6);display:grid;gap:var(--sp-5);max-height:82%;overflow-y:auto}
+.grabber{width:36px;height:4px;border-radius:2px;background:var(--n-300);justify-self:center;flex:0 0 auto}
+@media (min-width:640px){
+  .dlg{display:grid}
+  .sheet{display:none}
+}
+/* forces one shell visible regardless of the reviewer's actual width, the
+   same "--demo" technique S3's `.rotate-lock--demo` (§39) established for a
+   trigger a fixed-width screenshot cannot otherwise show */
+.dlg--demo{display:none!important}
+.sheet--demo{display:grid!important}
+
+/* ---------- 71. destructive-confirm (B — type-to-confirm, for the lock) ---
+   Consequence 2 (selections.md): the confirm button reads "Lock quiz",
+   never "OK", and the consequence line states the exact count and the word
+   "permanently". The confirm button stays a real `<button disabled>` until
+   the typed value matches — shown as two states (empty / matched) since a
+   static file cannot demonstrate the keystroke-by-keystroke check itself. */
+.confirmbody{display:grid;gap:var(--sp-2)}
+
+/* ---------- 72. S9 breakpoints ---------------------------------------------
+   The builder's one genuine relayout (MOCKUP_PROMPT: "stacked steps, one
+   per screen" on a phone vs. "two-column: form left, live draw preview
+   right" on tablet/laptop) is scoped to the Draw step, the one screen that
+   actually has a live preview to show beside its form — see
+   `screens-s9.css`. The other four steps have no natural second column
+   (a bonus curve, a schedule summary and a lock dialog are not previews of
+   anything else), so they stay a single fluid column at every width,
+   per the established "no stub" precedent (S2's grace band, S6's
+   per-quiz section cell). */
+
+/* ============================================================================
+   Sprint S10 — admin: schedule & reports. Appended, not edited into the
+   sections above. Last sprint of the build.
+
+   Picks built: quiz-card-schedule A (card with status header) ·
+   recurrence-editor A (reused as-read from S9 for the templates recap, no
+   new form built) · report-summary-tiles B (tiles + score histogram) ·
+   participants-table A (dense sortable, reuses table.dt/.tablewrap from S7)
+   + data-table C mobile fallback (reuses .bankcard's pattern) ·
+   item-analysis-row A (row with % correct bar) · export-action A (button +
+   format menu, reuses .menu from S1) · manage-admins-row B (grouped by
+   role) · destructive-confirm A (consequence list + weighted buttons),
+   the sibling S9 explicitly left for this sprint to build, on modal-sheet A
+   (reuses .scrim/.dlg/.sheet/.stage exactly as S9's lock dialog did).
+   Losing variants (quiz-card-schedule B/C, report-tiles A/C,
+   participants-table B/C, item-analysis-row B/C, export-action B/C,
+   manage-admins-row A/C, destructive-confirm B/C) are deliberately absent.
+
+   TWO SCOPE DECISIONS, both logged in SYSTEM-GAPS: live-quiz-monitor
+   ("Monitor" on an open/live schedule card) and quiz-void ("Void quiz") are
+   both undecided product questions (PRD open Q5/Q6, JOURNEYS AJ-7/AJ-9,
+   "decide before mockups" for AJ-7) and are NOT in this sprint's named
+   scope — neither action appears on any schedcard here, unlike the
+   guideline's own quiz-card-schedule sample. Building the affordance would
+   silently resolve an open question this sprint was never asked to close.
+   ========================================================================= */
+
+/* ---------- 73. schedule card (quiz-card-schedule A) -----------------------
+   Built on .card--solid (S0's opaque admin surface, §4) — only the internal
+   layout is new, per the standing "extend, don't invent a surface" rule.
+   Status colour comes entirely from the existing .b-draft/.b-sched/.b-open/
+   .b-live/.b-closed badges (§6); the border tint modifiers below repeat
+   that same colour decision on the card edge, never a new one. */
+.schedcard{display:grid;gap:var(--sp-3);min-width:0}
+.schedcard__hdr{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);min-width:0}
+.schedcard__title{font:var(--type-h3);text-wrap:balance;overflow-wrap:anywhere}
+.schedcard__facts{font:var(--type-caption);color:var(--text-3)}
+.schedcard__foot{display:flex;gap:var(--sp-3);align-items:center;justify-content:space-between;flex-wrap:wrap;min-width:0}
+.schedcard--open{border-color:var(--status-success-border)}
+.schedcard--live{border-color:var(--status-danger-border)}
+.schedcard--closed{opacity:.85}
+/* a recurring template is not a quiz status, so it earns its own badge
+   rather than borrowing .b-unused (which means "unused question" elsewhere
+   in this build) — same visual weight as the accent-tinted badges, a new
+   semantic, not a new colour decision. */
+.b-rec{color:var(--accent-700);background:var(--accent-50);border-color:var(--accent-100)}
+
+/* ---------- 74. report tiles (report-summary-tiles B — tiles + histogram) -
+   Four tiles rather than the guideline's two: nothing in selections.md caps
+   the count, and a report with only "avg score" and "participants" hides
+   the two numbers (avg time, avg accuracy) every other report screen in
+   the guideline's own sample states. The histogram is what B actually adds
+   over A — bar heights are per-quiz data, set inline as %, the same
+   convention S2's grace band and S5's distribution bars already use for a
+   data-driven width/height that must not be read as a hardcoded value. */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-4)}
+.tile{border-radius:var(--r-md);background:var(--surface-raised);border:1px solid var(--border-1);padding:var(--sp-5);display:grid;gap:2px;min-width:0}
+.tile__v{font:var(--type-numeric);font-variant-numeric:var(--numeric-features);color:var(--text-1)}
+.tile__l{font:var(--type-caption);color:var(--text-3)}
+.histogram{display:grid;gap:var(--sp-3);min-width:0}
+.histogram__bars{display:flex;align-items:flex-end;gap:3px;height:64px;min-width:0}
+.histogram__bar{flex:1;min-width:0;border-radius:2px 2px 0 0;background:var(--n-300)}
+.histogram__bar--peak{background:var(--accent-500)}
+/* a lightweight de-emphasis for a row that didn't finish or is otherwise
+   secondary to the main sort — opacity only, no colour decision to make. */
+.row-muted{opacity:.7}
+.histogram__foot{display:flex;justify-content:space-between;gap:var(--sp-3);font:var(--type-caption);color:var(--text-3)}
+
+/* ---------- 75. item analysis (item-analysis-row A — % correct bar) -------
+   One metric, sorted straight to the worst question — selections.md's own
+   trade note for A over B/C. `.itembar` is deliberately not `.dist__bar`
+   (S5, per-option distribution inside one student's review) or `.pbar`
+   (S2, neutral run progress): this bar is coloured by severity, which
+   neither of those may ever be. */
+.itemrow{display:grid;gap:var(--sp-3);padding:var(--sp-4);border-radius:var(--r-md);background:var(--surface-raised);border:1px solid var(--border-1);min-width:0}
+.itemrow__hdr{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);flex-wrap:wrap;min-width:0}
+.itembar{height:var(--sp-3);border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.itembar__fill{display:block;height:100%;border-radius:var(--r-pill)}
+.itembar__fill--danger{background:var(--danger-500)}
+.itembar__fill--warning{background:var(--warning-500)}
+.itembar__fill--success{background:var(--success-500)}
+.pct-danger{color:var(--danger-700)}
+.pct-warning{color:var(--warning-700)}
+.pct-success{color:var(--success-700)}
+
+/* ---------- 76. destructive-confirm A (consequence list + weighted
+   buttons) — the sibling of S9's §71 `.confirmbody` (type-to-confirm, B)
+   that S9's own handover asked this sprint to build. Promote/demote is
+   reversible (a superadmin can always change a role back), unlike the
+   quiz lock, so a consequence list plus a same-click weighted button is
+   proportionate — typing a confirmation word would overstate the risk. */
+.confirmlist{display:grid;gap:var(--sp-2);margin:0;padding-left:var(--sp-6)}
+.confirmlist li{font:var(--type-body-sm);color:var(--text-2)}
+
+/* ---------- 77. S10 breakpoints --------------------------------------------
+   report-summary-tiles is the only new component here that relayouts by
+   itself (2 tiles per row on a phone, 4 once there is room) — everything
+   else composes from grids already declared per-screen in screens-s10.css. */
+@media (min-width:640px){
+  .tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S4 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:860px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S4 — responsive proof</h1>
+    <p class="tiny">Every S4 results screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths.</p>
+    <p class="tiny">Nothing here genuinely relayouts. Finish and holding are captive, centred interstitials (`.resultpage`) that simply recentre a fixed-measure card at every width — there is nowhere else to go from either screen. Rank reveal is a normal page inside the app shell (`.resultsview`, uncapped, single column) because tier 3 restores normal navigation.</p>
+    <p class="tiny">The disclosure ladder is the thing to check across the three: finish shows only a score and an answered count; holding adds a finisher count but still no names or ranks; rank reveal is the first screen anywhere in the product allowed to show a rank, a neighbour's name and score, or `--rv-*` correctness colour.</p>
+  </div>
+
+  <section>
+    <h2>Finish — own score only</h2>
+    <p class="tiny">finish-card A, tier 1. Normal completion, and arrival via S3's deadline-mid-question silent cut (states which question was not submitted).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/finish.html" title="Finish at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/finish.html" title="Finish at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/finish.html" title="Finish at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Holding — waiting for the deadline</h2>
+    <p class="tiny">holding-state B, tier 2. Mid-wait, and the final two minutes with the countdown escalated.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/holding.html" title="Holding at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/holding.html" title="Holding at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/holding.html" title="Holding at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rank reveal + score breakdown</h2>
+    <p class="tiny">rank-reveal B (neighbours) and score-breakdown-tiles B (reconciling ledger), tier 3 — one screen, unlocked together after the hard deadline.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/rank-reveal.html" title="Rank reveal at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/rank-reveal.html" title="Rank reveal at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/rank-reveal.html" title="Rank reveal at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

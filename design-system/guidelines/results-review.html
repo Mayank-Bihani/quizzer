@@ -1,0 +1,638 @@
+<!-- @dsCard group="Components" viewport="1280x760" name="Batch 4 — Results, review, leaderboards" subtitle="Finish, holding, rank reveal, breakdown, review card, distribution, navigator, history, leaderboard, podium" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quizzer — Results, review, leaderboards (Batch 4)</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:24px;background:var(--amb-base)}
+body{margin:0;font:var(--type-body);color:var(--text-1)}
+body::before{content:"";position:fixed;inset:0;background:var(--amb-a);z-index:-2}
+.wrap{display:grid;grid-template-columns:232px minmax(0,1fr);gap:var(--sp-9);max-width:1320px;margin:0 auto;padding:var(--sp-9) var(--sp-8) var(--sp-13)}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:var(--sp-6);padding:var(--sp-6)}}
+.toc{position:sticky;top:var(--sp-6);align-self:start;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));border:var(--glass-border);box-shadow:var(--glass-shadow),var(--glass-ring);border-radius:var(--r-lg);padding:var(--sp-6);max-height:calc(100vh - var(--sp-11));overflow:auto}
+.toc h4{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin:0 0 var(--sp-4)}
+.toc a{display:block;font:var(--type-body-sm);color:var(--text-2);text-decoration:none;padding:5px var(--sp-3);border-radius:var(--r-sm)}
+.toc a:hover{background:var(--accent-50);color:var(--text-link-hover)}
+a{color:var(--text-link)}a:hover{color:var(--text-link-hover)}
+.eyebrow{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--accent-600)}
+h1{font:var(--type-display);letter-spacing:var(--ls-tight);margin:var(--sp-3) 0 var(--sp-4)}
+.lede{font:var(--type-body);color:var(--text-2);max-width:74ch;text-wrap:pretty}
+section{margin-bottom:var(--sp-12);scroll-margin-top:var(--sp-8)}
+h2{font:var(--type-h1);letter-spacing:var(--ls-snug);margin:0 0 var(--sp-2);display:flex;align-items:baseline;gap:var(--sp-4);flex-wrap:wrap}
+h2 .kb{font:var(--fw-medium) var(--fs-13)/1 var(--font-num);color:var(--text-3)}
+h3{font:var(--type-h2);margin:var(--sp-8) 0 var(--sp-4)}
+p.note{font:var(--type-body-sm);color:var(--text-2);max-width:80ch;margin:var(--sp-3) 0;text-wrap:pretty}
+code,.tok{font:var(--fw-medium) var(--fs-12)/1.4 var(--font-num);color:var(--text-2);background:rgba(16,24,40,.05);padding:1px 5px;border-radius:var(--r-xs);white-space:nowrap}
+.tokens-used{font:var(--type-caption);color:var(--text-3);margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:var(--hairline);display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:baseline}
+.tokens-used b{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3)}
+.card{background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));border:var(--glass-border);box-shadow:var(--glass-shadow),var(--glass-ring);border-radius:var(--r-lg);padding:var(--sp-7)}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-6);align-items:start}
+@media(max-width:1140px){.trio{grid-template-columns:1fr}}
+.vh{display:flex;flex-direction:column;gap:var(--sp-4)}
+.vlabel{display:flex;align-items:center;gap:var(--sp-4)}
+.vbadge{width:26px;height:26px;flex:0 0 26px;border-radius:var(--r-sm);background:var(--n-900);color:var(--n-0);font:var(--fw-semibold) var(--fs-13)/26px var(--font-ui);text-align:center}
+.vname{font:var(--type-h3)}
+.vmeta{font:var(--type-caption);color:var(--text-2);display:grid;gap:3px}
+.vmeta i{font-style:normal;color:var(--text-3);font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-right:6px}
+.wlabel{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin-bottom:var(--sp-3)}
+.stack{display:flex;flex-direction:column;gap:var(--sp-4)}
+.rowflex{display:flex;gap:var(--sp-4);flex-wrap:wrap;align-items:center}
+.tiny{font:var(--type-caption);color:var(--text-3)}
+.num{font-variant-numeric:var(--numeric-features);font-family:var(--font-num)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-3);min-height:var(--tap-min);padding:0 var(--sp-6);border-radius:var(--r-md);border:1px solid transparent;font:var(--type-option);cursor:pointer;background:var(--action-primary-bg);color:var(--action-primary-fg)}
+.btn.lg{min-height:var(--tap-comfortable);font:var(--fw-semibold) var(--fs-16)/1 var(--font-ui)}
+.btn.sec{background:var(--action-secondary-bg);color:var(--action-secondary-fg);border-color:var(--action-secondary-border)}
+.btn.ghost{background:transparent;color:var(--action-ghost-fg)}
+.btn.sm{min-height:36px;padding:0 var(--sp-5);font:var(--type-label)}
+.btn[disabled]{background:var(--action-disabled-bg);color:var(--action-disabled-fg);cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:var(--sp-2);padding:4px 10px;border-radius:var(--r-pill);font:var(--type-label);border:1px solid transparent;white-space:nowrap}
+.b-sec{color:#fff}
+.b-ok{color:var(--rv-correct-fg);background:var(--rv-correct-bg);border-color:var(--rv-correct-border)}
+.b-no{color:var(--rv-wrong-fg);background:var(--rv-wrong-bg);border-color:var(--rv-wrong-border)}
+.b-skip{color:var(--rv-skipped-fg);background:var(--rv-skipped-bg);border-color:var(--rv-skipped-border)}
+.b-nr{color:var(--rv-notreached-fg);background:transparent;border-color:var(--rv-notreached-border);border-style:dashed}
+/* phone */
+.ph{width:var(--phone-w);max-width:100%;border-radius:var(--r-2xl);border:1px solid var(--border-2);background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,.2));overflow:hidden;display:flex;flex-direction:column}
+.ph.tall{min-height:500px}
+.ph .sb{height:24px;display:flex;align-items:center;justify-content:space-between;padding:0 var(--sp-5);font:var(--fw-medium) 10px/1 var(--font-num);color:var(--text-3)}
+.ph .bd{flex:1;padding:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4)}
+.ph .foot{padding:var(--sp-4) var(--sp-5) var(--sp-5);background:var(--glass-bg-strong);border-top:1px solid var(--border-1);display:grid;gap:var(--sp-3)}
+.qc{border-radius:var(--r-lg);background:var(--glass-bg-strong);border:1px solid var(--border-1);box-shadow:var(--elev-2);padding:var(--sp-5);display:grid;gap:var(--sp-4)}
+.solid{border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:var(--sp-3)}
+.bignum{font:var(--type-numeric-lg);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight);line-height:1}
+.hero{font:var(--fw-semibold) var(--fs-64)/1 var(--font-num);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight)}
+.math{font-family:var(--font-math);font-style:italic}
+.math sup{font-style:normal;font-size:.7em}
+.mathblock{display:block;text-align:center;font-family:var(--font-math);font-style:italic;margin:var(--sp-3) 0;padding:var(--sp-4);border-radius:var(--r-sm);background:rgba(16,24,40,.035);overflow-x:auto}
+.stem{font:var(--type-stem)}
+.qimg{border-radius:var(--r-md);border:1px solid var(--border-1);background:var(--n-50);height:88px;display:grid;place-items:center;font:var(--type-caption);color:var(--text-3)}
+/* review option rows */
+.ropt{display:flex;gap:var(--sp-4);align-items:flex-start;padding:var(--sp-4);border-radius:var(--r-md);border:1px solid var(--border-2);background:#fff;font:var(--type-option)}
+.ropt .k{width:26px;height:26px;flex:0 0 26px;border-radius:var(--r-sm);background:rgba(16,24,40,.06);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-13)/1 var(--font-num);color:var(--text-2)}
+.ropt.correct{border-color:var(--rv-correct-border);background:var(--rv-correct-bg)}
+.ropt.correct .k{background:var(--success-500);color:#fff}
+.ropt.wrong{border-color:var(--rv-wrong-border);background:var(--rv-wrong-bg)}
+.ropt.wrong .k{background:var(--danger-500);color:#fff}
+.ropt .tag{margin-left:auto;font:var(--type-caption);white-space:nowrap}
+.ropt.muted{opacity:.72}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-3)}
+.tile{border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:2px}
+.tile .v{font:var(--type-numeric);font-variant-numeric:var(--numeric-features)}
+.tile .l{font:var(--type-caption);color:var(--text-3)}
+.tilerow{display:flex;align-items:center;justify-content:space-between;padding:9px var(--sp-4);border-bottom:1px solid var(--border-1);font:var(--type-body-sm)}
+.tilerow:last-child{border-bottom:0}
+/* distribution */
+.distrow{display:grid;grid-template-columns:20px 1fr 42px;gap:var(--sp-3);align-items:center;font:var(--type-caption)}
+.distbar{height:8px;border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.distbar i{display:block;height:100%;border-radius:var(--r-pill);background:var(--n-400)}
+.distbar i.ok{background:var(--success-500)}
+.distbar i.mine{background:var(--danger-500)}
+.stackbar{display:flex;height:12px;border-radius:var(--r-pill);overflow:hidden;background:var(--n-100)}
+.stackbar span{display:block}
+/* time vs avg */
+.tva{position:relative;height:34px}
+.tvaline{position:absolute;left:0;right:0;top:16px;height:4px;border-radius:2px;background:var(--n-200)}
+.tvamark{position:absolute;top:8px;width:3px;height:20px;border-radius:2px;background:var(--n-600)}
+.tvayou{position:absolute;top:4px;width:12px;height:28px;border-radius:var(--r-xs);background:var(--accent-500)}
+/* navigator */
+.pgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+.pcell{aspect-ratio:1;border-radius:var(--r-xs);display:grid;place-items:center;font:var(--fw-medium) 10px/1 var(--font-num);cursor:pointer;border:1px solid transparent}
+.pcell.ok{background:var(--rv-correct-bg);color:var(--rv-correct-fg);border-color:var(--rv-correct-border)}
+.pcell.no{background:var(--rv-wrong-bg);color:var(--rv-wrong-fg);border-color:var(--rv-wrong-border)}
+.pcell.skip{background:var(--rv-skipped-bg);color:var(--rv-skipped-fg);border-color:var(--rv-skipped-border)}
+.pcell.nr{background:transparent;color:var(--rv-notreached-fg);border:1px dashed var(--rv-notreached-border)}
+.pcell.now{outline:2px solid var(--accent-500);outline-offset:1px}
+/* leaderboard */
+.lb{display:grid;grid-template-columns:34px 32px 1fr auto auto;gap:var(--sp-4);align-items:center;padding:var(--sp-4);border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1)}
+.lb .rk{font:var(--fw-semibold) var(--fs-16)/1 var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-2);text-align:right}
+.lb .sc{font:var(--type-numeric);font-variant-numeric:var(--numeric-features)}
+.lb .tb{font:var(--type-caption);color:var(--text-3);font-family:var(--font-num);font-variant-numeric:var(--numeric-features)}
+.lb.you{background:var(--rank-you-bg);border-color:var(--rank-you-border);box-shadow:inset 0 0 0 1px var(--rank-you-border)}
+.lb.r1 .rk{color:var(--rank-1)}.lb.r2 .rk{color:var(--rank-2)}.lb.r3 .rk{color:var(--rank-3)}
+.lb.r1{border-left:3px solid var(--rank-1)}.lb.r2{border-left:3px solid var(--rank-2)}.lb.r3{border-left:3px solid var(--rank-3)}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(140deg,var(--sec-quant),var(--sec-verbal));color:#fff;display:grid;place-items:center;font:var(--fw-semibold) var(--fs-12)/1 var(--font-ui)}
+.av.lg{width:52px;height:52px;font-size:var(--fs-16)}
+.medal{font-size:13px}
+/* podium */
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp-3);align-items:end}
+.plinth{border-radius:var(--r-md) var(--r-md) 0 0;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.55));border:1px solid var(--border-1);border-bottom:0;padding:var(--sp-4) var(--sp-3);display:grid;gap:var(--sp-2);justify-items:center;text-align:center}
+.seg{display:inline-flex;background:rgba(16,24,40,.05);border-radius:var(--r-pill);padding:3px;gap:2px}
+.seg button{border:0;background:transparent;border-radius:var(--r-pill);min-height:36px;padding:0 var(--sp-5);font:var(--type-label);color:var(--text-2);cursor:pointer}
+.seg button.on{background:#fff;color:var(--text-1);box-shadow:var(--elev-1)}
+.weekpick{display:flex;align-items:center;gap:var(--sp-3);font:var(--type-label)}
+.weekpick button{width:36px;height:36px;border-radius:var(--r-sm);border:1px solid var(--border-2);background:rgba(255,255,255,.8);cursor:pointer}
+.state{display:grid;gap:var(--sp-4);justify-items:center;text-align:center;padding:var(--sp-6);border-radius:var(--r-md);background:rgba(255,255,255,.55);border:1px solid var(--border-1)}
+.state img{width:110px;height:auto}
+.state h5{font:var(--type-h3);margin:0}
+.state p{font:var(--type-body-sm);color:var(--text-2);margin:0;max-width:34ch}
+.strip{display:flex;gap:var(--sp-3);align-items:center;padding:7px var(--sp-5);font:var(--type-caption);border-radius:var(--r-pill)}
+.skel{background:var(--n-100);border-radius:var(--r-sm)}
+.rule{display:flex;gap:var(--sp-4);align-items:flex-start;padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);background:var(--status-danger-bg);border:1px solid var(--status-danger-border);color:var(--status-danger-fg);font:var(--type-body-sm);max-width:82ch}
+table.spec{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+table.spec th{text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.spec td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:top}
+table.pick{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+table.pick th{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);text-align:left;padding:var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.pick th.c,table.pick td.c{text-align:center;width:64px}
+table.pick td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1)}
+table.pick td.name{font-family:var(--font-num);font-size:var(--fs-12)}
+table.pick input{width:18px;height:18px;accent-color:var(--accent-500)}
+ul.oq{max-width:80ch;padding-left:var(--sp-7);font:var(--type-body-sm);color:var(--text-2)}
+ul.oq li{margin-bottom:var(--sp-3);text-wrap:pretty}
+.flag{display:inline-block;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--status-warning-fg);background:var(--status-warning-bg);border:1px solid var(--status-warning-border);padding:2px 6px;border-radius:var(--r-xs);margin-right:var(--sp-3)}
+.hrow{display:grid;grid-template-columns:auto 1fr auto;gap:var(--sp-4);align-items:center;padding:var(--sp-4);border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1)}
+</style></head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+<h4>Batch 4 · Results</h4>
+<a href="#finish">finish-card <b>[3]</b></a>
+<a href="#holding">holding-state <b>[3]</b></a>
+<a href="#reveal">rank-reveal <b>[3]</b></a>
+<a href="#breakdown">score-breakdown-tiles <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Review</h4>
+<a href="#review">review-question-card <b>[3]</b></a>
+<a href="#dist">answer-distribution <b>[3]</b></a>
+<a href="#tva">time-vs-average <b>[3]</b></a>
+<a href="#nav">review-navigator <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Boards &amp; history</h4>
+<a href="#history">history-list-row <b>[3]</b></a>
+<a href="#lbrow">leaderboard-row <b>[3]</b></a>
+<a href="#podium">podium-top3 <b>[3]</b></a>
+<a href="#switcher">board-switcher <b>[3]</b></a>
+<a href="#lbempty">leaderboard-empty <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Hand back</h4>
+<a href="#pick">Pick sheet</a><a href="#open">Open questions</a>
+<h4 style="margin-top:var(--sp-5)">Other artifacts</h4>
+<a href="foundations.html">← Batch 1</a><a href="primitives-forms.html">← Batch 2a</a><a href="layout-feedback.html">← Batch 2b</a><a href="live-run.html">← Batch 3</a>
+</nav>
+
+<main>
+<header style="margin-bottom:var(--sp-9)">
+<div class="eyebrow">Quizzer Design System · Artifact 4 of 5</div>
+<h1>Results, review &amp; leaderboards</h1>
+<p class="lede">Three result screens exist because of a secrecy requirement, not a UX preference. The components below are grouped by <em>what a student is allowed to know at that moment</em>, and each group's forbidden information is stated in the component, not left to the implementer.</p>
+<div class="rule" style="margin-top:var(--sp-5)"><span>■</span><div><b>The disclosure ladder.</b> <b>1 · finish-card</b> (immediately after your last answer): own total score and count answered. <em>Nothing else</em> — no rank, no correctness, no distribution, no leaderboard, no "you beat N people". <b>2 · holding-state</b> (until the hard deadline): own score, how many students have finished, countdown to unlock. <b>3 · after the deadline</b>: rank, review with correct answers, distributions, boards. A component from tier 3 must never render while the window is open.</div></div>
+<div class="rule" style="margin-top:var(--sp-4);background:var(--status-info-bg);border-color:var(--status-info-border);color:var(--status-info-fg)"><span>◇</span><div><b>Correctness colour lives only here.</b> <code>--rv-correct-*</code>, <code>--rv-wrong-*</code>, <code>--rv-skipped-*</code> and <code>--rv-notreached-*</code> are review-only tokens. They must not appear in any Batch 3 component. Outcome is always carried by a glyph and a word as well as colour — <code>✓ Correct</code>, <code>✕ Wrong</code>, <code>– Skipped</code>, <code>◌ Not reached</code>.</div></div>
+</header>
+
+<section id="finish">
+<h2>finish-card <span class="flag">3 variants</span><span class="kb">tier 1 · score + answered count only</span></h2>
+<p class="note">The moment after the last lock. Deliberately information-poor: it must feel like a completed thing, not a preview of results. All three variants show exactly two numbers and no comparison of any kind.</p>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Score hero</div></div>
+<div class="vmeta"><div><i>trades</i>Clear and quiet; the big number invites comparison the student can't yet make.</div><div><i>use</i>Default.</div></div>
+<div class="ph tall"><div class="sb"><span>10:12</span><span>IST</span></div><div class="bd" style="justify-content:center;align-items:center;text-align:center">
+<img src="../assets/illustrations/shade-finished.svg" alt="" style="width:104px">
+<div class="wlabel" style="margin:0">Your score</div>
+<div class="hero">38.5</div>
+<div class="tiny">of 60 · 18 of 20 answered</div>
+<div class="strip" style="background:var(--status-info-bg);color:var(--status-info-fg);border:1px solid var(--status-info-border)"><span>◇</span><span>Ranks and answers unlock at 11:00 PM IST</span></div>
+</div><div class="foot"><button class="btn lg">Done</button></div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Receipt</div></div>
+<div class="vmeta"><div><i>trades</i>Reads as a factual record and de-emphasises the score; least celebratory.</div><div><i>use</i>If the group finds a big score number stressful before ranks exist.</div></div>
+<div class="ph tall"><div class="sb"><span>10:12</span><span>IST</span></div><div class="bd">
+<div style="font:var(--type-h2)">Attempt complete</div>
+<div class="qc" style="gap:0">
+<div class="tilerow"><span class="tiny">Quiz</span><span>Weekly Quant Sprint</span></div>
+<div class="tilerow"><span class="tiny">Finished</span><span class="num">10:12 PM IST</span></div>
+<div class="tilerow"><span class="tiny">Answered</span><span class="num">18 of 20</span></div>
+<div class="tilerow"><span class="tiny">Your score</span><span class="num" style="font:var(--type-numeric)">38.5</span></div>
+</div>
+<div class="tiny">Nothing else is available until the window closes at 11:00 PM IST — this is the same for every student.</div>
+</div><div class="foot"><button class="btn lg">Done</button></div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Sealed envelope</div></div>
+<div class="vmeta"><div><i>trades</i>Makes the secrecy the story, which turns waiting into anticipation; the metaphor risks implying the score itself is hidden when it isn't.</div><div><i>use</i>If the holding period should feel like a reward-in-waiting from the start.</div></div>
+<div class="ph tall"><div class="sb"><span>10:12</span><span>IST</span></div><div class="bd" style="justify-content:center;align-items:center;text-align:center">
+<img src="../assets/illustrations/shade-finished.svg" alt="" style="width:96px">
+<div style="font:var(--type-h2)">Answers sealed</div>
+<div class="solid" style="width:100%;text-align:center"><span class="wlabel" style="margin:0">Your score</span><span class="bignum">38.5</span><span class="tiny">18 of 20 answered</span></div>
+<div class="tiny">Rank, correct answers and the room's results open together at 11:00 PM IST.</div>
+</div><div class="foot"><button class="btn lg">Done</button></div></div>
+</div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--type-numeric-lg</span><span class="tok">--numeric-features</span><span class="tok">--status-info-*</span><span class="tok">--glass-bg-strong</span><span class="tok">shade-finished.svg</span></div>
+</section>
+
+<section id="holding">
+<h2>holding-state <span class="flag">3 variants</span><span class="kb">tier 2 · own score, finishers count, countdown</span></h2>
+<p class="note">The screen a student returns to between finishing and the deadline. "How many have finished" is the only social fact permitted — a count, never names, never scores. Must not feel like a dead end.</p>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Countdown + finisher count</div></div>
+<div class="vmeta"><div><i>trades</i>Direct and honest; the countdown can invite refreshing.</div><div><i>use</i>Default.</div></div>
+<div class="ph tall"><div class="sb"><span>10:31</span><span>IST</span></div><div class="bd">
+<div class="qc" style="text-align:center"><span class="wlabel" style="margin:0">Results unlock in</span><span class="hero" style="font-size:var(--fs-38)">00:28:41</span><span class="tiny">11:00 PM IST</span></div>
+<div class="solid" style="text-align:center"><span class="wlabel" style="margin:0">Your score</span><span class="bignum">38.5</span><span class="tiny">18 of 20 answered</span></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Finished so far</span><span class="num" style="font:var(--type-label)">64 of 83</span></div><div class="distbar"><i style="width:77%;background:var(--accent-500)"></i></div><span class="tiny">Names and ranks stay hidden until the window closes.</span></div>
+<div class="rowflex"><button class="btn sec sm">Back to Home</button><button class="btn ghost sm">Notify me</button></div>
+</div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Waiting-room, illustration-led</div></div>
+<div class="vmeta"><div><i>trades</i>Warmest and least refresh-inducing; buries the score.</div><div><i>use</i>If the holding period is long (over ~30 minutes).</div></div>
+<div class="ph tall"><div class="sb"><span>10:31</span><span>IST</span></div><div class="bd" style="justify-content:center;align-items:center;text-align:center">
+<img src="../assets/illustrations/shade-waiting.svg" alt="" style="width:120px">
+<div style="font:var(--type-h2)">Holding for the room</div>
+<div class="tiny">64 of 83 students have finished. Ranks open when the window closes at 11:00 PM.</div>
+<div class="strip" style="background:var(--n-100);color:var(--text-2)"><span>◷</span><span class="num">28:41 to go</span></div>
+<div class="solid" style="width:100%;text-align:center"><span class="tiny">Your score</span><span style="font:var(--type-numeric)" class="num">38.5</span></div>
+</div><div class="foot"><button class="btn sec">Back to Home</button></div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Progress-to-unlock meter</div></div>
+<div class="vmeta"><div><i>trades</i>Frames the wait as the room's shared progress rather than a clock; implies the unlock depends on finishers, which it does not — the deadline does.</div><div><i>use</i>Only with copy that separates the two.</div></div>
+<div class="ph tall"><div class="sb"><span>10:31</span><span>IST</span></div><div class="bd">
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="wlabel" style="margin:0">Room progress</span><span class="tiny num">64 / 83</span></div><div class="stackbar"><span style="width:77%;background:var(--success-500)"></span><span style="width:23%;background:var(--n-200)"></span></div><span class="tiny">Unlock is by clock, not by finishers: <b>11:00 PM IST</b>.</span></div>
+<div class="solid" style="text-align:center"><span class="wlabel" style="margin:0">Your score</span><span class="bignum">38.5</span></div>
+<div class="tiny">While you wait: your last five attempts are in History.</div>
+<button class="btn sec sm">Open History</button>
+</div></div>
+</div>
+</div>
+</section>
+
+<section id="reveal">
+<h2>rank-reveal <span class="flag">3 variants</span><span class="kb">tier 3 · post-deadline only</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Rank hero</div></div>
+<div class="vmeta"><div><i>trades</i>The single fact, unmissable; nothing softens a low rank.</div><div><i>use</i>Default.</div></div>
+<div class="ph tall"><div class="sb"><span>11:00</span><span>IST</span></div><div class="bd" style="justify-content:center;align-items:center;text-align:center">
+<div class="wlabel" style="margin:0">Your rank</div>
+<div class="hero">4</div>
+<div class="tiny">of 83 students · Weekly Quant Sprint</div>
+<div class="solid" style="width:100%"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Score</span><span class="num" style="font:var(--type-label)">38.5</span></div><div class="rowflex" style="justify-content:space-between"><span class="tiny">Total time</span><span class="num" style="font:var(--type-label)">7:12</span></div></div>
+</div><div class="foot"><button class="btn lg">Review answers</button><button class="btn ghost sm">See leaderboard</button></div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Rank in context (neighbours)</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the two students either side, which makes the rank meaningful and the gap concrete; publishes adjacent names and scores at the moment of reveal.</div><div><i>use</i>Recommended — the boards are public anyway, and context is kinder than a bare number.</div></div>
+<div class="ph tall"><div class="sb"><span>11:00</span><span>IST</span></div><div class="bd">
+<div class="wlabel" style="margin:0">Your rank</div>
+<div class="rowflex" style="align-items:baseline;gap:var(--sp-3)"><span class="hero" style="font-size:var(--fs-48)">4</span><span class="tiny">of 83</span></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb" style="grid-template-columns:28px 32px 1fr auto"><span class="rk">3</span><span class="av">MP</span><span>Meera Pillai</span><span class="sc">39.0</span></div>
+<div class="lb you" style="grid-template-columns:28px 32px 1fr auto"><span class="rk">4</span><span class="av">RS</span><span style="font-weight:var(--fw-semibold)">You</span><span class="sc">38.5</span></div>
+<div class="lb" style="grid-template-columns:28px 32px 1fr auto"><span class="rk">5</span><span class="av">AK</span><span>Ananya Krishnan</span><span class="sc">37.5</span></div>
+</div>
+<div class="tiny">0.5 marks from rank 3. Tie-break is total time.</div>
+</div><div class="foot"><button class="btn lg">Review answers</button></div></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Staged reveal</div></div>
+<div class="vmeta"><div><i>trades</i>Builds a moment (score → percentile → rank) with the one overshoot easing; costs 1.5s and needs an instant-reveal path for reduced motion and repeat visits.</div><div><i>use</i>First view only, never on return.</div></div>
+<div class="stack">
+<div class="solid" style="text-align:center"><span class="wlabel" style="margin:0">Step 1 · score</span><span class="bignum">38.5</span></div>
+<div class="solid" style="text-align:center"><span class="wlabel" style="margin:0">Step 2 · band</span><span style="font:var(--type-h2)">Top 5%</span></div>
+<div class="solid" style="text-align:center;border-color:var(--accent-300);background:var(--accent-50)"><span class="wlabel" style="margin:0">Step 3 · rank</span><span class="hero" style="font-size:var(--fs-38)">4</span><span class="tiny">of 83</span></div>
+<span class="tiny">Reduced motion / return visit: renders step 3 only, immediately.</span>
+</div>
+</div>
+</div>
+</section>
+
+<section id="breakdown">
+<h2>score-breakdown-tiles <span class="flag">3 variants</span><span class="kb">attempted · correct · wrong · skipped · speed bonus · total time</span></h2>
+<p class="note">Six facts, and the arithmetic must reconcile. Sample attempt used throughout this artifact: 20 questions, <code>+3</code> correct, <code>−1</code> wrong, speed bonus up to <code>+0.5</code> per question — 14 correct, 4 wrong, 2 skipped, bonus +0.50 ⇒ <b>38.50 of 60</b>. Negative marking is shown as a signed number in <code>--danger-700</code> text, never as a red fill.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Tile grid</div></div>
+<div class="vmeta"><div><i>trades</i>Scannable and fits 375px in two rows; doesn't show how the numbers add up.</div><div><i>use</i>Default.</div></div>
+<div class="stack"><div class="tiles">
+<div class="tile"><span class="v">18</span><span class="l">Attempted</span></div>
+<div class="tile"><span class="v" style="color:var(--rv-correct-fg)">14</span><span class="l">✓ Correct</span></div>
+<div class="tile"><span class="v" style="color:var(--rv-wrong-fg)">4</span><span class="l">✕ Wrong</span></div>
+<div class="tile"><span class="v">2</span><span class="l">– Skipped</span></div>
+<div class="tile"><span class="v">+0.5</span><span class="l">Speed bonus</span></div>
+<div class="tile"><span class="v">7:12</span><span class="l">Total time</span></div>
+</div><div class="solid" style="border-color:var(--accent-300);background:var(--accent-50)"><div class="rowflex" style="justify-content:space-between"><span style="font:var(--type-label)">Total</span><span class="num" style="font:var(--type-numeric)">38.5</span></div></div></div></div>
+
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Reconciling ledger</div></div>
+<div class="vmeta"><div><i>trades</i>Shows exactly how the score was reached, which pre-empts every "why is my score X" question; more text and less glanceable.</div><div><i>use</i>Recommended given negative marking.</div></div>
+<div class="qc" style="gap:0">
+<div class="tilerow"><span>✓ Correct <span class="tiny">14 × +3</span></span><span class="num" style="color:var(--rv-correct-fg)">+42.00</span></div>
+<div class="tilerow"><span>✕ Wrong <span class="tiny">4 × −1</span></span><span class="num" style="color:var(--rv-wrong-fg)">−4.00</span></div>
+<div class="tilerow"><span>– Skipped <span class="tiny">2 × 0</span></span><span class="num">0.00</span></div>
+<div class="tilerow"><span>◌ Not reached <span class="tiny">0</span></span><span class="num">0.00</span></div>
+<div class="tilerow"><span>Speed bonus</span><span class="num">+0.50</span></div>
+<div class="tilerow" style="background:var(--accent-50);margin:0 calc(-1 * var(--sp-5));padding-left:var(--sp-5);padding-right:var(--sp-5)"><span style="font:var(--type-label)">Total</span><span class="num" style="font:var(--type-numeric)">38.50</span></div>
+<div class="tilerow"><span class="tiny">Total time</span><span class="num tiny">7:12</span></div>
+</div></div>
+
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Single bar + legend</div></div>
+<div class="vmeta"><div><i>trades</i>Smallest footprint and shows the shape of the attempt at a glance; the six numbers become secondary.</div><div><i>use</i>Inside a history row's expanded state.</div></div>
+<div class="stack">
+<div class="stackbar" style="height:16px"><span style="width:70%;background:var(--success-500)"></span><span style="width:20%;background:var(--danger-500)"></span><span style="width:10%;background:var(--n-300)"></span></div>
+<div class="rowflex" style="gap:var(--sp-5)"><span class="tiny">✓ 14</span><span class="tiny">✕ 4</span><span class="tiny">– 2</span></div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny">Bonus +0.5 · time 7:12</span><span class="num" style="font:var(--type-numeric)">38.5</span></div>
+</div></div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--rv-correct-fg</span><span class="tok">--rv-wrong-fg</span><span class="tok">--danger-700</span><span class="tok">--accent-50/300</span><span class="tok">--numeric-features</span></div>
+</section>
+
+<section id="review">
+<h2>review-question-card <span class="flag">3 variants</span><span class="kb">question · my answer · correct answer · explanation (LaTeX) · optional image</span></h2>
+<p class="note">Four outcome variants for each layout: <strong>correct</strong>, <strong>wrong</strong>, <strong>skipped</strong> (reached, not answered) and <strong>not reached</strong> (window closed first). Outcome is stated in words at the top of the card, so it survives screenshots, colour-blindness and greyscale printing.</p>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Option list annotated in place</div></div>
+<div class="vmeta"><div><i>trades</i>Closest to the run experience — the student sees their own choice where they made it; the card gets tall with four options plus explanation.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q7 of 20</span><span class="badge b-no">✕ Wrong · −1</span></div>
+<div class="stem" style="font-size:var(--fs-15)">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, find <span class="math">x<sup>3</sup> − 8</span>.</div>
+<div class="ropt muted"><span class="k">A</span><span>17</span></div>
+<div class="ropt wrong"><span class="k">B</span><span>19</span><span class="tag">✕ your answer</span></div>
+<div class="ropt correct"><span class="k">C</span><span>21</span><span class="tag">✓ correct</span></div>
+<div class="ropt muted"><span class="k">D</span><span>23</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">Explanation</span><span style="font:var(--type-body-sm)">Factorising gives <span class="math">x = 2</span> or <span class="math">x = 3</span>; since <span class="math">x &gt; 2</span>, <span class="math">x = 3</span>.<span class="mathblock">x<sup>3</sup> − 8 = 27 − 8 = 19 ⇒ 21 with the stated identity</span></span></div>
+</div>
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q8</span><span class="badge b-ok">✓ Correct · +3 <span class="tiny">(+0.1 bonus)</span></span></div><div class="ropt correct"><span class="k">B</span><span>Easily persuaded</span><span class="tag">✓ your answer · correct</span></div></div>
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q9</span><span class="badge b-skip">– Skipped · 0</span></div><div class="ropt correct"><span class="k">A</span><span>Sceptical</span><span class="tag">✓ correct</span></div><span class="tiny">You reached this question but time expired before you submitted.</span></div>
+<div class="qc" style="border-style:dashed;opacity:.85"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q19</span><span class="badge b-nr">◌ Not reached · 0</span></div><span class="tiny">The window closed before you got here. Correct answer: <b>C</b>.</span></div>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Answer pair header</div></div>
+<div class="vmeta"><div><i>trades</i>Fastest to read — your answer and the correct one side by side above the stem; loses the other distractors, which matters for Verbal.</div><div><i>use</i>Quant and TITA review.</div></div>
+<div class="stack">
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q12 of 20</span><span class="badge b-no">✕ Wrong · −1</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3)">
+<div class="solid" style="border-color:var(--rv-wrong-border);background:var(--rv-wrong-bg)"><span class="tiny">Your answer</span><span class="num" style="font:var(--type-numeric)">4</span></div>
+<div class="solid" style="border-color:var(--rv-correct-border);background:var(--rv-correct-bg)"><span class="tiny">Correct</span><span class="num" style="font:var(--type-numeric)">3</span></div>
+</div>
+<div class="stem" style="font-size:var(--fs-15)">Remainder when <span class="math">7<sup>103</sup></span> is divided by 5?</div>
+<div class="qimg">question image</div>
+<div class="solid"><span class="wlabel" style="margin:0">Explanation</span><span style="font:var(--type-body-sm)">Powers of 7 cycle mod 5 with period 4; <span class="math">103 ≡ 3 (mod 4)</span>, so the remainder is <span class="math">7<sup>3</sup> ≡ 3</span>.</span></div>
+</div>
+<div class="qc"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q13</span><span class="badge b-skip">– Skipped</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3)"><div class="solid"><span class="tiny">Your answer</span><span class="tiny">—</span></div><div class="solid" style="border-color:var(--rv-correct-border);background:var(--rv-correct-bg)"><span class="tiny">Correct</span><span class="num" style="font:var(--type-numeric)">12.5</span></div></div></div>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Collapsed row, expand for detail</div></div>
+<div class="vmeta"><div><i>trades</i>Lets a student scan 20 outcomes fast and open only the ones they got wrong; hides the explanation, which is the most valuable part.</div><div><i>use</i>The review index; opens into A or B.</div></div>
+<div class="stack">
+<div class="hrow"><span class="badge b-no">✕</span><span><span class="tiny num">Q7</span> · If <span class="math">x<sup>2</sup>−5x+6=0</span>…</span><span class="tiny">−1 ▾</span></div>
+<div class="hrow"><span class="badge b-ok">✓</span><span><span class="tiny num">Q8</span> · Closest antonym for OBDURATE</span><span class="tiny">+3.1 ▾</span></div>
+<div class="hrow"><span class="badge b-skip">–</span><span><span class="tiny num">Q9</span> · Six friends sit in a row…</span><span class="tiny">0 ▾</span></div>
+<div class="hrow" style="border-style:dashed"><span class="badge b-nr">◌</span><span><span class="tiny num">Q19</span> · Not reached</span><span class="tiny">0 ▾</span></div>
+<div class="qc" style="padding:var(--sp-4)"><span class="tiny">Expanded (Q7)</span><div class="ropt wrong"><span class="k">B</span><span>19</span><span class="tag">✕ yours</span></div><div class="ropt correct"><span class="k">C</span><span>21</span><span class="tag">✓ correct</span></div><span class="tiny">Explanation and image load on expand.</span></div>
+</div></div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--rv-correct-*</span><span class="tok">--rv-wrong-*</span><span class="tok">--rv-skipped-*</span><span class="tok">--rv-notreached-*</span><span class="tok">--type-stem</span><span class="tok">--font-math</span></div>
+</section>
+
+<section id="dist">
+<h2>answer-distribution <span class="flag">3 variants</span><span class="kb">must sit inside the review card without dominating it</span></h2>
+<p class="note">What the room chose. Shown as percentages of students who answered that question (not of the whole room), with n stated. The correct option is marked with the same glyph vocabulary as the review card; the student's own choice is marked separately so the two facts don't merge.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Mini bars under the options</div></div>
+<div class="vmeta"><div><i>trades</i>Sits directly under each option, so the comparison is immediate; adds four rows of height.</div><div><i>use</i>Default — collapsed by default on mobile.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="distrow"><span>A</span><span class="distbar"><i style="width:12%"></i></span><span class="num">12%</span></div>
+<div class="distrow"><span style="color:var(--rv-wrong-fg);font-weight:var(--fw-semibold)">B</span><span class="distbar"><i class="mine" style="width:41%"></i></span><span class="num">41%</span></div>
+<div class="distrow"><span style="color:var(--rv-correct-fg);font-weight:var(--fw-semibold)">C</span><span class="distbar"><i class="ok" style="width:34%"></i></span><span class="num">34%</span></div>
+<div class="distrow"><span>D</span><span class="distbar"><i style="width:13%"></i></span><span class="num">13%</span></div>
+<span class="tiny">n = 79 answered · ✓ C correct · ✕ B was your answer</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Single stacked bar</div></div>
+<div class="vmeta"><div><i>trades</i>One 12px row — the least intrusive option; hard to read exact values and needs a legend.</div><div><i>use</i>Inside the collapsed review row (variant C above).</div></div>
+<div class="stack">
+<div class="stackbar"><span style="width:12%;background:var(--n-300)"></span><span style="width:41%;background:var(--danger-500)"></span><span style="width:34%;background:var(--success-500)"></span><span style="width:13%;background:var(--n-300)"></span></div>
+<div class="rowflex" style="gap:var(--sp-4)"><span class="tiny">A 12%</span><span class="tiny" style="color:var(--rv-wrong-fg)">✕ B 41%</span><span class="tiny" style="color:var(--rv-correct-fg)">✓ C 34%</span><span class="tiny">D 13%</span></div>
+<span class="tiny">n = 79</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Sentence + disclosure</div></div>
+<div class="vmeta"><div><i>trades</i>Zero visual weight and no chart to misread; least useful for spotting a common trap.</div><div><i>use</i>When the review card is already long (block LaTeX plus image).</div></div>
+<div class="stack">
+<span style="font:var(--type-body-sm)">41% of the room chose <b>B</b> — the most common answer. 34% got it right.</span>
+<button class="btn sec sm">Show full distribution</button>
+<span class="tiny">Never phrased as "you did better/worse than X%" — percentile framing belongs to rank-reveal, not to a single question.</span>
+</div></div>
+</div>
+</section>
+
+<section id="tva">
+<h2>time-vs-average <span class="flag">3 variants</span><span class="kb">your time on this question vs the room</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Marker on a scale</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the relationship, not just the delta; needs 34px and a legend.</div><div><i>use</i>Default inside the review card.</div></div>
+<div class="stack">
+<div class="tva"><span class="tvaline"></span><span class="tvamark" style="left:52%"></span><span class="tvayou" style="left:31%"></span></div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny">0s</span><span class="tiny">45s limit</span></div>
+<span class="tiny"><b>You 0:22</b> · room average 0:34 · 12s faster</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Delta chip</div></div>
+<div class="vmeta"><div><i>trades</i>One chip, drops into any row; no sense of the spread.</div><div><i>use</i>Collapsed rows and the breakdown tiles.</div></div>
+<div class="stack">
+<div class="rowflex"><span class="badge" style="background:var(--success-50);color:var(--success-700);border-color:var(--success-100)">◷ 12s faster</span><span class="badge" style="background:var(--n-100);color:var(--text-2)">◷ same as room</span><span class="badge" style="background:var(--warning-50);color:var(--warning-700);border-color:var(--warning-100)">◷ 9s slower</span></div>
+<span class="tiny">Never framed as good or bad — spending longer on a hard question is not a failure. Wording is neutral: "faster", "slower", never "too slow".</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Two-number row</div></div>
+<div class="vmeta"><div><i>trades</i>Zero interpretation, no graphics, screen-reader-perfect; makes the reader do the comparison.</div><div><i>use</i>The accessible fallback, and admin item analysis.</div></div>
+<div class="qc" style="gap:0"><div class="tilerow"><span class="tiny">Your time</span><span class="num">0:22</span></div><div class="tilerow"><span class="tiny">Room average</span><span class="num">0:34</span></div><div class="tilerow"><span class="tiny">Room fastest</span><span class="num">0:09</span></div></div></div>
+</div>
+</section>
+
+<section id="nav">
+<h2>review-navigator <span class="flag">3 variants</span><span class="kb">prev/next + index grid coloured by outcome</span></h2>
+<p class="note">Here the numbered grid <em>is</em> navigable — the opposite of Batch 3's progress indicator, which is why that one deliberately avoids this shape. Cells carry a glyph as well as a colour.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Sticky bottom bar + grid sheet</div></div>
+<div class="vmeta"><div><i>trades</i>Prev/next always in thumb reach and the grid is one tap away; the grid is hidden by default.</div><div><i>use</i>Default on mobile.</div></div>
+<div class="stack">
+<div class="rowflex" style="justify-content:space-between;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-1)"><button class="btn sec sm">← Prev</button><button class="btn ghost sm">Q7 of 20 ▴</button><button class="btn sec sm">Next →</button></div>
+<div class="qc" style="padding:var(--sp-4)"><div class="pgrid">
+<span class="pcell ok">1</span><span class="pcell ok">2</span><span class="pcell no">3</span><span class="pcell ok">4</span><span class="pcell skip">5</span><span class="pcell ok">6</span><span class="pcell no now">7</span><span class="pcell ok">8</span><span class="pcell skip">9</span><span class="pcell ok">10</span>
+<span class="pcell ok">11</span><span class="pcell no">12</span><span class="pcell ok">13</span><span class="pcell ok">14</span><span class="pcell no">15</span><span class="pcell ok">16</span><span class="pcell ok">17</span><span class="pcell ok">18</span><span class="pcell nr">19</span><span class="pcell nr">20</span>
+</div>
+<div class="rowflex" style="gap:var(--sp-4)"><span class="tiny" style="color:var(--rv-correct-fg)">✓ 14</span><span class="tiny" style="color:var(--rv-wrong-fg)">✕ 4</span><span class="tiny">– 2</span><span class="tiny">◌ 2</span></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Always-visible grid rail</div></div>
+<div class="vmeta"><div><i>trades</i>The whole attempt is visible while reading any question — best for desktop review; costs a fixed rail.</div><div><i>use</i>Desktop / tablet.</div></div>
+<div class="stack">
+<div style="display:grid;grid-template-columns:1fr 92px;gap:var(--sp-4)">
+<div class="solid" style="min-height:120px"><span class="tiny">Question 7 detail</span><div class="skel" style="height:12px;width:80%"></div><div class="skel" style="height:12px;width:60%"></div></div>
+<div class="pgrid" style="grid-template-columns:repeat(4,1fr);align-content:start">
+<span class="pcell ok">1</span><span class="pcell ok">2</span><span class="pcell no">3</span><span class="pcell ok">4</span><span class="pcell skip">5</span><span class="pcell ok">6</span><span class="pcell no now">7</span><span class="pcell ok">8</span><span class="pcell skip">9</span><span class="pcell ok">10</span><span class="pcell ok">11</span><span class="pcell no">12</span>
+</div></div>
+<span class="tiny">Arrow keys move between questions; the grid is a real listbox.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Filtered list, no grid</div></div>
+<div class="vmeta"><div><i>trades</i>Goes straight to what a student wants — "show me the 4 I got wrong"; loses the sense of the whole attempt.</div><div><i>use</i>Alongside A as a filter, not instead of it.</div></div>
+<div class="stack">
+<div class="seg"><button class="on">All 20</button><button>✕ 4</button><button>– 2</button><button>◌ 2</button></div>
+<div class="hrow"><span class="badge b-no">✕</span><span><span class="tiny num">Q7</span> · Quadratics</span><span class="tiny">▾</span></div>
+<div class="hrow"><span class="badge b-no">✕</span><span><span class="tiny num">Q12</span> · Remainders</span><span class="tiny">▾</span></div>
+<div class="hrow"><span class="badge b-no">✕</span><span><span class="tiny num">Q15</span> · Seating</span><span class="tiny">▾</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="history">
+<h2>history-list-row <span class="flag">3 variants</span><span class="kb">name · date · score · rank · link to review</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Two-line row</div></div>
+<div class="vmeta"><div><i>trades</i>Fits five facts at 375px without truncation; 68px per row.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="hrow"><span class="badge b-sec" style="background:var(--sec-quant)">QA</span><div><div style="font:var(--type-label)">Weekly Quant Sprint</div><div class="tiny num">14 Sep · rank 4 of 83</div></div><div style="text-align:right"><div class="num" style="font:var(--type-numeric)">38.5</div><div class="tiny">Review →</div></div></div>
+<div class="hrow"><span class="badge b-sec" style="background:var(--sec-verbal)">VA</span><div><div style="font:var(--type-label)">RC Practice 4</div><div class="tiny num">11 Sep · rank 22 of 76</div></div><div style="text-align:right"><div class="num" style="font:var(--type-numeric)">21.0</div><div class="tiny">Review →</div></div></div>
+<div class="hrow" style="opacity:.7"><span class="badge b-sec" style="background:var(--sec-lr)">LR</span><div><div style="font:var(--type-label)">Seating Arrangements</div><div class="tiny">7 Sep · not attempted</div></div><div style="text-align:right"><div class="tiny">—</div></div></div>
+<div class="hrow" style="border-color:var(--status-info-border);background:var(--status-info-bg)"><span class="badge b-sec" style="background:var(--sec-quant)">QA</span><div><div style="font:var(--type-label)">Speed Drill 9</div><div class="tiny" style="color:var(--status-info-fg)">Today · results unlock 11:00 PM</div></div><div style="text-align:right"><div class="num" style="font:var(--type-numeric)">38.5</div><div class="tiny">Held</div></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Expandable row with breakdown</div></div>
+<div class="vmeta"><div><i>trades</i>Answers "how did I do" without leaving History; makes the list feel heavier.</div><div><i>use</i>If students mostly want the shape of an attempt, not the questions.</div></div>
+<div class="stack">
+<div class="hrow"><span class="badge b-sec" style="background:var(--sec-quant)">QA</span><div><div style="font:var(--type-label)">Weekly Quant Sprint</div><div class="tiny num">14 Sep · rank 4 of 83</div></div><span class="tiny">▴</span></div>
+<div class="qc" style="padding:var(--sp-4)"><div class="stackbar" style="height:14px"><span style="width:70%;background:var(--success-500)"></span><span style="width:20%;background:var(--danger-500)"></span><span style="width:10%;background:var(--n-300)"></span></div><div class="rowflex" style="justify-content:space-between"><span class="tiny">✓14 ✕4 –2 · bonus +2.5</span><span class="num" style="font:var(--type-numeric)">38.5</span></div><button class="btn sec sm">Review answers</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Compact table row (desktop)</div></div>
+<div class="vmeta"><div><i>trades</i>Comparable across many attempts and sortable; needs the mobile card fallback from Batch 2b.</div><div><i>use</i>Desktop History and admin views.</div></div>
+<table class="spec"><thead><tr><th>Quiz</th><th>Date</th><th style="text-align:right">Score</th><th style="text-align:right">Rank</th><th></th></tr></thead><tbody>
+<tr><td>Weekly Quant Sprint</td><td class="tiny num">14 Sep</td><td class="num" style="text-align:right">38.5</td><td class="num" style="text-align:right">4 / 83</td><td><a href="#history">Review</a></td></tr>
+<tr><td>RC Practice 4</td><td class="tiny num">11 Sep</td><td class="num" style="text-align:right">21.0</td><td class="num" style="text-align:right">22 / 76</td><td><a href="#history">Review</a></td></tr>
+<tr><td>Seating Arrangements</td><td class="tiny num">7 Sep</td><td class="tiny" style="text-align:right">—</td><td class="tiny" style="text-align:right">—</td><td class="tiny">Not attempted</td></tr>
+</tbody></table></div>
+</div>
+</section>
+
+<section id="lbrow">
+<h2>leaderboard-row <span class="flag">3 variants</span><span class="kb">rank · avatar · real name · score · tie-break time</span></h2>
+<p class="note">Real names are public by product decision. Each variant renders: ranks 1–3, a mid-table row, the <strong>"this is you"</strong> state (which must survive being scrolled to and being adjacent to another highlighted row), and a tie (equal scores separated by time).</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Flat row, medal rule</div></div>
+<div class="vmeta"><div><i>trades</i>Densest and most legible; top-3 treatment is subtle (a 3px left rule + coloured rank).</div><div><i>use</i>Default.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb r1"><span class="rk">1</span><span class="av">SV</span><span>Sanjay Verma</span><span class="sc">44.0</span><span class="tb">6:04</span></div>
+<div class="lb r2"><span class="rk">2</span><span class="av">DN</span><span>Divya Nair</span><span class="sc">41.5</span><span class="tb">6:41</span></div>
+<div class="lb r3"><span class="rk">3</span><span class="av">MP</span><span>Meera Pillai</span><span class="sc">39.0</span><span class="tb">7:02</span></div>
+<div class="lb you"><span class="rk">4</span><span class="av">RS</span><span style="font-weight:var(--fw-semibold)">Rohit Sharma <span class="badge" style="background:var(--accent-500);color:#fff">You</span></span><span class="sc">38.5</span><span class="tb">7:12</span></div>
+<div class="lb"><span class="rk">5</span><span class="av">AK</span><span>Ananya Krishnan</span><span class="sc">38.5</span><span class="tb">7:48</span></div>
+<span class="tiny">Ranks 4 and 5 tie on 38.5 — tie-break is total time, shown in the last column so the order is never mysterious.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Medal chips, larger avatar</div></div>
+<div class="vmeta"><div><i>trades</i>Top-3 is unmistakable and the row is friendlier; ~20px taller per row, so fewer rows per screen.</div><div><i>use</i>If the boards are a motivator the group cares about.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb" style="grid-template-columns:38px 40px 1fr auto auto"><span class="medal">🥇</span><span class="av" style="width:40px;height:40px">SV</span><span>Sanjay Verma</span><span class="sc">44.0</span><span class="tb">6:04</span></div>
+<div class="lb" style="grid-template-columns:38px 40px 1fr auto auto"><span class="medal">🥈</span><span class="av" style="width:40px;height:40px">DN</span><span>Divya Nair</span><span class="sc">41.5</span><span class="tb">6:41</span></div>
+<div class="lb" style="grid-template-columns:38px 40px 1fr auto auto"><span class="medal">🥉</span><span class="av" style="width:40px;height:40px">MP</span><span>Meera Pillai</span><span class="sc">39.0</span><span class="tb">7:02</span></div>
+<div class="lb you" style="grid-template-columns:38px 40px 1fr auto auto"><span class="rk">4</span><span class="av" style="width:40px;height:40px">RS</span><span style="font-weight:var(--fw-semibold)">You</span><span class="sc">38.5</span><span class="tb">7:12</span></div>
+<span class="tiny" style="color:var(--status-warning-fg)">▲ Medal emoji conflicts with the "no emoji" content rule — ship as Lucide medal glyphs if this variant wins.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Score-bar row</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the size of the gap, not just the order — useful when the top ten are close; the bar can read as a progress meter.</div><div><i>use</i>Weekly boards where scores cluster.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb" style="grid-template-columns:28px 1fr 52px"><span class="rk">1</span><div><div style="font:var(--type-label)">Sanjay Verma</div><div class="distbar" style="margin-top:4px"><i style="width:100%;background:var(--rank-1)"></i></div></div><span class="sc" style="text-align:right">44.0</span></div>
+<div class="lb" style="grid-template-columns:28px 1fr 52px"><span class="rk">2</span><div><div style="font:var(--type-label)">Divya Nair</div><div class="distbar" style="margin-top:4px"><i style="width:94%;background:var(--rank-2)"></i></div></div><span class="sc" style="text-align:right">41.5</span></div>
+<div class="lb you" style="grid-template-columns:28px 1fr 52px"><span class="rk">4</span><div><div style="font:var(--type-label)">You</div><div class="distbar" style="margin-top:4px"><i style="width:87%;background:var(--accent-500)"></i></div></div><span class="sc" style="text-align:right">38.5</span></div>
+<span class="tiny">Bars are scaled to the top score, and the scale is labelled — never a bare bar.</span>
+</div></div>
+</div>
+<p class="note">"This is you" is carried three ways at once: the tinted row, the inset accent border, and the word "You". A sticky mini-row pins your position to the bottom edge when you scroll past it, so the answer to "where am I" is always one glance away.</p>
+<div class="tokens-used"><b>consumes</b><span class="tok">--rank-1/2/3</span><span class="tok">--rank-you-bg</span><span class="tok">--rank-you-border</span><span class="tok">--numeric-features</span><span class="tok">--type-numeric</span></div>
+</section>
+
+<section id="podium">
+<h2>podium-top3 <span class="flag">3 variants</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Classic plinths</div></div>
+<div class="vmeta"><div><i>trades</i>Instantly readable and celebratory; 2-1-3 ordering can confuse on a narrow screen.</div><div><i>use</i>Default header for a closed board.</div></div>
+<div class="podium">
+<div class="plinth" style="padding-top:var(--sp-6)"><span class="av lg" style="width:40px;height:40px">DN</span><span class="tiny">Divya Nair</span><span class="num" style="font:var(--type-label)">41.5</span><span class="rk" style="color:var(--rank-2);font:var(--fw-semibold) var(--fs-16)/1 var(--font-num)">2</span></div>
+<div class="plinth" style="padding-top:var(--sp-8);border-color:var(--rank-1)"><span class="av lg">SV</span><span style="font:var(--type-label)">Sanjay Verma</span><span class="num" style="font:var(--type-numeric)">44.0</span><span style="color:var(--rank-1);font:var(--fw-semibold) var(--fs-20)/1 var(--font-num)">1</span></div>
+<div class="plinth"><span class="av lg" style="width:36px;height:36px">MP</span><span class="tiny">Meera Pillai</span><span class="num" style="font:var(--type-label)">39.0</span><span style="color:var(--rank-3);font:var(--fw-semibold) var(--fs-16)/1 var(--font-num)">3</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Ranked strip</div></div>
+<div class="vmeta"><div><i>trades</i>No metaphor, reads in order 1-2-3, works at any width; less of a moment.</div><div><i>use</i>Weekly boards seen often, where a podium every week gets tiring.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb r1" style="grid-template-columns:28px 40px 1fr auto"><span class="rk">1</span><span class="av" style="width:40px;height:40px">SV</span><div><div style="font:var(--type-label)">Sanjay Verma</div><div class="tiny">Quant · week 37</div></div><span class="sc">44.0</span></div>
+<div class="lb r2" style="grid-template-columns:28px 40px 1fr auto"><span class="rk">2</span><span class="av" style="width:40px;height:40px">DN</span><div><div style="font:var(--type-label)">Divya Nair</div></div><span class="sc">41.5</span></div>
+<div class="lb r3" style="grid-template-columns:28px 40px 1fr auto"><span class="rk">3</span><span class="av" style="width:40px;height:40px">MP</span><div><div style="font:var(--type-label)">Meera Pillai</div></div><span class="sc">39.0</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Champion card + runners-up</div></div>
+<div class="vmeta"><div><i>trades</i>Gives first place a real moment while keeping 2 and 3 visible; asymmetric hierarchy may feel unfair in a study group.</div><div><i>use</i>Monthly or overall boards, not weekly.</div></div>
+<div class="stack">
+<div class="qc" style="text-align:center;border-color:var(--rank-1)"><span class="av lg" style="justify-self:center">SV</span><span style="font:var(--type-h3)">Sanjay Verma</span><span class="num bignum">44.0</span><span class="tiny">Rank 1 · 6:04</span></div>
+<div class="rowflex" style="gap:var(--sp-3)"><div class="solid" style="flex:1"><span class="tiny">2 · Divya Nair</span><span class="num" style="font:var(--type-label)">41.5</span></div><div class="solid" style="flex:1"><span class="tiny">3 · Meera Pillai</span><span class="num" style="font:var(--type-label)">39.0</span></div></div>
+</div></div>
+</div>
+<p class="note">Gold, silver and bronze fail contrast as text colours (<code>--rank-1</code> is 2.6:1 on white), so they are used only as rules, borders and large numerals — never for body text or as the sole indicator of rank.</p>
+</section>
+
+<section id="switcher">
+<h2>board-switcher <span class="flag">3 variants</span><span class="kb">Verbal / Quant / LR / Overall + week picker</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Segmented sections + week stepper</div></div>
+<div class="vmeta"><div><i>trades</i>Both dimensions visible in one row each; two controls stacked cost 92px.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="seg" style="width:100%"><button class="on" style="flex:1">All</button><button style="flex:1">VA</button><button style="flex:1">QA</button><button style="flex:1">LR</button></div>
+<div class="weekpick" style="justify-content:space-between"><button aria-label="Previous week">←</button><span>Week 37 · 8–14 Sep</span><button aria-label="Next week" disabled>→</button></div>
+<span class="tiny">Next-week arrow is disabled rather than hidden, so the boundary of available data is visible.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Section tabs + week dropdown</div></div>
+<div class="vmeta"><div><i>trades</i>One row total and jumps to any week; the current week is less obvious at a glance.</div><div><i>use</i>Desktop boards with long history.</div></div>
+<div class="stack">
+<div class="rowflex" style="justify-content:space-between"><div class="seg"><button class="on">Overall</button><button>Verbal</button><button>Quant</button><button>LR</button></div><span class="chip" style="display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--r-pill);border:1px solid var(--border-2);background:rgba(255,255,255,.8);font:var(--type-label)">Week 37 ▾</span></div>
+<span class="tiny">Dropdown lists weeks with data only, newest first, labelled with dates as well as numbers.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Section-coloured pills + swipe weeks</div></div>
+<div class="vmeta"><div><i>trades</i>Uses section identity directly and swiping weeks feels natural on a phone; swipe is invisible and needs arrows as a fallback.</div><div><i>use</i>If section colour should lead the boards.</div></div>
+<div class="stack">
+<div class="rowflex" style="gap:var(--sp-3)"><span class="badge b-sec" style="background:var(--sec-overall)">Overall</span><span class="badge" style="border-color:var(--sec-verbal);color:var(--sec-verbal-ink)">Verbal</span><span class="badge" style="border-color:var(--sec-quant);color:var(--sec-quant-ink)">Quant</span><span class="badge" style="border-color:var(--sec-lr);color:var(--sec-lr-ink)">LR</span></div>
+<div class="rowflex" style="justify-content:center;gap:var(--sp-4)"><span class="tiny">‹ week 36</span><span style="font:var(--type-label)">Week 37</span><span class="tiny" style="opacity:.4">week 38 ›</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="lbempty">
+<h2>leaderboard-empty <span class="flag">3 variants</span><span class="kb">too early, no entries, or your section had no quiz</span></h2>
+<p class="note">Three different nothings, and the copy must distinguish them: <em>too early</em> (data exists but is embargoed), <em>no entries</em> (quiz ran, nobody finished), <em>no quiz</em> (nothing was scheduled for this section this week).</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Embargo notice</div></div>
+<div class="vmeta"><div><i>trades</i>States the rule and the exact unlock time; no content at all to look at.</div><div><i>use</i>Default for "too early".</div></div>
+<div class="state"><img src="../assets/illustrations/shade-waiting.svg" alt=""><h5>Ranks open at 11:00 PM IST</h5><p>Nothing is shown before the window closes — that's the same for everyone.</p><button class="btn sec sm">Notify me</button></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Ghost board</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the shape of the board so the page doesn't collapse, and hints that data is coming; can be mistaken for loading.</div><div><i>use</i>With a caption, for "too early".</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="lb" style="opacity:.45;border-style:dashed"><span class="rk">1</span><span class="av">—</span><span class="skel" style="height:12px;width:110px"></span><span class="skel" style="height:12px;width:34px"></span><span></span></div>
+<div class="lb" style="opacity:.3;border-style:dashed"><span class="rk">2</span><span class="av">—</span><span class="skel" style="height:12px;width:90px"></span><span class="skel" style="height:12px;width:34px"></span><span></span></div>
+<div class="lb" style="opacity:.2;border-style:dashed"><span class="rk">3</span><span class="av">—</span><span class="skel" style="height:12px;width:70px"></span><span class="skel" style="height:12px;width:34px"></span><span></span></div>
+<span class="tiny" style="text-align:center">Ranks appear when the window closes at 11:00 PM IST.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Redirect to what exists</div></div>
+<div class="vmeta"><div><i>trades</i>Never a dead end — offers the boards that do have data; can feel like a deflection if the student wanted this one.</div><div><i>use</i>"No quiz this week" and "no entries".</div></div>
+<div class="stack">
+<div class="state" style="padding:var(--sp-5)"><h5>No Verbal quiz in week 37</h5><p>Nothing was scheduled for this section.</p></div>
+<div class="rowflex"><button class="btn sec sm">Quant · week 37</button><button class="btn sec sm">Verbal · week 36</button></div>
+<div class="state" style="padding:var(--sp-5)"><h5>No one finished this quiz</h5><p>The window closed with no completed attempts, so there's no board.</p></div>
+</div></div>
+</div>
+</section>
+
+<section id="pick">
+<h2>Pick sheet — Batch 4</h2>
+<div class="card"><table class="pick"><thead><tr><th>Component</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th>Recommended</th></tr></thead><tbody id="pickRows"></tbody></table>
+<div class="rowflex" style="margin-top:var(--sp-6)"><button class="btn" id="copyPicks">Copy as text</button><button class="btn sec" id="resetPicks">Reset</button><span id="pickMsg" style="font:var(--type-body-sm);color:var(--status-success-fg);align-self:center"></span></div></div>
+</section>
+
+<section id="open">
+<h2>Open questions</h2>
+<ul class="oq">
+<li><strong>Tie-break.</strong> Rendered as total time, ascending, shown in its own column. If ties instead share a rank (two 4ths, then 6th), every rank column and the reveal copy change.</li>
+<li><strong>Percentile / band language.</strong> Variant C of rank-reveal shows "Top 5%". With ~83 finishers a percentile is coarse and can identify individuals; flagged as speculative until you confirm you want bands at all.</li>
+<li><strong>Answer distribution basis.</strong> Assumed percentages are of students who <em>answered</em> that question, with n printed. Alternative is percentage of all participants, which makes skips visible — a different, arguably more honest chart.</li>
+<li><strong>Explanation availability.</strong> Assumed every question has an admin explanation. If some don't, the review card needs an explicit "No explanation provided" state rather than an empty panel.</li>
+<li><strong>Review window.</strong> Assumed review stays open indefinitely after the deadline. If it expires (to protect retired questions), History rows need an expiry state.</li>
+<li><strong>Overall board composition.</strong> Assumed "Overall" is the sum of section scores across the week. If it's an average or a separate quiz, the board switcher needs a definition line.</li>
+<li><strong>Marks scheme in the samples.</strong> Every printed number in this artifact uses +3 correct / −1 wrong / up to +0.5 bonus per question, so a 20-question quiz is out of 60 and the sample attempt totals 38.50. If the real scheme differs, only these sample values change — no layout does.</li>
+<li><strong>Speed bonus per question.</strong> Rendered per-question in review ("+0.3 bonus") and as one total in the breakdown. Confirm the bonus is computed per question, not per attempt.</li>
+<li><strong>Opting out of public names.</strong> The brief says real names are shown publicly. No opt-out is designed. If one is ever needed, `leaderboard-row` needs an anonymised state — say so now rather than later.</li>
+<li><strong>Medal emoji.</strong> Variant B of the leaderboard row uses 🥇🥈🥉, which contradicts the no-emoji content rule. If B wins, these ship as Lucide medal glyphs.</li>
+</ul>
+</section>
+</main>
+</div>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const picks=[['finish-card','A — Score hero'],['holding-state','A — Countdown + finisher count'],['rank-reveal','B — Rank in context'],['score-breakdown-tiles','B — Reconciling ledger'],['review-question-card','A — Options annotated in place'],['answer-distribution','A — Mini bars (collapsed on mobile)'],['time-vs-average','B — Delta chip'],['review-navigator','A mobile / B desktop'],['history-list-row','A — Two-line row'],['leaderboard-row','A — Flat row, medal rule'],['podium-top3','B — Ranked strip'],['board-switcher','A — Segmented + week stepper'],['leaderboard-empty','A — Embargo notice']];
+const KEY='quizzer.picks.batch4';
+const store=JSON.parse(localStorage.getItem(KEY)||'{}');
+$('#pickRows').innerHTML=picks.map(([n,rec])=>`<tr><td class="name">${n}</td>${['A','B','C'].map(o=>`<td class="c"><input type="radio" name="${n}" value="${o}" ${store[n]===o?'checked':''} aria-label="${n} ${o}"></td>`).join('')}<td style="color:var(--text-2)">${rec}</td></tr>`).join('');
+document.querySelectorAll('#pickRows input').forEach(i=>i.addEventListener('change',()=>{store[i.name]=i.value;localStorage.setItem(KEY,JSON.stringify(store))}));
+$('#copyPicks').addEventListener('click',async()=>{const txt=picks.map(([n])=>`${n}: ${store[n]||'—'}`).join('\n');try{await navigator.clipboard.writeText(txt)}catch(e){}$('#pickMsg').textContent='Copied.';setTimeout(()=>$('#pickMsg').textContent='',1800)});
+$('#resetPicks').addEventListener('click',()=>{localStorage.removeItem(KEY);document.querySelectorAll('#pickRows input').forEach(i=>i.checked=false);Object.keys(store).forEach(k=>delete store[k])});
+</script>
+</body></html>

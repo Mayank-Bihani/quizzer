@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run — TITA question — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s2.css">
+</head>
+<body>
+
+<main class="runpage">
+
+  <!-- ===================================================================
+       State 1 — TITA served, nothing entered.
+       =================================================================== -->
+  <div class="mock-state"><b>State — TITA served, nothing entered</b> <span>same clocks, same skip, same lock as the MCQ · keypad below the display so it can never cover Submit &amp; lock</span></div>
+
+  <section class="qcard" aria-label="Question 12">
+    <h1 class="sr-only">Question 12 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">12</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:14:12</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <p class="sr-only">Question 12 of 20. 11 behind you.</p>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:55%"></span></span>
+        <span class="tiny num" aria-hidden="true">55%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Grace — full speed bonus</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:38</span><span>this question</span></span>
+        </div>
+        <div class="tbar tbar--grace" aria-hidden="true">
+          <span class="tbar__grace" style="width:22%"></span>
+          <span class="tbar__mark" style="left:22%"></span>
+          <span class="tbar__fill" style="width:84%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <p class="stem">A vessel holds <span class="num">40</span> litres of milk. <span class="num">8</span> litres are drawn off and replaced with water; the same is then done a second time. How many litres of milk remain in the vessel?</p>
+      <div class="field">
+        <label class="lbl" for="tita12">Your answer</label>
+        <input class="answerbox" id="tita12" name="tita12" inputmode="decimal" autocomplete="off" placeholder="Type a number">
+        <p class="help">Decimals and negatives allowed · tolerance ±<span class="num">0.01</span> · answer in litres</p>
+      </div>
+      <div class="keypad" role="group" aria-label="Number keypad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" aria-label="Minus sign">−</button><button type="button">0</button><button type="button" aria-label="Decimal point">.</button>
+      </div>
+      <div class="rowflex">
+        <button class="btn sec" type="button">Clear</button>
+        <button class="btn sec" type="button"><span aria-hidden="true">⌫</span> Backspace</button>
+      </div>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button" disabled>Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       State 2 — a value has been entered but not submitted.
+       =================================================================== -->
+  <div class="mock-state"><b>State — answer entered</b> <span>filled display, decimal point · Submit &amp; lock enabled · still nothing about whether it is right</span></div>
+
+  <section class="qcard" aria-label="Question 12 with an answer entered">
+    <h1 class="sr-only">Question 12 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">12</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:13:51</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:55%"></span></span>
+        <span class="tiny num" aria-hidden="true">55%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Speed bonus decaying</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:17</span><span>this question</span></span>
+        </div>
+        <div class="tbar" aria-hidden="true">
+          <span class="tbar__grace" style="width:22%"></span>
+          <span class="tbar__mark" style="left:22%"></span>
+          <span class="tbar__fill" style="width:38%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <p class="stem">A vessel holds <span class="num">40</span> litres of milk. <span class="num">8</span> litres are drawn off and replaced with water; the same is then done a second time. How many litres of milk remain in the vessel?</p>
+      <div class="field">
+        <label class="lbl" for="tita12b">Your answer</label>
+        <input class="answerbox answerbox--filled" id="tita12b" name="tita12b" inputmode="decimal" autocomplete="off" value="25.6">
+        <p class="help">Decimals and negatives allowed · tolerance ±<span class="num">0.01</span> · answer in litres</p>
+      </div>
+      <div class="keypad" role="group" aria-label="Number keypad">
+        <button type="button">1</button><button type="button">2</button><button type="button">3</button>
+        <button type="button">4</button><button type="button">5</button><button type="button">6</button>
+        <button type="button">7</button><button type="button">8</button><button type="button">9</button>
+        <button type="button" aria-label="Minus sign">−</button><button type="button">0</button><button type="button" aria-label="Decimal point">.</button>
+      </div>
+      <div class="rowflex">
+        <button class="btn sec" type="button">Clear</button>
+        <button class="btn sec" type="button"><span aria-hidden="true">⌫</span> Backspace</button>
+      </div>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button">Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       State 3 — locked.
+       =================================================================== -->
+  <div class="mock-state"><b>State — answer locked</b> <span>display recoloured with the locked tokens, keypad inert · the padlock and the word always travel together</span></div>
+
+  <section class="qcard" aria-label="Question 12, answer locked">
+    <h1 class="sr-only">Question 12 of 20 — Weekly Quant Sprint #27</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">12</span> of <span class="num">20</span></span>
+        <span class="chip-sec b-quant">Quant</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:13:49</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:60%"></span></span>
+        <span class="tiny num" aria-hidden="true">60%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Answered — timer stopped</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:15</span><span>this question</span></span>
+        </div>
+        <div class="tbar tbar--expired" aria-hidden="true">
+          <span class="tbar__grace" style="width:22%"></span>
+          <span class="tbar__mark" style="left:22%"></span>
+          <span class="tbar__fill" style="width:0"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <p class="stem">A vessel holds <span class="num">40</span> litres of milk. <span class="num">8</span> litres are drawn off and replaced with water; the same is then done a second time. How many litres of milk remain in the vessel?</p>
+      <div class="field">
+        <label class="lbl" for="tita12c">Your answer</label>
+        <input class="answerbox answerbox--locked" id="tita12c" name="tita12c" inputmode="decimal" value="25.6" disabled>
+        <p class="help"><span aria-hidden="true">🔒</span> Answer locked — no changes possible.</p>
+      </div>
+      <div class="keypad" role="group" aria-label="Number keypad, disabled">
+        <button type="button" disabled>1</button><button type="button" disabled>2</button><button type="button" disabled>3</button>
+        <button type="button" disabled>4</button><button type="button" disabled>5</button><button type="button" disabled>6</button>
+        <button type="button" disabled>7</button><button type="button" disabled>8</button><button type="button" disabled>9</button>
+        <button type="button" disabled aria-label="Minus sign">−</button><button type="button" disabled>0</button><button type="button" disabled aria-label="Decimal point">.</button>
+      </div>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="lockcard" role="status">
+        <div class="lockring" aria-hidden="true">🔒</div>
+        <p class="lockcard__t">Answer locked</p>
+        <p class="tiny">Q<span class="num">12</span> · no changes possible · serving Q<span class="num">13</span>…</p>
+      </div>
+    </footer>
+  </section>
+
+</main>
+</body>
+</html>

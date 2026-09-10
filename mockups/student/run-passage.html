@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run — passage set — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s2.css">
+<link rel="stylesheet" href="../css/screens-s3.css">
+</head>
+<body>
+
+<main class="runpage">
+
+  <!-- ===================================================================
+       State 1 — first question of a passage set. The passage arrives with
+       Q1 of the set and stays pinned for all 4 questions (ROOM-12).
+       Phone: passage scrolls in its own capped pane, PDF-style, above the
+       question. >=900px: genuine relayout to a split pane (passage-set-
+       layout A) — see components.css §37/§40.
+       =================================================================== -->
+  <div class="mock-state"><b>State — passage set, first question</b> <span>Q1 of 4 in this set · passage arrives now and is not re-fetched again · phone stacks, tablet/laptop split</span></div>
+
+  <section class="qcard" aria-label="Question 13, first of a passage set">
+    <h1 class="sr-only">Question 13 of 20 — Reading Comprehension Set 12</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">13</span> of <span class="num">20</span> <span class="tiny">· Q<span class="num">1</span> of <span class="num">4</span> in this set</span></span>
+        <span class="chip-sec b-verbal">Verbal</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:22:10</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <p class="sr-only">Question 13 of 20, question 1 of 4 in this passage set. 12 answered.</p>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:60%"></span></span>
+        <span class="tiny num" aria-hidden="true">60%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Grace — full speed bonus</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">1:22</span><span>this question</span></span>
+        </div>
+        <div class="tbar tbar--grace" aria-hidden="true">
+          <span class="tbar__grace" style="width:17%"></span>
+          <span class="tbar__mark" style="left:17%"></span>
+          <span class="tbar__fill" style="width:9%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <div class="pset">
+        <section class="pset__passage" aria-labelledby="pass13-h">
+          <span class="eyebrow" id="pass13-h">Passage</span>
+          <div class="pset__passage-text">
+            <p>For centuries the semi-arid plains of the northern Deccan relied not on rivers but on a dense mesh of human-made tanks — shallow reservoirs that captured monsoon run-off and released it through sluices as the dry season wore on. Colonial administrators, encountering this system in the nineteenth century, tended to read it as a patchwork of isolated ponds rather than what it was: a cascading network in which the overflow of one tank fed the inlet of the next, maintained by village councils that assigned desilting duties, adjudicated disputes over sluice timing, and financed repairs from a share of the harvest.</p>
+            <p>The arrival of large dams and canal-fed irrigation after independence did not simply add capacity to this older system; it also removed the fiscal and social logic that had kept the tanks in repair, since a farmer who could draw water from a canal had little reason to fund the upkeep of a tank three villages upstream. The result, several agrarian historians now argue, was not modernisation cleanly displacing tradition but one commons regime being dismantled before its replacement could cover the same ground — leaving a visible gap in drought years that the canal network was never sized to fill.</p>
+          </div>
+        </section>
+        <div class="pset__q">
+          <p class="stem">According to the passage, the tank system fell into disrepair chiefly because</p>
+          <fieldset class="opts">
+            <legend class="sr-only">Choose one option for question 13</legend>
+            <input class="sr-only" type="radio" name="q13" id="q13a">
+            <label class="opt" for="q13a"><span class="k" aria-hidden="true">A</span><span class="opt__txt">colonial administrators actively dismantled the village councils that maintained it</span></label>
+            <input class="sr-only" type="radio" name="q13" id="q13b">
+            <label class="opt" for="q13b"><span class="k" aria-hidden="true">B</span><span class="opt__txt">canal irrigation removed the shared incentive that had funded its upkeep</span></label>
+            <input class="sr-only" type="radio" name="q13" id="q13c">
+            <label class="opt" for="q13c"><span class="k" aria-hidden="true">C</span><span class="opt__txt">the monsoon became less reliable after independence</span></label>
+            <input class="sr-only" type="radio" name="q13" id="q13d">
+            <label class="opt" for="q13d"><span class="k" aria-hidden="true">D</span><span class="opt__txt">the tanks were never a cascading network to begin with</span></label>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button" disabled>Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- ===================================================================
+       State 2 — mid-set. Same passage, same scroll behaviour, third
+       question of four. The passage block is byte-identical to State 1 —
+       it is not re-rendered or re-fetched between questions in a set.
+       =================================================================== -->
+  <div class="mock-state"><b>State — passage set, mid-set</b> <span>Q3 of 4 in this set · same passage, unchanged · only the question and options differ from State 1</span></div>
+
+  <section class="qcard" aria-label="Question 15, third of a passage set">
+    <h1 class="sr-only">Question 15 of 20 — Reading Comprehension Set 12</h1>
+
+    <header class="qcard__hdr">
+      <div class="qcard__idrow">
+        <span class="qidx">Q<span class="num">15</span> of <span class="num">20</span> <span class="tiny">· Q<span class="num">3</span> of <span class="num">4</span> in this set</span></span>
+        <span class="chip-sec b-verbal">Verbal</span>
+        <span class="grow"></span>
+        <span class="clock-win"><span aria-hidden="true">⌛</span><span class="num">0:19:48</span><span class="clock-win__note">left in the window</span></span>
+      </div>
+      <p class="sr-only">Question 15 of 20, question 3 of 4 in this passage set. 14 answered.</p>
+      <div class="progress">
+        <span class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:70%"></span></span>
+        <span class="tiny num" aria-hidden="true">70%</span>
+      </div>
+      <div class="qtimer">
+        <div class="qtimer__row">
+          <span class="qtimer__zone">Speed bonus decaying</span>
+          <span class="clock-q"><span aria-hidden="true">◷</span><span class="num">0:48</span><span>this question</span></span>
+        </div>
+        <div class="tbar" aria-hidden="true">
+          <span class="tbar__grace" style="width:17%"></span>
+          <span class="tbar__mark" style="left:17%"></span>
+          <span class="tbar__fill" style="width:47%"></span>
+        </div>
+      </div>
+    </header>
+
+    <div class="qcard__body">
+      <div class="pset">
+        <section class="pset__passage" aria-labelledby="pass15-h">
+          <span class="eyebrow" id="pass15-h">Passage</span>
+          <div class="pset__passage-text">
+            <p>For centuries the semi-arid plains of the northern Deccan relied not on rivers but on a dense mesh of human-made tanks — shallow reservoirs that captured monsoon run-off and released it through sluices as the dry season wore on. Colonial administrators, encountering this system in the nineteenth century, tended to read it as a patchwork of isolated ponds rather than what it was: a cascading network in which the overflow of one tank fed the inlet of the next, maintained by village councils that assigned desilting duties, adjudicated disputes over sluice timing, and financed repairs from a share of the harvest.</p>
+            <p>The arrival of large dams and canal-fed irrigation after independence did not simply add capacity to this older system; it also removed the fiscal and social logic that had kept the tanks in repair, since a farmer who could draw water from a canal had little reason to fund the upkeep of a tank three villages upstream. The result, several agrarian historians now argue, was not modernisation cleanly displacing tradition but one commons regime being dismantled before its replacement could cover the same ground — leaving a visible gap in drought years that the canal network was never sized to fill.</p>
+          </div>
+        </section>
+        <div class="pset__q">
+          <p class="stem">The author's characterisation of the colonial administrators' view of the tank system is best described as</p>
+          <fieldset class="opts">
+            <legend class="sr-only">Choose one option for question 15</legend>
+            <input class="sr-only" type="radio" name="q15" id="q15a" checked>
+            <label class="opt" for="q15a"><span class="k" aria-hidden="true">A</span><span class="opt__txt">a misreading that missed the system's underlying structure</span></label>
+            <input class="sr-only" type="radio" name="q15" id="q15b">
+            <label class="opt" for="q15b"><span class="k" aria-hidden="true">B</span><span class="opt__txt">broadly accurate, though incomplete in its detail</span></label>
+            <input class="sr-only" type="radio" name="q15" id="q15c">
+            <label class="opt" for="q15c"><span class="k" aria-hidden="true">C</span><span class="opt__txt">sympathetic to the difficulty of governing a decentralised system</span></label>
+            <input class="sr-only" type="radio" name="q15" id="q15d">
+            <label class="opt" for="q15d"><span class="k" aria-hidden="true">D</span><span class="opt__txt">indifferent — the passage does not characterise their view</span></label>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <footer class="qcard__foot">
+      <div class="qact">
+        <div class="qact__skip">
+          <button class="btn sec" type="button">Skip this question <span aria-hidden="true">→</span></button>
+          <p class="qact__note">Scores <span class="num">0</span>. You cannot come back to it.</p>
+        </div>
+        <button class="btn lg block" type="button">Submit &amp; lock</button>
+      </div>
+    </footer>
+  </section>
+
+</main>
+</body>
+</html>

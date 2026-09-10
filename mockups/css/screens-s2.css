@@ -1,0 +1,25 @@
+/* Sprint S2 — run: core. Layout only.
+   No tokens defined here, no components — every shared component this sprint
+   needed was appended to components.css §27–36. What is left is the mockup
+   harness: how the run states stack in one reviewable file. */
+
+/* A run screen has no app shell. There is nowhere to navigate to during a run
+   — no bottom bar, no back — so .qcard is the whole document, and each stacked
+   state below is a full screen in its own right, delineated by a hairline. */
+.runpage{display:block;min-width:0}
+.runpage .qcard{border-top:var(--border-hairline) solid var(--border-2)}
+.runpage .qcard:first-child{border-top:0}
+/* the caption strip is harness chrome, so it takes the page gutter the .qcard
+   applies internally */
+.runpage .mock-state{margin-left:var(--gutter-mobile);margin-right:var(--gutter-mobile)}
+/* a labelled block that is a component reference rather than a screen */
+.runref{display:grid;gap:var(--sp-5);padding:0 var(--gutter-mobile) var(--sp-11)}
+.runref__grid{display:grid;gap:var(--sp-7)}
+.runref__row{display:flex;align-items:center;gap:var(--sp-5);flex-wrap:wrap}
+
+@media (min-width:640px){
+  .runpage .mock-state,.runref{margin-left:var(--gutter-desktop);margin-right:var(--gutter-desktop);padding-left:0;padding-right:0}
+}
+@media (min-width:900px){
+  .runref__grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+}

@@ -1,0 +1,1 @@
+// telegram_posts table; TelegramContract — claimAndSend: insert status='pending' before the Bot API call (message_id/sent_at unknown until after), then update to 'sent' or 'failed' — TELEGRAM.md §6-7; CONTRACTS.md §6

@@ -1,0 +1,17 @@
+node_modules/
+.wrangler/
+dist/
+.dev.vars
+.dev.vars.*
+*.log
+.DS_Store
+
+# Personal local tooling, not project source.
+.docbak/
+.obsidian/
+.claude/settings.local.json
+.agents/
+
+# Real CAT 2018 exam content — copyrighted, local-only, never published.
+fixtures/bank/cat-2018/source-pdfs/
+fixtures/bank/cat-2018/*.txt

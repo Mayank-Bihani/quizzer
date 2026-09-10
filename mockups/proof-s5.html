@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S5 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S5 — responsive proof</h1>
+    <p class="tiny">The review screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths.</p>
+    <p class="tiny">Review is one of the eight screens that genuinely <b>relayouts</b> rather than reflows (MOCKUP_PROMPT "Reflow vs. relayout"): below 900px each <code class="tiny">.rcard</code> stacks stem → options → distribution → explanation in one column; at 900px and up the explanation moves into a side column beside the question instead of sitting underneath it. Check that split at 820 and 1440 below — it should not appear at 390.</p>
+    <p class="tiny">Tier 3 of the disclosure ladder: this is the first screen where correctness colour, the correct answer, the room's answer distribution and a time-vs-average comparison are all shown together, per question — everything the run and the two earlier result tiers withheld.</p>
+  </div>
+
+  <section>
+    <h2>Review — 5 outcomes, distribution, time-vs-average, navigator</h2>
+    <p class="tiny">review-question-card C + A composed · answer-distribution A · time-vs-average B (delta chip) · review-navigator A (sticky bar + grid sheet). All 8 states stacked in one file: correct, wrong, skipped, timed out, not reached, the collapsed index expanding in place, the distribution/time-vs-average edge cases, and the navigator on its own.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/review.html" title="Review at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/review.html" title="Review at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/review.html" title="Review at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

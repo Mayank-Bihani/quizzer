@@ -1,0 +1,59 @@
+name = "quizzer"
+main = "src/index.ts"
+compatibility_date = "2026-08-22"
+compatibility_flags = ["nodejs_compat"]
+
+# React build output, served from the same Worker/origin — PLAN.md "Frontend deployment".
+# Commented out until web/dist actually exists — wrangler dev/deploy fails immediately if this
+# points at a directory that isn't there yet (COUNCIL_FINDINGS.md #22). Uncomment once the
+# frontend build lands after backend implementation.
+# [assets]
+# directory = "./web/dist"
+# binding = "ASSETS"
+
+# D1 — PLAN.md "Data model (D1)" / migrations/0001_init.sql. Nothing provisioned yet;
+# database_id is a placeholder until `wrangler d1 create` is run.
+[[d1_databases]]
+binding = "DB"
+database_name = "quizzer-db"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# R2 — question/passage images only. BANK.md §5, MODULES.md §5.
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "quizzer-images"
+
+# Workers KV — JWKS cache, role cache, redacted unit-content cache, board cache.
+# MODULES.md "KV keyspace ownership". id is a placeholder until `wrangler kv namespace create` is run.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "00000000000000000000000000000000"
+
+# Cron triggers — SCHEDULER.md §4. Expressions are UTC. "0 19 * * 0" is 00:30 IST Monday —
+# deliberately *after* the IST week has ended, not 20:00 IST Sunday, which is still before
+# midnight IST (SCHEDULER.md §6 — COUNCIL_FINDINGS.md #15).
+[triggers]
+crons = [
+  "* * * * *",    # tick: open rooms, fire due Telegram posts, close quizzes past their last
+                  # possible finish (ends_at + window_sec*1000 + 5000ms delivery — PRD.md §5.4)
+  "0 * * * *",    # materialize recurring templates for the next 7 days + auto-draw units; retry deferred weekly publication
+  "0 19 * * 0",   # weekly boards — 00:30 IST Monday; defer if eligible runs are unfinished
+]
+
+# Non-secret Worker vars — TELEGRAM.md §8. Secrets (TELEGRAM_BOT_TOKEN, SUPERADMIN_EMAIL,
+# the session-signing key) are set with `wrangler secret put`, never written here.
+[vars]
+TELEGRAM_CHAT_ID = ""
+TELEGRAM_ALERT_CHAT_ID = ""
+TELEGRAM_ENABLED = "false"
+EMAIL_ALERT_ADDRESS = ""    # the project owner's personal address — MODULES.md §6
+
+# Failure-alert email — MODULES.md §6. V1 uses this Cloudflare Email Routing binding for the
+# email half of dual-channel alerts; no third-party email provider is selected.
+# Requires this Worker's zone to be a real Cloudflare-managed domain, not the default
+# *.workers.dev subdomain — Email Routing can't send from a workers.dev address. Uncomment once
+# a custom domain is attached and EMAIL_ALERT_ADDRESS is verified as a destination address under
+# that zone's Email Routing settings. This is a production launch prerequisite.
+# [[send_email]]
+# name = "ALERT_EMAIL"
+# destination_address = ""   # must match EMAIL_ALERT_ADDRESS above once verified

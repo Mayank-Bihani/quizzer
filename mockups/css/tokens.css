@@ -1,0 +1,233 @@
+/* ============================================================================
+   Quizzer — tokens.css
+   Copied VERBATIM from the Quizzer Design System token layer
+   (tokens/palette.css, typography.css, space.css, effects.css, motion.css,
+   semantic.css). Do not edit. Do not add values here. Screen stylesheets must
+   never redefine a token.
+
+   ONE deliberate omission: tokens/fonts.css consists solely of two Google Fonts
+   @import rules. These mockups make zero external requests and must run from
+   file://, so the @imports are dropped. Every --font-* stack below already
+   carries a system fallback (ui-sans-serif / ui-monospace / Georgia), so the
+   pages render with system fonts. Logged in the system-gaps list.
+   ========================================================================= */
+
+/* ---- tokens/palette.css ---- */
+:root{
+/* ---- neutrals (cool, tuned to read over translucent surfaces) ---- */
+--n-0:#FFFFFF;--n-25:#FBFCFE;--n-50:#F6F8FB;--n-100:#EEF1F6;--n-200:#E1E6EE;--n-300:#CBD3DF;--n-400:#A3AEC0;--n-500:#7A8699;--n-600:#5B6675;--n-700:#414A57;--n-800:#2B323C;--n-900:#1A1F26;--n-950:#0E1116;
+/* ---- accent / brand ---- */
+--accent-50:#EDF3FF;--accent-100:#DBE6FF;--accent-200:#B9CDFF;--accent-300:#8FADFF;--accent-400:#5F87FB;--accent-500:#2F6BFF;--accent-600:#1B52DB;--accent-700:#163FAB;--accent-800:#142F7C;--accent-900:#101F4F;
+/* ---- semantic ramps ---- */
+--success-50:#E8F8EE;--success-100:#CDEFDB;--success-500:#12A150;--success-600:#0C8341;--success-700:#0A6534;
+--warning-50:#FFF6E5;--warning-100:#FFE8BF;--warning-500:#E08A00;--warning-600:#B86F00;--warning-700:#8F5600;
+--danger-50:#FEECEC;--danger-100:#FCD5D6;--danger-500:#DB3A3F;--danger-600:#BC2A2F;--danger-700:#951F23;
+--info-50:#E9F3FF;--info-100:#CFE4FF;--info-500:#2E90FA;--info-600:#1B72CE;--info-700:#14559B;
+/* ---- section identity: FAMILY A "Reading Room" (warm academic mid-tones) ---- */
+--sec-verbal-a:#8A3B34;--sec-quant-a:#2C6E63;--sec-lr-a:#A9772C;--sec-overall-a:#7A7168;
+/* ---- section identity: FAMILY B "Library" (deep, high white-text contrast) ---- */
+--sec-verbal-b:#6E2E36;--sec-quant-b:#2A5A44;--sec-lr-b:#8C5A1E;--sec-overall-b:#63594F;
+/* ---- section identity: FAMILY C "Manuscript" (soft parchment tones) ---- */
+--sec-verbal-c:#B0645C;--sec-quant-c:#4E8A7C;--sec-lr-c:#C08B2E;--sec-overall-c:#948B80;
+/* active section aliases — SELECTED: family B "Library" */
+--sec-verbal:var(--sec-verbal-b);--sec-quant:var(--sec-quant-b);--sec-lr:var(--sec-lr-b);--sec-overall:var(--sec-overall-b);
+/* section tints for chips on glass (kept opaque-ish so blur can't wash them out) */
+--sec-verbal-tint:color-mix(in oklab,var(--sec-verbal) 14%,white);
+--sec-quant-tint:color-mix(in oklab,var(--sec-quant) 14%,white);
+--sec-lr-tint:color-mix(in oklab,var(--sec-lr) 14%,white);
+--sec-overall-tint:color-mix(in oklab,var(--sec-overall) 14%,white);
+--sec-verbal-ink:color-mix(in oklab,var(--sec-verbal) 78%,var(--n-950));
+--sec-quant-ink:color-mix(in oklab,var(--sec-quant) 78%,var(--n-950));
+--sec-lr-ink:color-mix(in oklab,var(--sec-lr) 78%,var(--n-950));
+--sec-overall-ink:color-mix(in oklab,var(--sec-overall) 78%,var(--n-950));
+}
+
+/* ---- tokens/typography.css ---- */
+:root{
+--font-ui:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; /* @kind font */
+--font-num:"IBM Plex Mono","IBM Plex Sans",ui-monospace,monospace; /* @kind font */
+--font-math:"Source Serif 4",Georgia,serif; /* @kind font */ /* LaTeX-ish inline math fallback when KaTeX is unavailable */
+/* size scale — mobile-first, 12px floor */
+--fs-11:11px; /* @kind font */
+--fs-12:12px; /* @kind font */
+--fs-13:13px; /* @kind font */
+--fs-14:14px; /* @kind font */
+--fs-15:15px; /* @kind font */
+--fs-16:16px; /* @kind font */
+--fs-18:18px; /* @kind font */
+--fs-20:20px; /* @kind font */
+--fs-24:24px; /* @kind font */
+--fs-30:30px; /* @kind font */
+--fs-38:38px; /* @kind font */
+--fs-48:48px; /* @kind font */
+--fs-64:64px; /* @kind font */
+--lh-tight:1.15; /* @kind font */
+--lh-snug:1.3; /* @kind font */
+--lh-normal:1.45; /* @kind font */
+--lh-relaxed:1.6; /* @kind font */
+--fw-regular:400; /* @kind font */
+--fw-medium:500; /* @kind font */
+--fw-semibold:600; /* @kind font */
+--fw-bold:700; /* @kind font */
+--ls-tight:-0.02em; /* @kind font */
+--ls-snug:-0.01em; /* @kind font */
+--ls-normal:0; /* @kind font */
+--ls-wide:0.02em; /* @kind font */
+--ls-caps:0.06em; /* @kind font */
+/* semantic roles */
+--type-display:var(--fw-semibold) var(--fs-48)/var(--lh-tight) var(--font-ui); /* @kind font */
+--type-h1:var(--fw-semibold) var(--fs-30)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-h2:var(--fw-semibold) var(--fs-20)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-h3:var(--fw-semibold) var(--fs-16)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-body:var(--fw-regular) var(--fs-15)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-body-sm:var(--fw-regular) var(--fs-13)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-stem:var(--fw-regular) var(--fs-16)/var(--lh-relaxed) var(--font-ui); /* @kind font */ /* question stem, 375px */
+--type-option:var(--fw-medium) var(--fs-15)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-label:var(--fw-medium) var(--fs-13)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-caption:var(--fw-regular) var(--fs-12)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-overline:var(--fw-semibold) var(--fs-11)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-table:var(--fw-regular) var(--fs-13)/1.35 var(--font-ui); /* @kind font */ /* dense admin rows */
+--type-numeric:var(--fw-semibold) var(--fs-20)/1 var(--font-num); /* @kind font */
+--type-numeric-lg:var(--fw-semibold) var(--fs-38)/1 var(--font-num); /* @kind font */
+--type-timer:var(--fw-medium) var(--fs-14)/1 var(--font-num); /* @kind font */
+--numeric-features:tabular-nums lining-nums; /* @kind other */ /* apply as font-variant-numeric anywhere a number can change */
+}
+
+/* ---- tokens/space.css ---- */
+:root{
+--sp-0:0px;--sp-1:2px;--sp-2:4px;--sp-3:6px;--sp-4:8px;--sp-5:12px;--sp-6:16px;--sp-7:20px;--sp-8:24px;--sp-9:32px;--sp-10:40px;--sp-11:48px;--sp-12:64px;--sp-13:80px;
+--gutter-mobile:16px;--gutter-desktop:24px;
+--content-max:1200px;--content-narrow:720px;--phone-w:375px;
+--tap-min:44px;--tap-comfortable:52px;
+--r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-pill:999px;--r-circle:50%;
+--border-hairline:1px;--border-strong:1.5px;--border-focus:2px;
+}
+
+/* ---- tokens/effects.css ---- */
+:root{
+/* ---- elevation: restrained, two-part (contact + ambient) ---- */
+--elev-0:none;
+--elev-1:0 1px 2px rgba(16,24,40,.05);
+--elev-2:0 1px 2px rgba(16,24,40,.05),0 4px 12px rgba(16,24,40,.06);
+--elev-3:0 2px 4px rgba(16,24,40,.05),0 12px 28px rgba(16,24,40,.09);
+--elev-4:0 4px 8px rgba(16,24,40,.06),0 24px 56px rgba(16,24,40,.13);
+--elev-inset:inset 0 1px 0 rgba(255,255,255,.7);
+
+/* ---- glass recipes (A default / B / C) ---- */
+--glass-a-bg:rgba(255,255,255,.62);
+--glass-a-blur:18px; /* @kind other */
+--glass-a-sat:180%; /* @kind other */
+--glass-a-border:1px solid rgba(255,255,255,.75); /* @kind other */
+--glass-a-ring:inset 0 0 0 1px rgba(16,24,40,.05); /* @kind shadow */
+--glass-a-shadow:var(--elev-2); /* @kind shadow */
+--glass-b-bg:rgba(255,255,255,.86);
+--glass-b-blur:8px; /* @kind other */
+--glass-b-sat:120%; /* @kind other */
+--glass-b-border:1px solid var(--n-200); /* @kind other */
+--glass-b-ring:none; /* @kind shadow */
+--glass-b-shadow:var(--elev-1); /* @kind shadow */
+--glass-c-bg:rgba(255,255,255,.44);
+--glass-c-blur:28px; /* @kind other */
+--glass-c-sat:200%; /* @kind other */
+--glass-c-border:1px solid rgba(255,255,255,.55); /* @kind other */
+--glass-c-ring:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(16,24,40,.04); /* @kind shadow */
+--glass-c-shadow:var(--elev-3); /* @kind shadow */
+/* active glass aliases */
+--glass-bg:var(--glass-a-bg);
+--glass-blur:var(--glass-a-blur); /* @kind other */
+--glass-sat:var(--glass-a-sat); /* @kind other */
+--glass-border:var(--glass-a-border); /* @kind other */
+--glass-ring:var(--glass-a-ring); /* @kind shadow */
+--glass-shadow:var(--glass-a-shadow); /* @kind shadow */
+--glass-bg-strong:rgba(255,255,255,.9); /* sheets, dialogs, anything holding long text */
+--hairline:1px solid rgba(16,24,40,.08); /* @kind other */
+
+/* ---- ambient background system (A default / B / C) ---- */
+--amb-base:#F7F5F1;
+--amb-a:radial-gradient(60% 50% at 12% 0%,rgba(169,119,44,.16),transparent 60%),radial-gradient(50% 45% at 92% 8%,rgba(44,110,99,.14),transparent 62%),radial-gradient(70% 60% at 50% 108%,rgba(138,59,52,.12),transparent 60%),linear-gradient(180deg,#FAF8F4,#F2EFE9); /* @kind other */
+--amb-b:linear-gradient(180deg,#FBF9F6 0%,#F1EEE8 100%); /* @kind other */
+--amb-c:radial-gradient(38% 30% at 20% 18%,rgba(169,119,44,.24),transparent 70%),radial-gradient(34% 28% at 82% 30%,rgba(138,59,52,.18),transparent 70%),radial-gradient(40% 34% at 55% 88%,rgba(44,110,99,.20),transparent 70%),#F8F5F0; /* @kind other */
+--amb-noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='.5'/></svg>"); /* @kind other */
+--amb-noise-opacity:.035; /* @kind other */
+--ambient:var(--amb-a); /* @kind other */
+
+/* ---- focus ---- */
+--focus-ring:0 0 0 2px var(--n-0),0 0 0 4px var(--accent-500);
+--focus-ring-on-glass:0 0 0 2px rgba(255,255,255,.95),0 0 0 4px var(--accent-600);
+--focus-ring-danger:0 0 0 2px var(--n-0),0 0 0 4px var(--danger-600);
+--scrim:rgba(14,17,22,.36);
+--scrim-blur:6px; /* @kind other */
+}
+
+/* ---- tokens/motion.css ---- */
+:root{
+--dur-instant:80ms; /* @kind other */
+--dur-1:120ms; /* @kind other */
+--dur-2:180ms; /* @kind other */
+--dur-3:260ms; /* @kind other */
+--dur-4:420ms; /* @kind other */
+--dur-5:640ms; /* @kind other */
+--ease-standard:cubic-bezier(.2,.6,.2,1); /* @kind other */
+--ease-out:cubic-bezier(.16,1,.3,1); /* @kind other */
+--ease-in:cubic-bezier(.5,0,.9,.4); /* @kind other */
+--ease-emphasis:cubic-bezier(.2,.9,.25,1.2); /* @kind other */ /* the single overshoot in the system: lock confirmation */
+--ease-linear:linear; /* @kind other */ /* timers only — a countdown must never ease */
+/* named transitions */
+--t-press:transform var(--dur-instant) var(--ease-standard); /* @kind other */
+--t-hover:background-color var(--dur-1) var(--ease-standard),border-color var(--dur-1) var(--ease-standard),box-shadow var(--dur-1) var(--ease-standard); /* @kind other */
+--t-sheet:transform var(--dur-3) var(--ease-out),opacity var(--dur-2) var(--ease-standard); /* @kind other */
+--t-question:opacity var(--dur-2) var(--ease-standard),transform var(--dur-3) var(--ease-out); /* @kind other */
+--press-scale:.98; /* @kind other */
+--tick:1000ms; /* @kind other */ /* clock cadence; timers animate linearly between ticks */
+}
+@media (prefers-reduced-motion:reduce){:root{
+--dur-instant:0ms; /* @kind other */
+--dur-1:0ms; /* @kind other */
+--dur-2:0ms; /* @kind other */
+--dur-3:0ms; /* @kind other */
+--dur-4:0ms; /* @kind other */
+--dur-5:0ms; /* @kind other */
+--ease-emphasis:linear; /* @kind other */
+--press-scale:1; /* @kind other */
+}
+*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;scroll-behavior:auto!important}
+/* exception: timers keep their value-driven fill, but stop pulsing — urgency falls back to text + shape */
+}
+
+/* ---- tokens/semantic.css ---- */
+:root{
+/* text */
+--text-1:var(--n-900);--text-2:var(--n-600);--text-3:var(--n-500);--text-inverse:var(--n-0);--text-link:var(--accent-600);--text-link-hover:var(--accent-700);--text-disabled:var(--n-400);
+/* surfaces */
+--surface-page:var(--amb-base);--surface-card:var(--glass-bg);--surface-raised:var(--n-0);--surface-sunken:var(--n-50);--surface-subtle:var(--n-100);--surface-inverse:var(--n-900);
+--border-1:rgba(16,24,40,.08);--border-2:rgba(16,24,40,.14);--border-strong-c:var(--n-300);
+/* interactive */
+--action-primary-bg:var(--accent-500);--action-primary-bg-hover:var(--accent-600);--action-primary-bg-active:var(--accent-700);--action-primary-fg:var(--n-0);
+--action-secondary-bg:rgba(255,255,255,.72);--action-secondary-fg:var(--n-800);--action-secondary-border:var(--border-2);
+--action-ghost-fg:var(--accent-600);--action-ghost-bg-hover:var(--accent-50);
+--action-danger-bg:var(--danger-500);--action-danger-bg-hover:var(--danger-600);--action-danger-fg:var(--n-0);
+--action-disabled-bg:var(--n-200);--action-disabled-fg:var(--n-400);
+/* status */
+--status-success-fg:var(--success-700);--status-success-bg:var(--success-50);--status-success-border:var(--success-100);
+--status-warning-fg:var(--warning-700);--status-warning-bg:var(--warning-50);--status-warning-border:var(--warning-100);
+--status-danger-fg:var(--danger-700);--status-danger-bg:var(--danger-50);--status-danger-border:var(--danger-100);
+--status-info-fg:var(--info-700);--status-info-bg:var(--info-50);--status-info-border:var(--info-100);
+--status-neutral-fg:var(--n-700);--status-neutral-bg:var(--n-100);--status-neutral-border:var(--n-200);
+/* quiz-run specific (no correctness colours exist in this group by design) */
+--q-timer-track:rgba(16,24,40,.10);
+--q-timer-fill:var(--accent-500);
+--q-timer-grace:var(--success-500);      /* speed-bonus zone */
+--q-timer-urgent:var(--warning-600);     /* final seconds — always paired with a shape/text change */
+--q-timer-expired:var(--n-500);
+--q-deadline-fill:var(--n-700);          /* second clock: neutral + always digits, never a ring */
+--q-option-bg:rgba(255,255,255,.72);--q-option-border:var(--border-2);
+--q-option-selected-bg:var(--accent-50);--q-option-selected-border:var(--accent-500);
+--q-option-locked-bg:var(--n-100);--q-option-locked-border:var(--n-300);--q-option-locked-fg:var(--n-600);
+/* review only — correctness lives nowhere else */
+--rv-correct-fg:var(--success-700);--rv-correct-bg:var(--success-50);--rv-correct-border:var(--success-500);
+--rv-wrong-fg:var(--danger-700);--rv-wrong-bg:var(--danger-50);--rv-wrong-border:var(--danger-500);
+--rv-skipped-fg:var(--n-600);--rv-skipped-bg:var(--n-100);--rv-skipped-border:var(--n-300);
+--rv-notreached-fg:var(--n-500);--rv-notreached-bg:transparent;--rv-notreached-border:var(--n-200);
+/* rank */
+--rank-1:#D4A017;--rank-2:#9AA5B1;--rank-3:#C08457;--rank-you-bg:var(--accent-50);--rank-you-border:var(--accent-500);
+}

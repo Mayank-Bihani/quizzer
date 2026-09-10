@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import — upload — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+<link rel="stylesheet" href="../css/screens-s8.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <a class="phdr__back" href="bank.html"><span aria-hidden="true">&larr;</span> Question bank</a>
+            <h1 class="phdr__title">Import questions</h1>
+            <p class="phdr__sub">A CSV of questions, and an optional ZIP of the images it references. Nothing is written to the bank until you review a preview and commit.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 1 — idle. Nothing chosen yet. file-dropzone A: one target,
+           two file types; the pairing rule (CSV names the image files) is
+           explained in helper text rather than a second drop zone.
+           =================================================================== -->
+      <div class="mock-state"><b>State — idle</b> <span>file-dropzone A, nothing chosen yet</span></div>
+      <div class="dzwrap">
+        <div class="dz">
+          <img class="dz__icon" src="../assets/illustrations/shade-empty.svg" alt="">
+          <div class="h3">Drop CSV, or CSV&nbsp;+&nbsp;ZIP</div>
+          <p class="help">Images are matched by filename from the <code>image</code> column of the CSV · CSV + ZIP together, max 20&nbsp;MB.</p>
+          <button class="btn sec">Choose files</button>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — drag-over. A file is hovering the drop target.
+           =================================================================== -->
+      <div class="mock-state"><b>State — drag-over</b> <span>a file is over the drop target</span></div>
+      <div class="dzwrap">
+        <div class="dz dz--drag">
+          <div class="h3">Release to upload</div>
+          <p class="help">batch14-quant-verbal-lr.csv</p>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — uploading. Both files chosen: the CSV has finished, the
+           companion ZIP is still transferring. Reuses .pbar (S2 §30) rather
+           than a second progress-bar shape.
+           =================================================================== -->
+      <div class="mock-state"><b>State — uploading</b> <span>CSV done, ZIP in progress</span></div>
+      <div class="dzwrap">
+        <div class="dz dz--up">
+          <div class="filerow">
+            <span class="filerow__nm">batch14-quant-verbal-lr.csv</span>
+            <span class="filerow__sz num">212 KB</span>
+            <span class="badge b-open">✓ Uploaded</span>
+          </div>
+          <div class="filerow">
+            <span class="filerow__nm">batch14-images.zip</span>
+            <span class="filerow__sz num">9.4 MB</span>
+          </div>
+          <div class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:62%"></span></div>
+          <div class="rowflex-between">
+            <span class="tiny">Uploading batch14-images.zip&hellip; <span class="num">62%</span></span>
+            <button class="btn ghost">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 4 — upload error. The companion ZIP is over the size limit.
+           This is a transport failure, before any CSV parsing has happened —
+           distinct from the validation errors on the next screen.
+           =================================================================== -->
+      <div class="mock-state"><b>State — upload failed</b> <span>file too large, before any parsing happens</span></div>
+      <div class="dzwrap">
+        <div class="dz dz--err">
+          <div class="filerow">
+            <span class="filerow__nm">batch14-quant-verbal-lr.csv</span>
+            <span class="filerow__sz num">212 KB</span>
+            <span class="badge b-open">✓ Uploaded</span>
+          </div>
+          <div class="alert a-dgr">
+            <span aria-hidden="true">✕</span>
+            <span><b>batch14-images.zip could not be uploaded.</b> The file is <span class="num">34</span>&nbsp;MB; the limit is <span class="num">20</span>&nbsp;MB. Compress the images or split them across two imports.</span>
+          </div>
+          <div class="rowflex">
+            <button class="btn sec">Try again</button>
+            <button class="btn ghost">Continue with CSV only</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

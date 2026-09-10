@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz builder — Define — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s9.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a class="on" href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a class="on" href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="console-home.html"><span aria-hidden="true">&larr;</span> Console home</a>
+        <h1 class="phdr__title">New quiz</h1>
+        <p class="phdr__sub">Five steps, ending in an irreversible lock. Nothing is written to the schedule until step 5.</p>
+      </div>
+
+      <!-- ===================================================================
+           quiz-builder-wizard A — horizontal stepper. Five steps matching
+           this sprint's own five screens (see components.css §66): Define
+           is the step this file covers, on and the only one not yet done.
+           =================================================================== -->
+      <nav class="steps" aria-label="Quiz builder steps">
+        <span class="step on" aria-current="step"><span class="n" aria-hidden="true">1</span>Define</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">2</span>Draw</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">3</span>Scoring</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">4</span>Schedule</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step"><span class="n" aria-hidden="true">5</span>Lock</span>
+      </nav>
+
+      <!-- ===================================================================
+           State 1 — valid mix. Weekly Quant Sprint #28: the flagship quiz
+           this sprint carries through Draw, Scoring, Schedule and Lock.
+           Exam-like mix (6/10/4 = 20), matching the design system's own
+           canonical sample and reconciling with bank.html's "41 unused
+           Medium" filtered count and console-home's needs-attention note.
+           =================================================================== -->
+      <div class="mock-state" id="valid"><b>State — valid mix</b> <span>difficulty-mix-control A &middot; total reconciles &middot; Continue enabled</span></div>
+
+      <form class="card builderform stack-lg" aria-labelledby="def-h">
+        <h2 id="def-h" class="h2">Define</h2>
+
+        <div class="field">
+          <label class="lbl" for="qz-name">Quiz name</label>
+          <input class="inp" id="qz-name" value="Weekly Quant Sprint #28">
+        </div>
+
+        <div class="rowflex">
+          <div class="field grow">
+            <label class="lbl" for="qz-sec">Section</label>
+            <select class="inp" id="qz-sec">
+              <option selected>Quant</option>
+              <option>Verbal</option>
+              <option>Logical Reasoning</option>
+            </select>
+          </div>
+          <div class="field grow">
+            <label class="lbl" for="qz-count">Question count</label>
+            <input class="inp num" id="qz-count" inputmode="numeric" value="20">
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lbl" id="mix-lbl">Difficulty mix</span>
+          <div class="mix" role="group" aria-labelledby="mix-lbl">
+            <div class="mixrow">
+              <span>Easy</span>
+              <input type="range" min="0" max="100" value="30" aria-label="Easy — percentage of the quiz" aria-valuetext="6 of 20 questions">
+              <span class="num" style="text-align:right">6</span>
+            </div>
+            <div class="mixrow">
+              <span>Medium</span>
+              <input type="range" min="0" max="100" value="50" aria-label="Medium — percentage of the quiz" aria-valuetext="10 of 20 questions">
+              <span class="num" style="text-align:right">10</span>
+            </div>
+            <div class="mixrow">
+              <span>Hard</span>
+              <input type="range" min="0" max="100" value="20" aria-label="Hard — percentage of the quiz" aria-valuetext="4 of 20 questions">
+              <span class="num" style="text-align:right">4</span>
+            </div>
+          </div>
+          <div class="tiny">Unused in Quant right now: <span class="num">312</span> Easy &middot; <span class="num">41</span> Medium &middot; <span class="num">23</span> Hard.</div>
+        </div>
+
+        <div class="mixtotal ok">
+          <span class="tiny">Total</span>
+          <span class="num" style="font:var(--type-label)">20 / 20 <span aria-hidden="true">✓</span></span>
+        </div>
+
+        <div class="rowflex-between">
+          <button class="btn sec" type="button" disabled>&larr; Back</button>
+          <span class="tiny">Nothing is published until step 5</span>
+          <a class="btn" href="builder-draw.html">Continue</a>
+        </div>
+      </form>
+
+      <!-- ===================================================================
+           State 2 — invalid mix (consequence 3: three independent steppers
+           can sum to != N). Continue is a real disabled <button>, not a
+           disabled <a>, since there is nowhere valid for it to go.
+           =================================================================== -->
+      <div class="mock-state"><b>State — invalid mix</b> <span>total does not reconcile &middot; Continue blocked until it does</span></div>
+
+      <form class="card builderform stack-lg" aria-labelledby="def2-h">
+        <h2 id="def2-h" class="h2">Define</h2>
+
+        <div class="field">
+          <label class="lbl" for="qz2-name">Quiz name</label>
+          <input class="inp" id="qz2-name" value="Weekly Quant Sprint #28">
+        </div>
+
+        <div class="rowflex">
+          <div class="field grow">
+            <label class="lbl" for="qz2-sec">Section</label>
+            <select class="inp" id="qz2-sec">
+              <option selected>Quant</option>
+              <option>Verbal</option>
+              <option>Logical Reasoning</option>
+            </select>
+          </div>
+          <div class="field grow">
+            <label class="lbl" for="qz2-count">Question count</label>
+            <input class="inp num" id="qz2-count" inputmode="numeric" value="20">
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="lbl" id="mix2-lbl">Difficulty mix</span>
+          <div class="mix" role="group" aria-labelledby="mix2-lbl">
+            <div class="mixrow">
+              <span>Easy</span>
+              <input type="range" min="0" max="100" value="30" aria-label="Easy — percentage of the quiz" aria-valuetext="6 of 20 questions">
+              <span class="num" style="text-align:right">6</span>
+            </div>
+            <div class="mixrow">
+              <span>Medium</span>
+              <input type="range" min="0" max="100" value="50" aria-label="Medium — percentage of the quiz" aria-valuetext="10 of 20 questions">
+              <span class="num" style="text-align:right">10</span>
+            </div>
+            <div class="mixrow">
+              <span>Hard</span>
+              <input type="range" min="0" max="100" value="25" aria-label="Hard — percentage of the quiz" aria-valuetext="5 of 20 questions">
+              <span class="num" style="text-align:right">5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mixtotal err">
+          <span class="tiny">Total</span>
+          <span class="num" style="font:var(--type-label)">21 / 20</span>
+        </div>
+        <p class="help err">Easy + Medium + Hard must equal the question count. Reduce by 1 to continue.</p>
+
+        <div class="rowflex-between">
+          <button class="btn sec" type="button" disabled>&larr; Back</button>
+          <span class="tiny">Nothing is published until step 5</span>
+          <button class="btn" type="button" disabled aria-disabled="true">Continue</button>
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

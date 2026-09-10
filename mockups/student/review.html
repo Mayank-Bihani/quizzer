@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s5.css">
+</head>
+<body>
+
+<!-- =====================================================================
+     Tier 3 of the disclosure ladder (RESULT-4/5/6/7) — post-deadline only,
+     same as rank-reveal.html. Free navigation (JOURNEYS §SJ-7) is the
+     opposite of the run, where nothing was navigable.
+
+     NO BOTTOM TAB BAR ON THIS SCREEN. review-navigator A is itself a sticky
+     bottom bar (selections.md), and app-shell-student A already owns that
+     edge with the Home/History/Boards/Profile tab bar below 900px. Two
+     fixed bars stacked at the same edge is not a real option, so this
+     screen suppresses `.navbar` and lets the review-navigator take its job;
+     the way back to the rest of the app is the page-header back-link (and,
+     from 900px up, the shell's own `.topnav`, which was never at the bottom
+     edge to begin with). Logged as SYSTEM-GAPS #25. ====================== -->
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="rank-reveal.html"><span aria-hidden="true">←</span> Rank &amp; score</a>
+        <div class="phdr__row">
+          <div>
+            <div class="eyebrow">Result · window closed <span class="num">9:55 PM</span> IST</div>
+            <h1 class="phdr__title">Review — Weekly Quant Sprint #<span class="num">27</span></h1>
+            <p class="phdr__sub">Room <span class="num">QNT-8417</span> · <span class="num">14</span> correct · <span class="num">4</span> wrong · <span class="num">2</span> skipped · <span class="num">38.5</span> of <span class="num">60</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================
+           States 1–3: the reviewing student's own attempt (the same one
+           reconciled in rank-reveal.html's ledger — 14 correct / 4 wrong /
+           2 skipped / 0 not reached — so the two screens' numbers agree).
+           One representative card per outcome that this attempt actually
+           contains; timed out and not reached are a different student's
+           session (states 4–5) because this attempt has neither.
+           ================================================================= -->
+
+      <div class="reviewfeed">
+
+        <div class="mock-state"><b>State — correct</b> <span>review-question-card A · answer-distribution A · time-vs-average B (faster)</span></div>
+        <article class="rcard" aria-labelledby="q8-h">
+          <div class="rcard__hdr">
+            <h2 class="rcard__idx" id="q8-h">Q<span class="num">8</span> of <span class="num">20</span></h2>
+            <span class="badge b-ok">✓ Correct · +3 <span class="tiny">(+0.15 bonus)</span></span>
+          </div>
+          <div class="rcard__main">
+            <p class="stem">Choose the word closest in meaning to <b>OBDURATE</b>.</p>
+            <div class="stack" style="gap:var(--sp-3)">
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">A</span><span class="ropt__txt">Amenable</span></div>
+              <div class="ropt correct"><span class="ropt__k" aria-hidden="true">B</span><span class="ropt__txt">Stubborn</span><span class="ropt__tag">✓ your answer · correct</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">C</span><span class="ropt__txt">Generous</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">D</span><span class="ropt__txt">Playful</span></div>
+            </div>
+            <div class="dist" role="group" aria-label="How the room answered, question 8">
+              <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:9%"></span></span><span class="tiny num">9%</span></div>
+              <div class="dist__row"><span class="dist__opt dist__opt--ok">B</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:71%"></span></span><span class="tiny num">71%</span></div>
+              <div class="dist__row"><span class="dist__opt">C</span><span class="dist__bar"><span class="dist__fill" style="width:12%"></span></span><span class="tiny num">12%</span></div>
+              <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:8%"></span></span><span class="tiny num">8%</span></div>
+            </div>
+            <p class="tiny"><span class="num">n = 81</span> answered · ✓ B correct · this was also your answer</p>
+            <span class="badge tva-fast">◷ <span class="num">11s</span> faster</span>
+          </div>
+          <div class="rcard__aside">
+            <p class="wlabel" style="margin:0">Explanation</p>
+            <p class="tiny" style="color:var(--text-2)">OBDURATE means stubbornly refusing to change one's mind or position — the closest word in meaning is "Stubborn".</p>
+          </div>
+        </article>
+
+        <div class="mock-state"><b>State — wrong</b> <span>review-question-card A · MathML stem · distribution shows the popular trap · time-vs-average B (slower)</span></div>
+        <article class="rcard" aria-labelledby="q7-h">
+          <div class="rcard__hdr">
+            <h2 class="rcard__idx" id="q7-h">Q<span class="num">7</span> of <span class="num">20</span></h2>
+            <span class="badge b-no">✕ Wrong · −1</span>
+          </div>
+          <div class="rcard__main">
+            <p class="stem">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, find <span class="math">x<sup>3</sup> − 8</span>.</p>
+            <div class="stack" style="gap:var(--sp-3)">
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">A</span><span class="ropt__txt num">17</span></div>
+              <div class="ropt correct"><span class="ropt__k" aria-hidden="true">B</span><span class="ropt__txt num">19</span><span class="ropt__tag">✓ correct</span></div>
+              <div class="ropt wrong"><span class="ropt__k" aria-hidden="true">C</span><span class="ropt__txt num">21</span><span class="ropt__tag">✕ your answer</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">D</span><span class="ropt__txt num">23</span></div>
+            </div>
+            <div class="dist" role="group" aria-label="How the room answered, question 7">
+              <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:12%"></span></span><span class="tiny num">12%</span></div>
+              <div class="dist__row"><span class="dist__opt dist__opt--ok">B</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:34%"></span></span><span class="tiny num">34%</span></div>
+              <div class="dist__row"><span class="dist__opt dist__opt--mine">C</span><span class="dist__bar"><span class="dist__fill dist__fill--mine" style="width:41%"></span></span><span class="tiny num">41%</span></div>
+              <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:13%"></span></span><span class="tiny num">13%</span></div>
+            </div>
+            <p class="tiny"><span class="num">n = 79</span> answered · ✓ B correct · ✕ C was your answer, and the room's most common choice</p>
+            <span class="badge tva-slow">◷ <span class="num">18s</span> slower</span>
+          </div>
+          <div class="rcard__aside">
+            <p class="wlabel" style="margin:0">Explanation</p>
+            <p class="tiny" style="color:var(--text-2)">Factorising gives <span class="math">(x − 2)(x − 3) = 0</span>, so <span class="math">x = 2</span> or <span class="math">x = 3</span>; since <span class="math">x &gt; 2</span>, <span class="math">x = 3</span>.<span class="mathblock">x<sup>3</sup> − 8 = 27 − 8 = 19</span></p>
+          </div>
+        </article>
+
+        <div class="mock-state"><b>State — skipped</b> <span>review-question-card A · wrapping option (content rule) · no time-vs-average — nothing was timed</span></div>
+        <article class="rcard" aria-labelledby="q9-h">
+          <div class="rcard__hdr">
+            <h2 class="rcard__idx" id="q9-h">Q<span class="num">9</span> of <span class="num">20</span></h2>
+            <span class="badge b-skip">– Skipped · 0</span>
+          </div>
+          <div class="rcard__main">
+            <p class="stem">Based on the passage, which of the following best captures the author's central argument about urban water scarcity?</p>
+            <div class="stack" style="gap:var(--sp-3)">
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">A</span><span class="ropt__txt">Scarcity is primarily a distribution problem, not a supply one.</span></div>
+              <div class="ropt correct"><span class="ropt__k" aria-hidden="true">B</span><span class="ropt__txt">Municipal water boards must prioritise equitable distribution over industrial demand even when short-term economic output is affected, since long-term public health costs far outweigh near-term productivity losses.</span><span class="ropt__tag">✓ correct</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">C</span><span class="ropt__txt">Industrial users should be exempted from rationing during droughts.</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">D</span><span class="ropt__txt">Desalination alone can resolve the shortfall within a decade.</span></div>
+            </div>
+            <div class="dist" role="group" aria-label="How the room answered, question 9">
+              <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:10%"></span></span><span class="tiny num">10%</span></div>
+              <div class="dist__row"><span class="dist__opt dist__opt--ok">B</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:58%"></span></span><span class="tiny num">58%</span></div>
+              <div class="dist__row"><span class="dist__opt">C</span><span class="dist__bar"><span class="dist__fill" style="width:19%"></span></span><span class="tiny num">19%</span></div>
+              <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:13%"></span></span><span class="tiny num">13%</span></div>
+            </div>
+            <p class="tiny"><span class="num">n = 76</span> answered · ✓ B correct</p>
+            <p class="tiny">You reached this question and chose to skip it — nothing was submitted, and it scored <span class="num">0</span> with no penalty.</p>
+          </div>
+          <div class="rcard__aside">
+            <p class="wlabel" style="margin:0">Explanation</p>
+            <p class="tiny" style="color:var(--text-2)">The passage frames equitable distribution over short-term industrial output as the central tension the author returns to in every paragraph.</p>
+          </div>
+        </article>
+
+        <!-- ===============================================================
+             States 4–5: a DIFFERENT student's session — the one that hit
+             the hard deadline mid-Q18, first shown in S3's run-deadline.html
+             and carried into S4's finish.html deadline-cut state (Q14 timed
+             out earlier in the run; the deadline then closed the window
+             during Q18, so Q19 was never delivered at all). Reused here
+             rather than invented, and kept out of the grid above: that grid
+             belongs to the attempt reconciled in rank-reveal.html, which has
+             zero timed-out or not-reached questions, so mixing them into one
+             grid would misrepresent one specific student's results. =========
+        -->
+
+        <div class="mock-state"><b>State — timed out</b> <span>the 5th outcome JOURNEYS §SJ-7 requires · reuses Q14 from run-deadline.html (a different student's session)</span></div>
+        <article class="rcard" aria-labelledby="q14-h">
+          <div class="rcard__hdr">
+            <h2 class="rcard__idx" id="q14-h">Q<span class="num">14</span> of <span class="num">20</span></h2>
+            <span class="badge b-timeout">⌛ Timed out · 0</span>
+          </div>
+          <div class="rcard__main">
+            <p class="tiny">From a session where the per-question timer ran out before an answer was chosen — see <a href="run-deadline.html">Timeout advance</a>. Scored 0, never a penalty (SCORE-4).</p>
+            <p class="stem">A cistern can be filled by pipe A in <span class="num">12</span> hours and emptied by pipe B in <span class="num">18</span> hours. If both pipes are opened together, how long will it take to fill the empty cistern?</p>
+            <div class="stack" style="gap:var(--sp-3)">
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">A</span><span class="ropt__txt num">30 hours</span></div>
+              <div class="ropt correct"><span class="ropt__k" aria-hidden="true">B</span><span class="ropt__txt num">36 hours</span><span class="ropt__tag">✓ correct</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">C</span><span class="ropt__txt num">42 hours</span></div>
+              <div class="ropt muted"><span class="ropt__k" aria-hidden="true">D</span><span class="ropt__txt num">48 hours</span></div>
+            </div>
+            <div class="dist" role="group" aria-label="How the room answered, question 14">
+              <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:8%"></span></span><span class="tiny num">8%</span></div>
+              <div class="dist__row"><span class="dist__opt dist__opt--ok">B</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:61%"></span></span><span class="tiny num">61%</span></div>
+              <div class="dist__row"><span class="dist__opt">C</span><span class="dist__bar"><span class="dist__fill" style="width:22%"></span></span><span class="tiny num">22%</span></div>
+              <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:9%"></span></span><span class="tiny num">9%</span></div>
+            </div>
+            <p class="tiny"><span class="num">n = 80</span> answered · ✓ B correct. No time-vs-average is shown here — the student's clock ran to the full limit by definition, and framing that as "slower" would read as a mistake it wasn't (JOURNEYS §SJ-7).</p>
+          </div>
+          <div class="rcard__aside">
+            <p class="wlabel" style="margin:0">Explanation</p>
+            <p class="tiny" style="color:var(--text-2)">Combined rate is <span class="math">1/12 − 1/18 = 1/36</span> of the cistern per hour, so it fills in <span class="num">36</span> hours.</p>
+          </div>
+        </article>
+
+        <div class="mock-state"><b>State — not reached</b> <span>the 5th outcome's counterpart · reuses Q19 from run-deadline.html / finish.html's deadline-cut state</span></div>
+        <article class="rcard" aria-labelledby="q19-h" style="border-style:dashed">
+          <div class="rcard__hdr">
+            <h2 class="rcard__idx" id="q19-h">Q<span class="num">19</span> of <span class="num">20</span></h2>
+            <span class="badge b-nr">◌ Not reached · 0</span>
+          </div>
+          <div class="rcard__main">
+            <p class="tiny">From the same session — the window closed <span class="num">9:55 PM</span> IST while Q<span class="num">18</span> was still open, so this question was never delivered (ROOM-9: a client never holds a question the student has not reached). See <a href="finish.html">Finish, deadline-cut state</a>.</p>
+            <p class="stem">If <span class="math">log<sub>2</sub>x + log<sub>4</sub>x = 6</span>, find <span class="math">x</span>.</p>
+            <p class="tiny">Correct answer: <b class="num">16</b>. Shown for reference only — there is no "your answer" to compare, and this cannot score negatively.</p>
+          </div>
+          <div class="rcard__aside">
+            <p class="wlabel" style="margin:0">Explanation</p>
+            <p class="tiny" style="color:var(--text-2)"><span class="math">log<sub>4</sub>x = log<sub>2</sub>x / 2</span>, so the equation reduces to <span class="math">(3/2)log<sub>2</sub>x = 6</span>, giving <span class="math">log<sub>2</sub>x = 4</span> and <span class="math">x = 16</span>.</p>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- =================================================================
+           State 6: review-question-card C + A composed (selections.md
+           consequence 8) — the collapsed index for the reviewing student's
+           own 20 questions, with Q7 expanded in place into the same detail
+           card shape as state 2 above (abbreviated: explanation and image
+           load on expand, per the guideline's own note for this variant).
+           ================================================================= -->
+
+      <div class="mock-state"><b>State — collapsed index, one row expanded</b> <span>review-question-card C (index) + A (detail) composed, per selections.md consequence 8</span></div>
+      <section aria-labelledby="idx-h">
+        <h2 id="idx-h" class="h3">All questions</h2>
+        <div class="stack" style="gap:var(--sp-3)">
+          <button class="rrow" type="button" aria-expanded="false">
+            <span class="badge b-ok">✓</span>
+            <span class="rrow__q"><span class="tiny num">Q1</span> · A train <span class="num">120</span> m long crosses a platform…</span>
+            <span class="rrow__meta tiny">+3.1 ▾</span>
+          </button>
+          <button class="rrow" type="button" aria-expanded="false">
+            <span class="badge b-no">✕</span>
+            <span class="rrow__q"><span class="tiny num">Q3</span> · The ratio of ages of A and B, five years ago…</span>
+            <span class="rrow__meta tiny">−1 ▾</span>
+          </button>
+          <button class="rrow" type="button" aria-expanded="false">
+            <span class="badge b-skip">–</span>
+            <span class="rrow__q"><span class="tiny num">Q5</span> · Six statements are given; identify the pair that…</span>
+            <span class="rrow__meta tiny">0 ▾</span>
+          </button>
+          <button class="rrow expanded" type="button" aria-expanded="true" aria-controls="q7-expanded">
+            <span class="badge b-no">✕</span>
+            <span class="rrow__q"><span class="tiny num">Q7</span> · If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span>…</span>
+            <span class="rrow__meta tiny">−1 ▴</span>
+          </button>
+          <div class="rcard" id="q7-expanded" style="padding:var(--sp-4)">
+            <p class="tiny">Expanded — same detail as the full card above, loaded on demand.</p>
+            <div class="stack" style="gap:var(--sp-3)">
+              <div class="ropt correct"><span class="ropt__k" aria-hidden="true">B</span><span class="ropt__txt num">19</span><span class="ropt__tag">✓ correct</span></div>
+              <div class="ropt wrong"><span class="ropt__k" aria-hidden="true">C</span><span class="ropt__txt num">21</span><span class="ropt__tag">✕ your answer</span></div>
+            </div>
+            <p class="tiny">Explanation and image load on expand.</p>
+          </div>
+          <button class="rrow" type="button" aria-expanded="false">
+            <span class="badge b-skip">–</span>
+            <span class="rrow__q"><span class="tiny num">Q9</span> · Based on the passage, which of the following…</span>
+            <span class="rrow__meta tiny">0 ▾</span>
+          </button>
+          <button class="rrow" type="button" aria-expanded="false">
+            <span class="badge b-ok">✓</span>
+            <span class="rrow__q"><span class="tiny num">Q13</span> · Two dice are thrown together; find the probability…</span>
+            <span class="rrow__meta tiny">+3.0 ▾</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- =================================================================
+           State 7: component reference — answer-distribution's edge cases
+           (an item nobody agrees on, an item everybody gets right, and the
+           TITA / numeric-answer case the guideline never modelled — see
+           SYSTEM-GAPS #26) plus all three time-vs-average delta chips.
+           ================================================================= -->
+
+      <div class="mock-state"><b>State — distribution and time-vs-average, edge cases</b> <span>answer-distribution A at both extremes, a TITA reading, and all three time-vs-average B chips</span></div>
+      <div class="refgrid refgrid--3">
+        <div class="card stack">
+          <p class="wlabel" style="margin:0">No option dominates</p>
+          <div class="dist" role="group" aria-label="Even split example">
+            <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:26%"></span></span><span class="tiny num">26%</span></div>
+            <div class="dist__row"><span class="dist__opt">B</span><span class="dist__bar"><span class="dist__fill" style="width:24%"></span></span><span class="tiny num">24%</span></div>
+            <div class="dist__row"><span class="dist__opt dist__opt--ok">C</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:25%"></span></span><span class="tiny num">25%</span></div>
+            <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:25%"></span></span><span class="tiny num">25%</span></div>
+          </div>
+          <p class="tiny"><span class="num">n = 84</span> — a well-discriminating item, close to guessing-rate for the wrong options.</p>
+        </div>
+        <div class="card stack">
+          <p class="wlabel" style="margin:0">Everyone converges</p>
+          <div class="dist" role="group" aria-label="Heavy majority example">
+            <div class="dist__row"><span class="dist__opt">A</span><span class="dist__bar"><span class="dist__fill" style="width:4%"></span></span><span class="tiny num">4%</span></div>
+            <div class="dist__row"><span class="dist__opt">B</span><span class="dist__bar"><span class="dist__fill" style="width:3%"></span></span><span class="tiny num">3%</span></div>
+            <div class="dist__row"><span class="dist__opt dist__opt--ok">C</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:88%"></span></span><span class="tiny num">88%</span></div>
+            <div class="dist__row"><span class="dist__opt">D</span><span class="dist__bar"><span class="dist__fill" style="width:5%"></span></span><span class="tiny num">5%</span></div>
+          </div>
+          <p class="tiny"><span class="num">n = 88</span> — an easy item; almost the whole room got it right.</p>
+        </div>
+        <div class="card stack">
+          <p class="wlabel" style="margin:0">TITA — no lettered options</p>
+          <div class="dist" role="group" aria-label="Numeric-answer distribution example">
+            <div class="dist__row" style="grid-template-columns:auto minmax(0,1fr) var(--sp-10)"><span class="tiny dist__opt--ok">Within ±1 of 36</span><span class="dist__bar"><span class="dist__fill dist__fill--ok" style="width:74%"></span></span><span class="tiny num">74%</span></div>
+            <div class="dist__row" style="grid-template-columns:auto minmax(0,1fr) var(--sp-10)"><span class="tiny">Off by more than 1</span><span class="dist__bar"><span class="dist__fill" style="width:21%"></span></span><span class="tiny num">21%</span></div>
+            <div class="dist__row" style="grid-template-columns:auto minmax(0,1fr) var(--sp-10)"><span class="tiny">Skipped</span><span class="dist__bar"><span class="dist__fill" style="width:5%"></span></span><span class="tiny num">5%</span></div>
+          </div>
+          <p class="tiny"><span class="num">n = 80</span> — buckets around the correct value, not lettered bars. Not in the design system; see SYSTEM-GAPS #26.</p>
+        </div>
+      </div>
+      <div class="rowflex" style="margin-top:var(--sp-2)">
+        <span class="badge tva-fast">◷ <span class="num">12s</span> faster</span>
+        <span class="badge tva-same">◷ same as room</span>
+        <span class="badge tva-slow">◷ <span class="num">9s</span> slower</span>
+      </div>
+      <p class="tiny">Never framed as good or bad — spending longer on a hard question is not a failure. Wording stays neutral: "faster" / "slower" / "same as room", never "too slow".</p>
+
+      <!-- =================================================================
+           State 8: review-navigator A on its own — the sticky bottom bar
+           plus the full grid sheet, using the reviewing student's own 20
+           cells (the same 14/4/2/0 tally as rank-reveal.html's ledger).
+           ================================================================= -->
+
+      <div class="mock-state"><b>State — review navigator</b> <span>review-navigator A · sticky bottom bar + grid sheet · "now" on Q7</span></div>
+      <section class="card stack" aria-labelledby="nav-h">
+        <h2 id="nav-h" class="h3">Jump to a question</h2>
+        <div class="rnav">
+          <button class="btn sec sm" type="button">← Prev</button>
+          <button class="rnav__pos" type="button" aria-haspopup="true" aria-expanded="true">Q<span class="num">7</span> of <span class="num">20</span> ▴</button>
+          <button class="btn sec sm" type="button">Next →</button>
+        </div>
+        <div class="rgrid" aria-label="All 20 questions, coloured by outcome">
+          <button class="rcell ok" type="button" aria-label="Question 1, correct">1</button>
+          <button class="rcell ok" type="button" aria-label="Question 2, correct">2</button>
+          <button class="rcell no" type="button" aria-label="Question 3, wrong">3</button>
+          <button class="rcell ok" type="button" aria-label="Question 4, correct">4</button>
+          <button class="rcell skip" type="button" aria-label="Question 5, skipped">5</button>
+          <button class="rcell ok" type="button" aria-label="Question 6, correct">6</button>
+          <button class="rcell no now" type="button" aria-current="true" aria-label="Question 7, wrong, current question">7</button>
+          <button class="rcell ok" type="button" aria-label="Question 8, correct">8</button>
+          <button class="rcell skip" type="button" aria-label="Question 9, skipped">9</button>
+          <button class="rcell ok" type="button" aria-label="Question 10, correct">10</button>
+          <button class="rcell ok" type="button" aria-label="Question 11, correct">11</button>
+          <button class="rcell no" type="button" aria-label="Question 12, wrong">12</button>
+          <button class="rcell ok" type="button" aria-label="Question 13, correct">13</button>
+          <button class="rcell ok" type="button" aria-label="Question 14, correct">14</button>
+          <button class="rcell no" type="button" aria-label="Question 15, wrong">15</button>
+          <button class="rcell ok" type="button" aria-label="Question 16, correct">16</button>
+          <button class="rcell ok" type="button" aria-label="Question 17, correct">17</button>
+          <button class="rcell ok" type="button" aria-label="Question 18, correct">18</button>
+          <button class="rcell ok" type="button" aria-label="Question 19, correct">19</button>
+          <button class="rcell ok" type="button" aria-label="Question 20, correct">20</button>
+        </div>
+        <div class="rlegend">
+          <span class="tiny" style="color:var(--rv-correct-fg)">✓ 14</span>
+          <span class="tiny" style="color:var(--rv-wrong-fg)">✕ 4</span>
+          <span class="tiny">– 2 skipped</span>
+          <span class="tiny">◌ 0 not reached</span>
+        </div>
+        <p class="tiny">In the live screen this bar docks to the bottom of the viewport (<code class="tiny">.rnav-dock</code> in <code class="tiny">screens-s5.css</code>) — shown in flow here so every state in this file reads top to bottom.</p>
+      </section>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

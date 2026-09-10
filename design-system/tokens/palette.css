@@ -1,0 +1,28 @@
+:root{
+/* ---- neutrals (cool, tuned to read over translucent surfaces) ---- */
+--n-0:#FFFFFF;--n-25:#FBFCFE;--n-50:#F6F8FB;--n-100:#EEF1F6;--n-200:#E1E6EE;--n-300:#CBD3DF;--n-400:#A3AEC0;--n-500:#7A8699;--n-600:#5B6675;--n-700:#414A57;--n-800:#2B323C;--n-900:#1A1F26;--n-950:#0E1116;
+/* ---- accent / brand ---- */
+--accent-50:#EDF3FF;--accent-100:#DBE6FF;--accent-200:#B9CDFF;--accent-300:#8FADFF;--accent-400:#5F87FB;--accent-500:#2F6BFF;--accent-600:#1B52DB;--accent-700:#163FAB;--accent-800:#142F7C;--accent-900:#101F4F;
+/* ---- semantic ramps ---- */
+--success-50:#E8F8EE;--success-100:#CDEFDB;--success-500:#12A150;--success-600:#0C8341;--success-700:#0A6534;
+--warning-50:#FFF6E5;--warning-100:#FFE8BF;--warning-500:#E08A00;--warning-600:#B86F00;--warning-700:#8F5600;
+--danger-50:#FEECEC;--danger-100:#FCD5D6;--danger-500:#DB3A3F;--danger-600:#BC2A2F;--danger-700:#951F23;
+--info-50:#E9F3FF;--info-100:#CFE4FF;--info-500:#2E90FA;--info-600:#1B72CE;--info-700:#14559B;
+/* ---- section identity: FAMILY A "Reading Room" (warm academic mid-tones) ---- */
+--sec-verbal-a:#8A3B34;--sec-quant-a:#2C6E63;--sec-lr-a:#A9772C;--sec-overall-a:#7A7168;
+/* ---- section identity: FAMILY B "Library" (deep, high white-text contrast) ---- */
+--sec-verbal-b:#6E2E36;--sec-quant-b:#2A5A44;--sec-lr-b:#8C5A1E;--sec-overall-b:#63594F;
+/* ---- section identity: FAMILY C "Manuscript" (soft parchment tones) ---- */
+--sec-verbal-c:#B0645C;--sec-quant-c:#4E8A7C;--sec-lr-c:#C08B2E;--sec-overall-c:#948B80;
+/* active section aliases — SELECTED: family B "Library" */
+--sec-verbal:var(--sec-verbal-b);--sec-quant:var(--sec-quant-b);--sec-lr:var(--sec-lr-b);--sec-overall:var(--sec-overall-b);
+/* section tints for chips on glass (kept opaque-ish so blur can't wash them out) */
+--sec-verbal-tint:color-mix(in oklab,var(--sec-verbal) 14%,white);
+--sec-quant-tint:color-mix(in oklab,var(--sec-quant) 14%,white);
+--sec-lr-tint:color-mix(in oklab,var(--sec-lr) 14%,white);
+--sec-overall-tint:color-mix(in oklab,var(--sec-overall) 14%,white);
+--sec-verbal-ink:color-mix(in oklab,var(--sec-verbal) 78%,var(--n-950));
+--sec-quant-ink:color-mix(in oklab,var(--sec-quant) 78%,var(--n-950));
+--sec-lr-ink:color-mix(in oklab,var(--sec-lr) 78%,var(--n-950));
+--sec-overall-ink:color-mix(in oklab,var(--sec-overall) 78%,var(--n-950));
+}

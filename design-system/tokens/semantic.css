@@ -1,0 +1,36 @@
+:root{
+/* text */
+--text-1:var(--n-900);--text-2:var(--n-600);--text-3:var(--n-500);--text-inverse:var(--n-0);--text-link:var(--accent-600);--text-link-hover:var(--accent-700);--text-disabled:var(--n-400);
+/* surfaces */
+--surface-page:var(--amb-base);--surface-card:var(--glass-bg);--surface-raised:var(--n-0);--surface-sunken:var(--n-50);--surface-subtle:var(--n-100);--surface-inverse:var(--n-900);
+--border-1:rgba(16,24,40,.08);--border-2:rgba(16,24,40,.14);--border-strong-c:var(--n-300);
+/* interactive */
+--action-primary-bg:var(--accent-500);--action-primary-bg-hover:var(--accent-600);--action-primary-bg-active:var(--accent-700);--action-primary-fg:var(--n-0);
+--action-secondary-bg:rgba(255,255,255,.72);--action-secondary-fg:var(--n-800);--action-secondary-border:var(--border-2);
+--action-ghost-fg:var(--accent-600);--action-ghost-bg-hover:var(--accent-50);
+--action-danger-bg:var(--danger-500);--action-danger-bg-hover:var(--danger-600);--action-danger-fg:var(--n-0);
+--action-disabled-bg:var(--n-200);--action-disabled-fg:var(--n-400);
+/* status */
+--status-success-fg:var(--success-700);--status-success-bg:var(--success-50);--status-success-border:var(--success-100);
+--status-warning-fg:var(--warning-700);--status-warning-bg:var(--warning-50);--status-warning-border:var(--warning-100);
+--status-danger-fg:var(--danger-700);--status-danger-bg:var(--danger-50);--status-danger-border:var(--danger-100);
+--status-info-fg:var(--info-700);--status-info-bg:var(--info-50);--status-info-border:var(--info-100);
+--status-neutral-fg:var(--n-700);--status-neutral-bg:var(--n-100);--status-neutral-border:var(--n-200);
+/* quiz-run specific (no correctness colours exist in this group by design) */
+--q-timer-track:rgba(16,24,40,.10);
+--q-timer-fill:var(--accent-500);
+--q-timer-grace:var(--success-500);      /* speed-bonus zone */
+--q-timer-urgent:var(--warning-600);     /* final seconds — always paired with a shape/text change */
+--q-timer-expired:var(--n-500);
+--q-deadline-fill:var(--n-700);          /* second clock: neutral + always digits, never a ring */
+--q-option-bg:rgba(255,255,255,.72);--q-option-border:var(--border-2);
+--q-option-selected-bg:var(--accent-50);--q-option-selected-border:var(--accent-500);
+--q-option-locked-bg:var(--n-100);--q-option-locked-border:var(--n-300);--q-option-locked-fg:var(--n-600);
+/* review only — correctness lives nowhere else */
+--rv-correct-fg:var(--success-700);--rv-correct-bg:var(--success-50);--rv-correct-border:var(--success-500);
+--rv-wrong-fg:var(--danger-700);--rv-wrong-bg:var(--danger-50);--rv-wrong-border:var(--danger-500);
+--rv-skipped-fg:var(--n-600);--rv-skipped-bg:var(--n-100);--rv-skipped-border:var(--n-300);
+--rv-notreached-fg:var(--n-500);--rv-notreached-bg:transparent;--rv-notreached-border:var(--n-200);
+/* rank */
+--rank-1:#D4A017;--rank-2:#9AA5B1;--rank-3:#C08457;--rank-you-bg:var(--accent-50);--rank-you-border:var(--accent-500);
+}

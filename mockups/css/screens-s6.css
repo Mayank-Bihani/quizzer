@@ -1,0 +1,27 @@
+/* ============================================================================
+   Sprint S6 — history & boards. Layout only; every component lives in
+   components.css. Follows the S0–S5 convention that each sprint's screen CSS
+   is self-contained rather than importing another sprint's wrapper.
+   ========================================================================= */
+
+/* history list + board list: a stack of rows, own class per screen so a
+   later sprint never has to guess what this one assumed. */
+.hlist{display:grid;gap:var(--sp-3);min-width:0}
+.boardlist{display:grid;gap:var(--sp-3);min-width:0}
+
+/* the truncation divider inside a long board list ("35 more between here and
+   your row") — text only, no rule line, so it never looks like a real row. */
+.boardgap{text-align:center;padding:var(--sp-2) 0}
+
+/* header block shared by the two board screens: page header + a couple of
+   facts (participants, closed time) sitting above the switcher/list. */
+.boardhead{display:grid;gap:var(--sp-5)}
+
+/* board-switcher's two controls stack on top of each other per variant A
+   ("both dimensions visible in one row each"); no relayout needed, they're
+   already full-width at every size. */
+.switcher{display:grid;gap:var(--sp-3)}
+
+/* zero-participant / embargo / no-quiz states, and did-not-take, all reuse
+   `.state` directly — no new wrapper needed beyond spacing between stacked
+   demo states, which `.stack-lg` on the page already provides. */

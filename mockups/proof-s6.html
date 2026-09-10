@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S6 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S6 — responsive proof</h1>
+    <p class="tiny">Every S6 screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths.</p>
+    <p class="tiny">The leaderboard is one of the eight screens that genuinely <b>relayouts</b> rather than reflows (MOCKUP_PROMPT "Reflow vs. relayout"): below 900px a <code class="tiny">.rankrow</code> shows rank + avatar + name + score only; at 900px and up it adds tie-break time and, on the weekly board, section and quizzes-counted. Check that in leaderboard-quiz.html and leaderboard-weekly.html below — the extra columns should not appear at 390 or 820, only at 1440.</p>
+    <p class="tiny">Continuity: history.html, leaderboard-quiz.html and rank-reveal.html (S4) all describe the same attempt — Weekly Quant Sprint #27, room QNT-8417, Ananya Krishnamurthy rank 4 of 83 at 38.5, neighbours Meera Pillai (39.0) and Devansh Oberoi (37.5) — so a reviewer can check the numbers against an earlier sprint's screen.</p>
+  </div>
+
+  <section>
+    <h2>History — populated + empty</h2>
+    <p class="tiny">history-list-row A (two-line row): attempted, results-held, and not-attempted rows in one list, plus the new-student empty state.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/history.html" title="History at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/history.html" title="History at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/history.html" title="History at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Leaderboard — per quiz</h2>
+    <p class="tiny">leaderboard-row A (flat row, medal rule) · podium-top3 B (no podium metaphor — top 3 is just the medal rule on the same row). Ranks 1–5, a mid-table tie broken by time, and the negative-score last place (81–83 of 83).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/leaderboard-quiz.html" title="Per-quiz leaderboard at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/leaderboard-quiz.html" title="Per-quiz leaderboard at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/leaderboard-quiz.html" title="Per-quiz leaderboard at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Leaderboard — weekly, section tabs + week picker</h2>
+    <p class="tiny">board-switcher A (segmented sections + week stepper). Three stacked states: Overall/week 37, Quant/week 37 (a genuinely different ranking), Overall/week 36 (both stepper arrows enabled).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/leaderboard-weekly.html" title="Weekly leaderboard at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/leaderboard-weekly.html" title="Weekly leaderboard at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/leaderboard-weekly.html" title="Weekly leaderboard at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Board empty — too early · no entries · no quiz</h2>
+    <p class="tiny">leaderboard-empty A (embargo notice), reused for all three "nothings" the guidelines require rather than switching to a different variant per state.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/leaderboard-empty.html" title="Board empty at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/leaderboard-empty.html" title="Board empty at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/leaderboard-empty.html" title="Board empty at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>You did not take this quiz</h2>
+    <p class="tiny">SJ-10: reached from History's "not attempted" row, and from a shared link to a quiz you weren't in. Deliberately not styled as an error.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/did-not-take.html" title="Did not take at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/did-not-take.html" title="Did not take at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/did-not-take.html" title="Did not take at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

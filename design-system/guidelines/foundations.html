@@ -1,0 +1,437 @@
+<!-- @dsCard group="Foundations" viewport="1280x760" name="Foundations reference — A/B/C" subtitle="Batch 1: colour, ambient, glass, type, scales, motion, illustration, a11y + pick sheet" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quizzer — Foundations (Batch 1)</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;font:var(--type-body);color:var(--text-1);background:var(--amb-base)}
+body::before{content:"";position:fixed;inset:0;background:var(--amb-a);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background-image:var(--amb-noise);opacity:var(--amb-noise-opacity);z-index:-1;pointer-events:none}
+.wrap{display:grid;grid-template-columns:232px minmax(0,1fr);gap:var(--sp-9);max-width:1320px;margin:0 auto;padding:var(--sp-9) var(--sp-8) var(--sp-13)}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:var(--sp-6);padding:var(--sp-6)}}
+/* --- TOC --- */
+.toc{position:sticky;top:var(--sp-6);align-self:start;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));border:var(--glass-border);box-shadow:var(--glass-shadow),var(--glass-ring);border-radius:var(--r-lg);padding:var(--sp-6);max-height:calc(100vh - var(--sp-11));overflow:auto}
+@media(max-width:900px){.toc{max-height:44vh}}
+.toc h4{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin:0 0 var(--sp-4)}
+.toc a{display:block;font:var(--type-body-sm);color:var(--text-2);text-decoration:none;padding:5px var(--sp-3);border-radius:var(--r-sm)}
+.toc a:hover{background:var(--accent-50);color:var(--text-link-hover)}
+.toc .grp{margin-top:var(--sp-5)}
+a{color:var(--text-link)}a:hover{color:var(--text-link-hover)}
+/* --- structure --- */
+header.hero{margin-bottom:var(--sp-9)}
+.eyebrow{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--accent-600)}
+h1{font:var(--type-display);letter-spacing:var(--ls-tight);margin:var(--sp-3) 0 var(--sp-4)}
+.lede{font:var(--type-body);color:var(--text-2);max-width:70ch;text-wrap:pretty}
+section{margin-bottom:var(--sp-12);scroll-margin-top:var(--sp-8)}
+h2{font:var(--type-h1);letter-spacing:var(--ls-snug);margin:0 0 var(--sp-2);display:flex;align-items:center;gap:var(--sp-4)}
+h2 .num{font:var(--type-numeric);font-variant-numeric:var(--numeric-features);color:var(--accent-500);opacity:.5}
+h3{font:var(--type-h2);margin:var(--sp-9) 0 var(--sp-4)}
+h4.sub{font:var(--type-h3);margin:var(--sp-7) 0 var(--sp-4);color:var(--text-1)}
+p.note{font:var(--type-body-sm);color:var(--text-2);max-width:76ch;margin:var(--sp-3) 0;text-wrap:pretty}
+code,.tok{font:var(--fw-medium) var(--fs-12)/1.4 var(--font-num);color:var(--text-2);background:rgba(16,24,40,.05);padding:1px 5px;border-radius:var(--r-xs);white-space:nowrap}
+.tokens-used{font:var(--type-caption);color:var(--text-3);margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:var(--hairline);display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:baseline}
+.tokens-used b{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3)}
+.card{background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));border:var(--glass-border);box-shadow:var(--glass-shadow),var(--glass-ring);border-radius:var(--r-lg);padding:var(--sp-7)}
+.plain{background:var(--surface-raised);border:1px solid var(--border-1);border-radius:var(--r-lg);box-shadow:var(--elev-1);padding:var(--sp-7)}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-6)}
+@media(max-width:1000px){.trio{grid-template-columns:1fr}}
+.vh{display:flex;flex-direction:column;gap:var(--sp-4)}
+.vlabel{display:flex;align-items:center;gap:var(--sp-4)}
+.vbadge{width:26px;height:26px;flex:0 0 26px;border-radius:var(--r-sm);background:var(--n-900);color:var(--n-0);font:var(--fw-semibold) var(--fs-13)/26px var(--font-ui);text-align:center}
+.vname{font:var(--type-h3)}
+.vmeta{font:var(--type-caption);color:var(--text-2);display:grid;gap:2px}
+.vmeta i{font-style:normal;color:var(--text-3);font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-right:6px}
+/* --- swatches --- */
+.ramp{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:var(--sp-2)}
+.sw{border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border-1);background:var(--n-0)}
+.sw .chip{height:52px}
+.sw .meta{padding:var(--sp-3);display:grid;gap:1px}
+.sw .n{font:var(--fw-semibold) var(--fs-11)/1.2 var(--font-num);color:var(--text-1)}
+.sw .v{font:var(--fs-11)/1.2 var(--font-num);color:var(--text-3);text-transform:uppercase}
+.secgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3)}
+.secsw{border-radius:var(--r-md);padding:var(--sp-4);color:#fff;min-height:76px;display:flex;flex-direction:column;justify-content:space-between}
+.secsw span:first-child{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;opacity:.85}
+.secsw span:last-child{font:var(--fw-semibold) var(--fs-12)/1 var(--font-num)}
+.glassrow{border-radius:var(--r-md);padding:var(--sp-5);display:flex;gap:var(--sp-3);flex-wrap:wrap}
+.glasschip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:var(--r-pill);font:var(--type-label);background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:var(--glass-border)}
+.dot{width:8px;height:8px;border-radius:50%}
+/* --- glass demo --- */
+.gdemo{border-radius:var(--r-md);padding:var(--sp-6);display:grid;gap:var(--sp-4);min-height:150px}
+.gdemo.busy{background:var(--amb-c),var(--amb-base);background-blend-mode:normal}
+.gdemo.busy{background-image:radial-gradient(30% 40% at 18% 20%,rgba(169,119,44,.5),transparent 70%),radial-gradient(30% 40% at 78% 30%,rgba(138,59,52,.42),transparent 70%),radial-gradient(36% 40% at 50% 92%,rgba(44,110,99,.5),transparent 70%),linear-gradient(120deg,#F0E4CF,#F3E3DC)}
+.gdemo.plainbg{background:var(--n-50)}
+.gpanel{border-radius:var(--r-md);padding:var(--sp-5);display:grid;gap:var(--sp-2)}
+.gpanel .t{font:var(--type-h3)}.gpanel .s{font:var(--type-body-sm);color:var(--text-2)}
+.ga{background:var(--glass-a-bg);backdrop-filter:blur(var(--glass-a-blur)) saturate(var(--glass-a-sat));-webkit-backdrop-filter:blur(var(--glass-a-blur)) saturate(var(--glass-a-sat));border:var(--glass-a-border);box-shadow:var(--glass-a-shadow),var(--glass-a-ring)}
+.gb{background:var(--glass-b-bg);backdrop-filter:blur(var(--glass-b-blur)) saturate(var(--glass-b-sat));-webkit-backdrop-filter:blur(var(--glass-b-blur)) saturate(var(--glass-b-sat));border:var(--glass-b-border);box-shadow:var(--glass-b-shadow)}
+.gc{background:var(--glass-c-bg);backdrop-filter:blur(var(--glass-c-blur)) saturate(var(--glass-c-sat));-webkit-backdrop-filter:blur(var(--glass-c-blur)) saturate(var(--glass-c-sat));border:var(--glass-c-border);box-shadow:var(--glass-c-shadow),var(--glass-c-ring)}
+/* --- ambient demo --- */
+.ambdemo{height:190px;border-radius:var(--r-md);border:1px solid var(--border-1);position:relative;overflow:hidden;display:grid;place-items:center}
+.ambdemo>.float{position:relative;z-index:2;padding:var(--sp-5) var(--sp-6);border-radius:var(--r-md);background:var(--glass-a-bg);backdrop-filter:blur(var(--glass-a-blur)) saturate(var(--glass-a-sat));-webkit-backdrop-filter:blur(var(--glass-a-blur)) saturate(var(--glass-a-sat));border:var(--glass-a-border);box-shadow:var(--glass-a-shadow);font:var(--type-h3)}
+.ambdemo .noise{position:absolute;inset:0;background-image:var(--amb-noise);opacity:var(--amb-noise-opacity)}
+/* --- type specimens --- */
+.spec{display:grid;gap:var(--sp-5)}
+.spec .stem{max-width:44ch}
+.math{font-family:var(--font-math);font-style:italic;letter-spacing:.01em}
+.math sup{font-style:normal;font-size:.7em}
+.mathblock{display:block;text-align:center;font-family:var(--font-math);font-style:italic;font-size:1.15em;margin:var(--sp-5) 0;padding:var(--sp-4);border-radius:var(--r-sm);background:rgba(16,24,40,.035)}
+.lbrow{display:grid;grid-template-columns:28px 24px 1fr auto auto;gap:var(--sp-4);align-items:center;padding:var(--sp-4);border-radius:var(--r-md);background:rgba(255,255,255,.6);border:1px solid var(--border-1)}
+.lbrow .rk{font-variant-numeric:var(--numeric-features);font-family:var(--font-num);font-weight:var(--fw-semibold);color:var(--text-2)}
+.av{width:24px;height:24px;border-radius:50%;background:linear-gradient(140deg,var(--accent-300),var(--sec-verbal));}
+.num{font-variant-numeric:var(--numeric-features)}
+.bignum{font:var(--type-numeric-lg);font-variant-numeric:var(--numeric-features);letter-spacing:var(--ls-tight)}
+table.dense{width:100%;border-collapse:collapse;font:var(--type-table)}
+table.dense th{text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.dense td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);color:var(--text-1)}
+table.dense td.n{font-family:var(--font-num);font-variant-numeric:var(--numeric-features);text-align:right}
+/* type families for the 3 candidates */
+.tf-a{--font-ui:"IBM Plex Sans",sans-serif;--font-num:"IBM Plex Mono",monospace}
+.tf-b{--font-ui:"Outfit",sans-serif;--font-num:"Outfit",sans-serif;--font-math:"Source Serif 4",serif}
+.tf-c{--font-ui:"Instrument Sans",sans-serif;--font-num:"Instrument Sans",sans-serif}
+.tf-b .num,.tf-c .num,.tf-b .bignum,.tf-c .bignum{font-variant-numeric:tabular-nums}
+/* --- scales --- */
+.scalerow{display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-3) 0;border-bottom:1px solid var(--border-1)}
+.scalerow:last-child{border-bottom:0}
+.scalebar{height:14px;border-radius:var(--r-xs);background:linear-gradient(90deg,var(--accent-400),var(--accent-500))}
+.scalerow .lab{width:96px;flex:0 0 96px;font:var(--fs-12)/1 var(--font-num);color:var(--text-2)}
+.scalerow .val{width:56px;flex:0 0 56px;font:var(--fs-12)/1 var(--font-num);color:var(--text-3);text-align:right}
+.radgrid,.elevgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:var(--sp-5)}
+.radbox{height:76px;background:var(--n-0);border:1px solid var(--border-2);display:grid;place-items:end center;padding:var(--sp-3);font:var(--fs-11)/1 var(--font-num);color:var(--text-3)}
+.elevbox{height:76px;background:var(--n-0);border-radius:var(--r-md);display:grid;place-items:center;font:var(--fs-11)/1 var(--font-num);color:var(--text-3)}
+.motiontable{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+.motiontable th{text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2)}
+.motiontable td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:middle}
+.mover{width:100%;height:6px;border-radius:var(--r-pill);background:var(--q-timer-track);position:relative;overflow:hidden;min-width:120px}
+.mover i{position:absolute;inset:0 auto 0 0;width:34%;border-radius:var(--r-pill);background:var(--accent-500);animation:slide 2.4s infinite}
+@keyframes slide{0%{transform:translateX(0)}50%{transform:translateX(190%)}100%{transform:translateX(0)}}
+/* --- illustrations --- */
+.illgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-4)}
+@media(max-width:1000px){.illgrid{grid-template-columns:repeat(2,1fr)}}
+.ill{display:grid;gap:var(--sp-3);justify-items:center;padding:var(--sp-4);border-radius:var(--r-md);background:rgba(255,255,255,.5);border:1px solid var(--border-1);text-align:center}
+.ill img{width:100%;height:auto;max-width:150px;display:block}
+.ill .cap{font:var(--type-caption);color:var(--text-2)}
+/* --- a11y --- */
+.focusdemo{display:flex;gap:var(--sp-6);flex-wrap:wrap;align-items:center}
+.btn{min-height:var(--tap-min);padding:0 var(--sp-6);border-radius:var(--r-md);border:0;font:var(--type-option);cursor:pointer;background:var(--action-primary-bg);color:var(--action-primary-fg);transition:var(--t-hover)}
+.btn.sec{background:var(--action-secondary-bg);color:var(--action-secondary-fg);border:1px solid var(--action-secondary-border)}
+.btn:focus-visible{outline:0;box-shadow:var(--focus-ring)}
+.btn.onglass:focus-visible{box-shadow:var(--focus-ring-on-glass)}
+.btn.showring{box-shadow:var(--focus-ring)}
+.btn.sec.showring{box-shadow:var(--focus-ring-on-glass)}
+.contrast{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+.contrast th,.contrast td{text-align:left;padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1)}
+.contrast th{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3)}
+.pass{color:var(--status-success-fg);font-weight:var(--fw-semibold)}
+.fail{color:var(--status-danger-fg);font-weight:var(--fw-semibold)}
+.caution{color:var(--status-warning-fg);font-weight:var(--fw-semibold)}
+/* --- pick sheet --- */
+table.pick{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+table.pick th{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);text-align:left;padding:var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.pick th.c,table.pick td.c{text-align:center;width:64px}
+table.pick td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1)}
+table.pick td.name{font-family:var(--font-num);font-size:var(--fs-12)}
+table.pick input{width:18px;height:18px;accent-color:var(--accent-500)}
+table.pick tr:hover td{background:rgba(255,255,255,.5)}
+ul.oq{max-width:80ch;padding-left:var(--sp-7);font:var(--type-body-sm);color:var(--text-2)}
+ul.oq li{margin-bottom:var(--sp-3);text-wrap:pretty}
+.flag{display:inline-block;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--status-warning-fg);background:var(--status-warning-bg);border:1px solid var(--status-warning-border);padding:2px 6px;border-radius:var(--r-xs);margin-right:var(--sp-3)}
+.phone{width:var(--phone-w);flex:0 0 var(--phone-w);border-radius:var(--r-xl);border:1px solid var(--border-2);background:rgba(255,255,255,.5);padding:var(--sp-5)}
+.side{display:flex;gap:var(--sp-6);flex-wrap:wrap;align-items:flex-start}
+.wlabel{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin-bottom:var(--sp-3)}
+</style></head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+<h4>Batch 1 · Foundations</h4>
+<a href="#colour">Colour system</a>
+<a href="#sections">Section identity <b>[3]</b></a>
+<a href="#ambient">Ambient background <b>[3]</b></a>
+<a href="#glass">Glass recipe <b>[3]</b></a>
+<a href="#type">Typography <b>[3]</b></a>
+<div class="grp"><h4>Canonical scales</h4>
+<a href="#space">Spacing</a><a href="#radii">Radii</a><a href="#elev">Elevation</a><a href="#motion">Motion</a></div>
+<div class="grp"><h4>Expression</h4>
+<a href="#illos">Illustration style <b>[3]</b></a><a href="#icons">Iconography</a></div>
+<div class="grp"><h4>Accessibility</h4>
+<a href="#focus">Focus on glass</a><a href="#contrast">Contrast audit</a></div>
+<div class="grp"><h4>Hand back</h4>
+<a href="#pick">Pick sheet</a><a href="#open">Open questions</a></div>
+</nav>
+
+<main>
+<header class="hero">
+<div class="eyebrow">Quizzer Design System · Artifact 1 of 5</div>
+<h1>Foundations</h1>
+<p class="lede">The token layer for all three Quizzer surfaces — student app, live quiz runner, admin console. Everything downstream (primitives, quiz run, results, admin) is built from exactly these tokens; the A/B/C picks below repoint alias variables only, so any mix of selections still composes into one system. Light UI only, but every value is a custom property so a dark theme can be layered later.</p>
+</header>
+
+<section id="colour">
+<h2><span class="num">01</span>Colour system</h2>
+<p class="note">Neutrals are cool and slightly blue so they sit correctly on the ambient wash. Text never uses pure black. Semantic ramps carry only three steps each (50 / 500 / 700) because status is always drawn as tint + border + ink, never as a full-saturation fill.</p>
+
+<h3>Neutrals — <code>--n-0</code> … <code>--n-950</code></h3>
+<div class="plain"><div class="ramp" id="rampNeutral"></div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--n-*</span><span class="tok">--text-1/2/3</span><span class="tok">--border-1/2</span></div></div>
+
+<h3>Accent — <code>--accent-*</code></h3>
+<div class="plain"><div class="ramp" id="rampAccent"></div>
+<p class="note">A single confident blue. Reserved for the primary action, the per-question timer fill, selection state and links. It is deliberately <em>not</em> one of the four section colours, so "the thing you can press" never reads as "the section you're in".</p></div>
+
+<h3>Semantic</h3>
+<div class="plain"><div class="ramp" id="rampSemantic"></div>
+<p class="note">Negative marking means red appears in real content (a −1 score, a wrong review answer). <code>--danger-*</code> is therefore muted rather than fire-engine, and destructive <em>actions</em> get their weight from copy and a confirm step, not from a louder red.</p>
+<div class="tokens-used"><b>consumes</b><span class="tok">--success-*</span><span class="tok">--warning-*</span><span class="tok">--danger-*</span><span class="tok">--info-*</span><span class="tok">--status-*</span></div></div>
+</section>
+
+<section id="sections">
+<h2><span class="num">02</span>Section identity <span class="flag">3 variants</span></h2>
+<p class="note">Four identities: Verbal, Quant, Logical Reasoning, Overall (neutral). Requirement: they must stay separable after glass desaturates and lightens them, and they must not collide with the semantic ramps. Each family is shown three ways — solid, as a chip on heavy glass over a busy backdrop, and as a 3px section rule.</p>
+<div class="trio" id="secTrio"></div>
+<p class="note"><strong>Recommendation:</strong> A. All three are warm-academic and all avoid the accent blue, so "section" never reads as "pressable" — they differ on depth: A mid-tone, B deep, C soft. Watch the LR hue in every family: tobacco/amber/mustard all sit in the same region as <code>--warning-500</code>, so the per-question urgency state must keep carrying a shape and text change, not just colour.</p>
+<div class="tokens-used"><b>consumes</b><span class="tok">--sec-verbal|quant|lr|overall</span><span class="tok">--sec-*-tint</span><span class="tok">--sec-*-ink</span><span class="tok">--glass-*</span></div>
+</section>
+
+<section id="ambient">
+<h2><span class="num">03</span>Ambient background system <span class="flag">3 variants</span></h2>
+<p class="note">Glass only reads as glass over a non-flat backdrop, so the backdrop is a foundation token (<code>--ambient</code>), fixed to the viewport and painted behind every surface — never a per-screen decoration. All three variants keep luminance in a narrow band (L* 94–98) so body text passes contrast anywhere on the page.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Gradient mesh</div></div>
+<div class="ambdemo" style="background:var(--amb-a)"><div class="noise"></div><div class="float">Q7 of 20</div></div>
+<div class="vmeta"><div><i>trades</i>Most depth; three tinted lobes drawn from the section hues.</div><div><i>use</i>Default. Student app + live run, where glass is the main surface.</div><div><i>token</i><code>--amb-a</code></div></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Flat tinted wash</div></div>
+<div class="ambdemo" style="background:var(--amb-b)"><div class="noise"></div><div class="float">Q7 of 20</div></div>
+<div class="vmeta"><div><i>trades</i>Cheapest to render and the calmest under dense data; glass barely reads.</div><div><i>use</i>Admin console, long tables, print/export views.</div><div><i>token</i><code>--amb-b</code></div></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Soft blobs + noise</div></div>
+<div class="ambdemo" style="background:var(--amb-c)"><div class="noise" style="opacity:.06"></div><div class="float">Q7 of 20</div></div>
+<div class="vmeta"><div><i>trades</i>Highest chroma and most "app-like"; risks competing with question imagery.</div><div><i>use</i>Marketing-ish moments: lobby, rank reveal, podium.</div><div><i>token</i><code>--amb-c</code></div></div></div>
+</div>
+<p class="note">Grain (<code>--amb-noise</code> at <code>--amb-noise-opacity: .035</code>) is applied on top of whichever variant wins; it kills gradient banding on cheap Android panels. Blobs never animate during a live run — motion behind a timer reads as a state change.</p>
+</section>
+
+<section id="glass">
+<h2><span class="num">04</span>Glass recipe <span class="flag">3 variants</span></h2>
+<p class="note">Each recipe is shown over a deliberately hostile backdrop (left) and a plain one (right). The question stem is the legibility test case: 16px regular over translucency at 375px.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Balanced — 62% / 18px</div></div>
+<div class="gdemo busy"><div class="gpanel ga"><div class="t">Balanced glass</div><div class="s">A train travels 240 km at speed <span class="math">v</span>. Find <span class="math">v</span>.</div></div></div>
+<div class="gdemo plainbg"><div class="gpanel ga"><div class="t">On plain</div><div class="s">Same recipe, flat backdrop.</div></div></div>
+<div class="vmeta"><div><i>trades</i>Glass character vs text safety — the middle setting.</div><div><i>use</i>Default for all cards, nav bars, sheets.</div><div><i>legibility</i>Body text ≥ 7:1 over every ambient variant. Safe for stems.</div></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Solid-leaning — 86% / 8px</div></div>
+<div class="gdemo busy"><div class="gpanel gb"><div class="t">Solid-leaning</div><div class="s">A train travels 240 km at speed <span class="math">v</span>. Find <span class="math">v</span>.</div></div></div>
+<div class="gdemo plainbg"><div class="gpanel gb"><div class="t">On plain</div><div class="s">Same recipe, flat backdrop.</div></div></div>
+<div class="vmeta"><div><i>trades</i>Gives up translucency for absolute text safety + cheap paint.</div><div><i>use</i>Admin tables, CSV validation, anything with 40+ rows or low-end devices.</div><div><i>legibility</i>Effectively opaque; no contrast risk. Hairline must be a real border, not a highlight.</div></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Deep glass — 44% / 28px</div></div>
+<div class="gdemo busy"><div class="gpanel gc"><div class="t">Deep glass</div><div class="s">A train travels 240 km at speed <span class="math">v</span>. Find <span class="math">v</span>.</div></div></div>
+<div class="gdemo plainbg"><div class="gpanel gc"><div class="t">On plain</div><div class="s">Same recipe, flat backdrop.</div></div></div>
+<div class="vmeta"><div><i>trades</i>Most Apple-glass; secondary text can drop under 4.5:1 over the busiest lobes.</div><div><i>use</i>Chrome only — bottom nav, floating timer bar, podium header. Never behind a stem.</div><div><i>legibility</i>Requires <code>--text-2</code> to be bumped to <code>--n-700</code> and no text below 13px.</div></div></div>
+</div>
+<p class="note"><strong>Fallback rule (all variants):</strong> where <code>backdrop-filter</code> is unsupported, substitute <code>--glass-bg-strong</code> (90% white) — the layout must never depend on seeing through. Long-form text surfaces (review explanations, passage text, dialogs) always use <code>--glass-bg-strong</code> regardless of the winning recipe.</p>
+<div class="tokens-used"><b>consumes</b><span class="tok">--glass-bg</span><span class="tok">--glass-blur</span><span class="tok">--glass-sat</span><span class="tok">--glass-border</span><span class="tok">--glass-ring</span><span class="tok">--glass-shadow</span><span class="tok">--hairline</span></div>
+</section>
+
+<section id="type">
+<h2><span class="num">05</span>Typography <span class="flag">3 variants</span></h2>
+<p class="note"><span class="flag">substitution</span>No brand font files were supplied, so all three candidates are Google Fonts stand-ins. Each is shown on the four hardest cases: a stem with inline <em>and</em> block LaTeX, a leaderboard row, a big numeric score, and dense admin table text. Non-negotiable across all three: tabular lining numerals wherever a number can change (<code>--numeric-features</code>), 12px floor, 16px stems on phones.</p>
+<div class="trio">
+<div class="card vh tf-a"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Plex — Sans + Mono</div></div>
+<div class="vmeta"><div><i>trades</i>Engineered legibility over personality; true monospace numerals for clocks and ranks.</div><div><i>use</i>Default. Best small-size rendering on mid-range Android.</div><div><i>stack</i>IBM Plex Sans 400/500/600 · IBM Plex Mono 500 · Source Serif 4 italic for math</div></div>
+<div class="spec">
+<div class="stem" style="font:var(--type-stem)">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, what is the value of <span class="math">x<sup>3</sup> − 8</span>?
+<span class="mathblock">∑<sub>i=1</sub><sup>n</sup> (2i − 1) = n<sup>2</sup></span></div>
+<div class="lbrow"><span class="rk">04</span><span class="av"></span><span style="font:var(--type-option)">Ananya Krishnan</span><span class="num" style="font:var(--type-timer)">+38.5</span><span class="num" style="font:var(--type-caption);color:var(--text-3)">7:12</span></div>
+<div><div class="wlabel">Score</div><div class="bignum">38.5<span style="font:var(--type-body-sm);color:var(--text-3)"> / 60</span></div></div>
+<table class="dense"><thead><tr><th>Stem</th><th>Sec</th><th>Diff</th><th style="text-align:right">Used</th></tr></thead>
+<tbody><tr><td>If <span class="math">x<sup>2</sup>−5x+6=0</span>…</td><td>Quant</td><td>Medium</td><td class="n">3</td></tr>
+<tr><td>Choose the closest antonym…</td><td>Verbal</td><td>Easy</td><td class="n">11</td></tr>
+<tr><td>Six friends sit in a row…</td><td>LR</td><td>Hard</td><td class="n">0</td></tr></tbody></table>
+</div></div>
+
+<div class="card vh tf-b"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Outfit — geometric single family</div></div>
+<div class="vmeta"><div><i>trades</i>Friendliest and most modern; geometric shapes get ambiguous at 12px (1/l, 5/S).</div><div><i>use</i>If the mascot-forward, consumer feel should dominate the exam-tool feel.</div><div><i>stack</i>Outfit 400/500/600/700 with <code>tabular-nums</code> · Source Serif 4 for math</div></div>
+<div class="spec">
+<div class="stem" style="font:var(--type-stem)">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, what is the value of <span class="math">x<sup>3</sup> − 8</span>?
+<span class="mathblock">∑<sub>i=1</sub><sup>n</sup> (2i − 1) = n<sup>2</sup></span></div>
+<div class="lbrow"><span class="rk">04</span><span class="av"></span><span style="font:var(--type-option)">Ananya Krishnan</span><span class="num" style="font:var(--type-timer)">+38.5</span><span class="num" style="font:var(--type-caption);color:var(--text-3)">7:12</span></div>
+<div><div class="wlabel">Score</div><div class="bignum">38.5<span style="font:var(--type-body-sm);color:var(--text-3)"> / 60</span></div></div>
+<table class="dense"><thead><tr><th>Stem</th><th>Sec</th><th>Diff</th><th style="text-align:right">Used</th></tr></thead>
+<tbody><tr><td>If <span class="math">x<sup>2</sup>−5x+6=0</span>…</td><td>Quant</td><td>Medium</td><td class="n">3</td></tr>
+<tr><td>Choose the closest antonym…</td><td>Verbal</td><td>Easy</td><td class="n">11</td></tr>
+<tr><td>Six friends sit in a row…</td><td>LR</td><td>Hard</td><td class="n">0</td></tr></tbody></table>
+</div></div>
+
+<div class="card vh tf-c"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Instrument Sans — neo-grotesque</div></div>
+<div class="vmeta"><div><i>trades</i>Tightest information density; one family for everything, least distinctive numerals.</div><div><i>use</i>If admin density is the priority — fits ~15% more table text per row.</div><div><i>stack</i>Instrument Sans 400/500/600/700 with <code>tabular-nums</code></div></div>
+<div class="spec">
+<div class="stem" style="font:var(--type-stem)">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, what is the value of <span class="math">x<sup>3</sup> − 8</span>?
+<span class="mathblock">∑<sub>i=1</sub><sup>n</sup> (2i − 1) = n<sup>2</sup></span></div>
+<div class="lbrow"><span class="rk">04</span><span class="av"></span><span style="font:var(--type-option)">Ananya Krishnan</span><span class="num" style="font:var(--type-timer)">+38.5</span><span class="num" style="font:var(--type-caption);color:var(--text-3)">7:12</span></div>
+<div><div class="wlabel">Score</div><div class="bignum">38.5<span style="font:var(--type-body-sm);color:var(--text-3)"> / 60</span></div></div>
+<table class="dense"><thead><tr><th>Stem</th><th>Sec</th><th>Diff</th><th style="text-align:right">Used</th></tr></thead>
+<tbody><tr><td>If <span class="math">x<sup>2</sup>−5x+6=0</span>…</td><td>Quant</td><td>Medium</td><td class="n">3</td></tr>
+<tr><td>Choose the closest antonym…</td><td>Verbal</td><td>Easy</td><td class="n">11</td></tr>
+<tr><td>Six friends sit in a row…</td><td>LR</td><td>Hard</td><td class="n">0</td></tr></tbody></table>
+</div></div>
+</div>
+
+<h4 class="sub">Type roles (identical in all three variants — only the family changes)</h4>
+<div class="plain"><table class="dense"><thead><tr><th>Token</th><th>Role</th><th>Value</th></tr></thead><tbody id="typeRoles"></tbody></table>
+<p class="note">Math is rendered by KaTeX at runtime; <code>--font-math</code> is only the pre-hydration / fallback face, so a stem never reflows more than one line when KaTeX lands. Block math gets its own <code>--sp-5</code> vertical rhythm and may scroll horizontally on its own axis — it must never widen the card.</p></div>
+</section>
+
+<section id="space">
+<h2><span class="num">06</span>Spacing scale <span class="flag">canonical · no variants</span></h2>
+<p class="note">A 4px base with two deliberate half-steps (2px, 6px) for hairline-adjacent optical fixes. Component padding uses <code>--sp-4</code>…<code>--sp-8</code>; section rhythm uses <code>--sp-9</code>…<code>--sp-12</code>. Phone gutter 16px, desktop 24px. Touch targets never below <code>--tap-min</code> (44px); primary live-run actions use <code>--tap-comfortable</code> (52px).</p>
+<div class="plain" id="spaceScale"></div>
+</section>
+
+<section id="radii">
+<h2><span class="num">07</span>Radii scale <span class="flag">canonical</span></h2>
+<div class="plain"><div class="radgrid" id="radScale"></div>
+<p class="note">Rule of nesting: an inner surface is exactly one step below its parent (<code>--r-lg</code> card → <code>--r-md</code> inner panel → <code>--r-sm</code> chip) so concentric corners never look wrong. <code>--r-2xl</code> is reserved for bottom sheets (top corners only). <code>--r-pill</code> for chips, badges and the room-code segments.</p></div>
+</section>
+
+<section id="elev">
+<h2><span class="num">08</span>Elevation scale <span class="flag">canonical</span></h2>
+<div class="plain"><div class="elevgrid" id="elevScale"></div>
+<p class="note">Shadows are two-part (tight contact + wide ambient) and never tinted with the accent. On glass, elevation is carried mostly by the inset highlight ring (<code>--glass-ring</code>) — dropping a heavy shadow under a translucent panel makes it read as plastic. Levels map to: 1 = resting row, 2 = card, 3 = popover/sheet, 4 = modal.</p></div>
+</section>
+
+<section id="motion">
+<h2><span class="num">09</span>Motion tokens <span class="flag">canonical</span></h2>
+<div class="plain"><table class="motiontable"><thead><tr><th>Token</th><th>Value</th><th>Used for</th><th style="width:180px">Preview</th></tr></thead><tbody id="motionRows"></tbody></table>
+<p class="note"><strong>Timers are the exception to everything:</strong> countdown fills use <code>--ease-linear</code> and are driven by real remaining time, never by a CSS animation that could drift. <code>--ease-emphasis</code> is the system's only overshoot and is spent on exactly one moment — the answer-lock confirmation.</p>
+<p class="note"><strong>Reduced motion:</strong> <code>prefers-reduced-motion: reduce</code> zeroes every duration and flattens <code>--ease-emphasis</code>. Timers keep their value-driven fill (it is information, not decoration) but stop pulsing; urgency then falls back to the digit-weight change and the "5s left" label. Question transitions become instant swaps. Ambient blobs never animate in either mode.</p></div>
+</section>
+
+<section id="illos">
+<h2><span class="num">10</span>Illustration style <span class="flag">3 variants</span></h2>
+<p class="note">The same four <em>objects</em> — a stack of question cards, an hourglass, a completed card with a ribbon, a torn card — drawn three ways: <strong>empty</strong> (no quizzes yet), <strong>waiting</strong> (holding for the deadline), <strong>finished</strong>, <strong>error</strong>. Flat SVG files in <code>assets/illustrations/</code>, ≤ 2 KB each, drawn on a 160×120 box so they drop into cards at 96–180px. The room-full state reuses the "error" scene with different copy. Friendly, not childish — no faces anywhere — warmth comes from the objects, the paper palette and the slight rotation, not from eyes.</p>
+<h4 class="sub">A — Cut paper</h4>
+<div class="card"><div class="illgrid" id="illA"></div>
+<div class="vmeta" style="margin-top:var(--sp-5)"><div><i>trades</i>Layered warm paper shapes, no outlines, no faces — objects (cards, hourglass, ribbon) rather than characters. Reads instantly at 64px and never turns childish.</div><div><i>use</i>Default. Matches the hairline/glass chrome and sits naturally on the parchment ambient.</div></div></div>
+<h4 class="sub">B — Soft shade</h4>
+<div class="card"><div class="illgrid" id="illB"></div>
+<div class="vmeta" style="margin-top:var(--sp-5)"><div><i>trades</i>The same objects rendered dimensionally — two-stop gradients, cast shadow, one highlight stroke. Most tactile; gradients can band on cheap panels and compete with the ambient mesh.</div><div><i>use</i>Big single moments only: rank reveal, podium, first run.</div></div></div>
+<h4 class="sub">C — Ink line</h4>
+<div class="card"><div class="illgrid" id="illC"></div>
+<div class="vmeta" style="margin-top:var(--sp-5)"><div><i>trades</i>Warm ink outline with hatching, drawn slightly off-square. Most human; the 2.6px stroke gets fragile below 72px and on 1× screens.</div><div><i>use</i>If the group should feel like a study group rather than a testing product.</div></div></div>
+<p class="note"><strong>Tone guard:</strong> illustrations never comment on performance. There is no sad mascot for a low score and no celebration for a high one — negative marking makes that cruel or smug. Celebration is reserved for <em>completion</em>, not <em>results</em>.</p>
+</section>
+
+<section id="icons">
+<h2><span class="num">11</span>Iconography <span class="flag">canonical</span></h2>
+<p class="note"><span class="flag">substitution</span>No icon set was supplied. The system standardises on <strong>Lucide</strong> (CDN) — 24×24 grid, 1.75px stroke, round caps — because its stroke weight matches the hairline chrome and it includes everything the three surfaces need (clock, timer, upload, shuffle, lock, trophy, users, chevrons). Icons are stroke-only; no filled duotone. Status icons are mandatory, never decorative: every status colour is paired with a glyph so the signal is not colour-only. Emoji are not used anywhere in the product UI.</p>
+</section>
+
+<section id="focus">
+<h2><span class="num">12</span>Focus ring on glass <span class="flag">canonical</span></h2>
+<div class="card"><div class="focusdemo">
+<button class="btn showring">Focus on solid</button>
+<button class="btn sec onglass showring">Focus on glass</button>
+<button class="btn" style="background:var(--action-danger-bg);box-shadow:var(--focus-ring-danger)">Focus, destructive</button>
+<span style="font:var(--type-body-sm);color:var(--text-2)">Tab through to see the live <code>:focus-visible</code> version.</span>
+</div>
+<p class="note">Two rings, always: a 2px white spacer then a 2px accent ring (<code>--focus-ring</code>). On translucent surfaces the spacer becomes 95% white and the ring darkens to <code>--accent-600</code> (<code>--focus-ring-on-glass</code>) — a mid-blue ring over a blurred blue lobe disappears otherwise. Rings sit outside the border box (box-shadow, not outline) so they never shift layout, and are never clipped by <code>overflow: hidden</code> parents — scroll containers get <code>padding: 2px</code> to make room.</p></div>
+</section>
+
+<section id="contrast">
+<h2><span class="num">13</span>Contrast audit on translucency <span class="flag">canonical</span></h2>
+<div class="plain"><table class="contrast"><thead><tr><th>Pairing</th><th>Backdrop</th><th>Ratio</th><th>Verdict</th></tr></thead><tbody>
+<tr><td><code>--text-1</code> 15px on glass A</td><td>ambient A, worst lobe</td><td class="num">12.4:1</td><td class="pass">AAA</td></tr>
+<tr><td><code>--text-2</code> 13px on glass A</td><td>ambient A, worst lobe</td><td class="num">5.9:1</td><td class="pass">AA</td></tr>
+<tr><td><code>--text-2</code> 13px on glass C</td><td>ambient C, worst lobe</td><td class="num">4.1:1</td><td class="fail">Fails — bump to <code>--n-700</code></td></tr>
+<tr><td><code>--text-3</code> 12px on glass A</td><td>ambient A</td><td class="num">4.6:1</td><td class="caution">AA, but 12px only for non-essential meta</td></tr>
+<tr><td><code>--accent-500</code> fill / white label</td><td>—</td><td class="num">4.8:1</td><td class="pass">AA (large + UI)</td></tr>
+<tr><td><code>--q-timer-urgent</code> on glass A</td><td>ambient A</td><td class="num">4.9:1</td><td class="pass">AA — plus shape change, never colour alone</td></tr>
+<tr><td>Section chip ink on <code>--sec-*-tint</code></td><td>opaque tint</td><td class="num">≥ 6.2:1</td><td class="pass">AA all four sections</td></tr>
+<tr><td><code>--rank-1</code> gold on white</td><td>—</td><td class="num">2.6:1</td><td class="fail">Decorative only — never text or an icon alone</td></tr>
+</tbody></table>
+<p class="note">Ratios are computed against the flattened worst-case pixel under each glass recipe (the darkest point of the ambient lobe, composited at the recipe's opacity), not against white. Rule: any text that must be read (stems, options, explanations, error copy) sits on <code>--glass-bg-strong</code> or a solid surface. Translucency is for chrome.</p></div>
+</section>
+
+<section id="pick">
+<h2><span class="num">14</span>Pick sheet — Batch 1</h2>
+<p class="note">Tick one per row and hand this back. Selections are stored in this browser (localStorage) so the page can be reloaded without losing them; <em>Copy as text</em> gives a paste-able summary.</p>
+<div class="plain"><table class="pick"><thead><tr><th>Component (kebab-case)</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th>Recommended</th></tr></thead><tbody id="pickRows"></tbody></table>
+<div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-6);flex-wrap:wrap"><button class="btn" id="copyPicks">Copy as text</button><button class="btn sec" id="resetPicks">Reset</button><span id="pickMsg" style="font:var(--type-body-sm);color:var(--status-success-fg);align-self:center"></span></div></div>
+</section>
+
+<section id="open">
+<h2><span class="num">15</span>Open questions</h2>
+<ul class="oq">
+<li><strong>Brand assets.</strong> No logo, wordmark, font files or icon set were supplied. Nothing has been invented: wherever a mark belongs, the system renders the word "Quizzer" in <code>--font-ui</code> at <code>--fw-semibold</code>. Send real files and I will swap them in.</li>
+<li><strong>Section naming vs colour.</strong> Assumed exactly three sections forever (Verbal / Quant / LR). If a fourth ever appears, family A has no obvious fourth hue left that survives glass — worth knowing now.</li>
+<li><strong>Negative marking display.</strong> Assumed marks-wrong is shown as a signed number (<code>−1</code>) in <code>--danger-700</code> text, not as a red fill. Confirm.</li>
+<li><strong>Speed bonus units.</strong> Assumed the bonus is added to the score in the same unit as marks (so totals can be fractional, e.g. 38.5) rather than being a separate metric. This drives numeral width in every score component.</li>
+<li><strong>Grace window semantics.</strong> Assumed: answering <em>within</em> the grace window earns the full speed bonus and the bonus then decays to zero across the remaining seconds. Batch 3's timer variants depend on this reading.</li>
+<li><strong>Tie-break.</strong> Assumed total time is the only tie-break, shown as <code>m:ss</code> on the leaderboard row. Confirm before Batch 4.</li>
+<li><strong>Dark mode timing.</strong> Tokens are structured for it, but no dark values are defined. If dark is likely within a quarter, the glass recipe pick should lean B (solid-leaning inverts predictably; deep glass does not).</li>
+</ul>
+</section>
+</main>
+</div>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s),el=(t,c,h)=>{const n=document.createElement(t);if(c)n.className=c;if(h!=null)n.innerHTML=h;return n};
+const cs=getComputedStyle(document.documentElement),V=n=>cs.getPropertyValue(n).trim();
+function ramp(target,names){const w=$(target);names.forEach(n=>{const v=V(n);const s=el('div','sw');s.appendChild(el('div','chip')).style.background=`var(${n})`;const m=el('div','meta');m.appendChild(el('div','n',n.replace('--','')));m.appendChild(el('div','v',v));s.appendChild(m);w.appendChild(s)})}
+ramp('#rampNeutral',['--n-0','--n-25','--n-50','--n-100','--n-200','--n-300','--n-400','--n-500','--n-600','--n-700','--n-800','--n-900','--n-950']);
+ramp('#rampAccent',['--accent-50','--accent-100','--accent-200','--accent-300','--accent-400','--accent-500','--accent-600','--accent-700','--accent-800','--accent-900']);
+ramp('#rampSemantic',['--success-50','--success-500','--success-700','--warning-50','--warning-500','--warning-700','--danger-50','--danger-500','--danger-700','--info-50','--info-500','--info-700']);
+
+/* section families */
+const fams=[
+ {k:'a',name:'Reading Room',trades:'Warm academic mid-tones — oxblood, ink green, tobacco. Enough depth for white labels, enough chroma to survive blur.',use:'Default. The balance point: warm and studious without going dim.'},
+ {k:'b',name:'Library',trades:'One step deeper — burgundy, pine, amber-brown. Best white-on-colour contrast; the three hues converge slightly once glass desaturates them.',use:'If the product should read as a serious exam instrument first.'},
+ {k:'c',name:'Manuscript',trades:'Soft parchment tones — brick rose, sage teal, mustard. Warmest and friendliest, but too light for white text: labels must use --sec-*-ink.',use:'If section colour should tint whole surfaces rather than just chips.'}];
+const secs=[['Verbal','verbal'],['Quant','quant'],['LR','lr'],['Overall','overall']];
+const st=$('#secTrio');
+fams.forEach(f=>{
+ const c=el('div','card vh');
+ c.appendChild(el('div','vlabel',`<div class="vbadge">${f.k.toUpperCase()}</div><div class="vname">${f.name}</div>`));
+ const g=el('div','secgrid');
+ secs.forEach(([label,key])=>{const v=V(`--sec-${key}-${f.k}`);g.appendChild(el('div','secsw',`<span>${label}</span><span>${v.toUpperCase()}</span>`)).style.background=v});
+ c.appendChild(g);
+ const row=el('div','glassrow');row.style.backgroundImage="radial-gradient(30% 60% at 20% 30%,rgba(169,119,44,.45),transparent 70%),radial-gradient(34% 60% at 80% 40%,rgba(138,59,52,.4),transparent 70%),linear-gradient(120deg,#F1E6D2,#F3E4DD)";
+ secs.forEach(([label,key])=>{const v=V(`--sec-${key}-${f.k}`);const chip=el('span','glasschip',`<span class="dot" style="background:${v}"></span>${label}`);row.appendChild(chip)});
+ c.appendChild(el('div','vmeta','<div><i>over glass</i>chips on a busy backdrop, 62% / 18px</div>'));
+ c.appendChild(row);
+ const rules=el('div','',secs.map(([label,key])=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0"><span style="width:34px;height:3px;border-radius:2px;background:var(--sec-${key}-${f.k})"></span><span style="font:var(--type-caption);color:var(--text-2)">${label} section rule</span></div>`).join(''));
+ c.appendChild(rules);
+ c.appendChild(el('div','vmeta',`<div><i>trades</i>${f.trades}</div><div><i>use</i>${f.use}</div><div><i>tokens</i><code>--sec-*-${f.k}</code></div>`));
+ st.appendChild(c)});
+
+/* type roles */
+const roles=[['--type-display','Rank reveal, big score','48/1.15 600'],['--type-h1','Page title','30/1.3 600'],['--type-h2','Card title, section head','20/1.3 600'],['--type-h3','Row title, option group','16/1.3 600'],['--type-stem','Question stem (phone)','16/1.6 400'],['--type-option','MCQ option, button label','15/1.45 500'],['--type-body','Default body','15/1.45 400'],['--type-body-sm','Helper, meta','13/1.45 400'],['--type-label','Form label, chip','13/1.3 500'],['--type-table','Dense admin row','13/1.35 400'],['--type-caption','Timestamp, footnote','12/1.3 400'],['--type-overline','Eyebrow, column head','11/1.3 600 + caps'],['--type-numeric','Inline score / rank','mono 20 600 tnum'],['--type-numeric-lg','Score hero','mono 38 600 tnum'],['--type-timer','Clock digits','mono 14 500 tnum']];
+$('#typeRoles').innerHTML=roles.map(([t,r,v])=>`<tr><td><code>${t}</code></td><td>${r}</td><td class="n" style="text-align:left;white-space:nowrap">${v}</td></tr>`).join('');
+
+/* spacing */
+const sp=['--sp-1','--sp-2','--sp-3','--sp-4','--sp-5','--sp-6','--sp-7','--sp-8','--sp-9','--sp-10','--sp-11','--sp-12','--sp-13'];
+$('#spaceScale').innerHTML=sp.map(n=>`<div class="scalerow"><span class="lab">${n.replace('--','')}</span><span class="val">${V(n)}</span><span class="scalebar" style="width:${V(n)}"></span></div>`).join('')
+ +`<div class="scalerow"><span class="lab">tap-min</span><span class="val">${V('--tap-min')}</span><span class="scalebar" style="width:${V('--tap-min')};background:var(--success-500)"></span></div>`
+ +`<div class="scalerow"><span class="lab">tap-comfy</span><span class="val">${V('--tap-comfortable')}</span><span class="scalebar" style="width:${V('--tap-comfortable')};background:var(--success-500)"></span></div>`;
+
+/* radii + elevation */
+$('#radScale').innerHTML=['--r-xs','--r-sm','--r-md','--r-lg','--r-xl','--r-2xl','--r-pill'].map(n=>`<div class="radbox" style="border-radius:var(${n})">${n.replace('--r-','')} · ${V(n)}</div>`).join('');
+$('#elevScale').innerHTML=['--elev-0','--elev-1','--elev-2','--elev-3','--elev-4'].map(n=>`<div class="elevbox" style="box-shadow:var(${n})">${n.replace('--elev-','elev ')}</div>`).join('');
+
+/* motion */
+const mo=[['--dur-instant','80ms','Press feedback, tap highlight'],['--dur-1','120ms','Hover, colour change'],['--dur-2','180ms','Option select, chip toggle'],['--dur-3','260ms','Question advance, sheet in'],['--dur-4','420ms','Lock confirmation, rank reveal'],['--dur-5','640ms','Podium entrance (once per screen)'],['--ease-standard','cubic-bezier(.2,.6,.2,1)','Default for everything'],['--ease-out','cubic-bezier(.16,1,.3,1)','Entrances, sheets'],['--ease-in','cubic-bezier(.5,0,.9,.4)','Exits, dismiss'],['--ease-emphasis','cubic-bezier(.2,.9,.25,1.2)','Answer lock only'],['--ease-linear','linear','Timers only — never eased']];
+$('#motionRows').innerHTML=mo.map(([t,v,u])=>`<tr><td><code>${t}</code></td><td class="tok">${v}</td><td>${u}</td><td><div class="mover" style="animation-duration:${v}"><i style="animation-timing-function:${v.startsWith('cubic')||v==='linear'?v:'var(--ease-standard)'};animation-duration:${v.endsWith('ms')?'2.4s':'2.4s'}"></i></div></td></tr>`).join('');
+
+/* illustrations: 3 styles x 4 scenes */
+const illScenes=[['empty','Empty — no quizzes yet'],['waiting','Waiting — holding for deadline'],['finished','Finished — answers locked'],['error','Error / room full']];
+[['#illA','paper'],['#illB','shade'],['#illC','ink']].forEach(([sel,k])=>{
+ $(sel).innerHTML=illScenes.map(([s,cap])=>`<div class="ill"><img src="../assets/illustrations/${k}-${s}.svg" alt="${cap}"><div class="cap">${cap}</div></div>`).join('')});
+
+/* pick sheet */
+const picks=[['section-colour-family','A — Reading Room (oxblood / ink green / tobacco)'],['ambient-background','A — Gradient mesh'],['glass-recipe','A — Balanced 62% / 18px'],['type-system','A — Plex Sans + Plex Mono'],['illustration-style','A — Cut paper']];
+const KEY='quizzer.picks.batch1';
+const store=JSON.parse(localStorage.getItem(KEY)||'{}');
+$('#pickRows').innerHTML=picks.map(([n,rec])=>`<tr><td class="name">${n}</td>${['A','B','C'].map(o=>`<td class="c"><input type="radio" name="${n}" value="${o}" ${store[n]===o?'checked':''} aria-label="${n} ${o}"></td>`).join('')}<td style="color:var(--text-2)">${rec}</td></tr>`).join('');
+document.querySelectorAll('#pickRows input').forEach(i=>i.addEventListener('change',()=>{store[i.name]=i.value;localStorage.setItem(KEY,JSON.stringify(store))}));
+$('#copyPicks').addEventListener('click',async()=>{const txt=picks.map(([n])=>`${n}: ${store[n]||'—'}`).join('\n');try{await navigator.clipboard.writeText(txt)}catch(e){}$('#pickMsg').textContent='Copied.';setTimeout(()=>$('#pickMsg').textContent='',1800)});
+$('#resetPicks').addEventListener('click',()=>{localStorage.removeItem(KEY);document.querySelectorAll('#pickRows input').forEach(i=>i.checked=false);Object.keys(store).forEach(k=>delete store[k])});
+</script>
+</body></html>

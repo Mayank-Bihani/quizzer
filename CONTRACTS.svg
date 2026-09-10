@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1080" role="img" aria-labelledby="title desc" font-family="system-ui, sans-serif">
+<title id="title">Quizzer — V1 contracts and runtime flow</title><desc id="desc">2026-09-09 · Module types: src/core/contracts.ts · HTTP types: src/core/api.ts · No application handlers implemented</desc>
+<rect width="1400" height="1080" fill="#f5f7fb"/>
+<text x="30" y="42" font-size="25" fill="#142033" font-weight="700">Quizzer — V1 contracts and runtime flow</text>
+<text x="30" y="69" font-size="13" fill="#526075" font-weight="400">2026-09-09 · Module types: src/core/contracts.ts · HTTP types: src/core/api.ts · No application handlers implemented</text>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#60718a"/></marker></defs>
+<rect x="435" y="105" width="530" height="115" rx="12" fill="white" stroke="#7045a3" stroke-width="2"/>
+<text x="453" y="134" font-size="19" fill="#7045a3" font-weight="700">SCHEDULER</text>
+<text x="453" y="161" font-size="13" fill="#243247" font-weight="400">openRoom / closeQuiz / materializeTemplates</text>
+<text x="453" y="183" font-size="13" fill="#243247" font-weight="400">computeWeeklyBoards / claimAndSend</text>
+<text x="453" y="205" font-size="13" fill="#243247" font-weight="400">Orchestrates only; no D1 or KV writes</text>
+<rect x="30" y="310" width="370" height="145" rx="12" fill="white" stroke="#26744e" stroke-width="2"/>
+<text x="48" y="339" font-size="19" fill="#26744e" font-weight="700">BANK</text>
+<text x="48" y="366" font-size="13" fill="#243247" font-weight="400">listUnused / claimUnused / getByIds</text>
+<text x="48" y="388" font-size="13" fill="#243247" font-weight="400">QuestionFull includes solutions (admin/server)</text>
+<text x="48" y="410" font-size="13" fill="#243247" font-weight="400">RC/LRDI shared material + group membership</text>
+<text x="48" y="432" font-size="13" fill="#243247" font-weight="400">No quiz allowances or student clocks</text>
+<rect x="455" y="310" width="490" height="145" rx="12" fill="white" stroke="#9c4b19" stroke-width="2"/>
+<text x="473" y="339" font-size="19" fill="#9c4b19" font-weight="700">QUIZZING</text>
+<text x="473" y="366" font-size="13" fill="#243247" font-weight="400">TimingPolicy -&gt; QuizUnitDefinition</text>
+<text x="473" y="388" font-size="13" fill="#243247" font-weight="400">UnitContent + D1 clocks -&gt; ServedUnit</text>
+<text x="473" y="410" font-size="13" fill="#243247" font-weight="400">SubmitUnitRequest -&gt; atomic closure + PlayState</text>
+<text x="473" y="432" font-size="13" fill="#243247" font-weight="400">Final marks and reached-unit completion time</text>
+<rect x="1000" y="310" width="370" height="145" rx="12" fill="white" stroke="#087d8c" stroke-width="2"/>
+<text x="1018" y="339" font-size="19" fill="#087d8c" font-weight="700">TELEGRAM</text>
+<text x="1018" y="366" font-size="13" fill="#243247" font-weight="400">claimAndSend(kind, target, payload)</text>
+<text x="1018" y="388" font-size="13" fill="#243247" font-weight="400">QuizAnnouncePayload: unit timing summary</text>
+<text x="1018" y="410" font-size="13" fill="#243247" font-weight="400">CloseResult / BoardSummary[] / cancellation</text>
+<text x="1018" y="432" font-size="13" fill="#243247" font-weight="400">Outbound only; no gameplay dependency</text>
+<path d="M580,220 L580,310" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M900,220 L1150,310" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M455,385 L400,385" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<rect x="455" y="500" width="490" height="100" rx="12" fill="white" stroke="#285fbd" stroke-width="2"/>
+<text x="473" y="529" font-size="19" fill="#285fbd" font-weight="700">AUTH</text>
+<text x="473" y="556" font-size="13" fill="#243247" font-weight="400">requireAuth / requireRole / currentUser</text>
+<text x="473" y="578" font-size="13" fill="#243247" font-weight="400">Google identity, sessions, role guards</text>
+<path d="M455,540 L240,455" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M700,500 L700,455" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<text x="30" y="646" font-size="20" fill="#142033" font-weight="700">CLIENT ↔ QUIZZING: one active unit, one final batch</text>
+<rect x="30" y="680" width="420" height="154" rx="12" fill="white" stroke="#526a8a" stroke-width="2"/>
+<text x="48" y="709" font-size="19" fill="#526a8a" font-weight="700">1. Join / current</text>
+<text x="48" y="736" font-size="13" fill="#243247" font-weight="400">QuizMeta + PlayState</text>
+<text x="48" y="758" font-size="13" fill="#243247" font-weight="400">Entire active set; future units withheld</text>
+<text x="48" y="780" font-size="13" fill="#243247" font-weight="400">Unit start/deadline persisted server-side</text>
+<text x="48" y="802" font-size="13" fill="#243247" font-weight="400">Standalone is a one-question unit</text>
+<rect x="490" y="680" width="420" height="154" rx="12" fill="white" stroke="#526a8a" stroke-width="2"/>
+<text x="508" y="709" font-size="19" fill="#526a8a" font-weight="700">2. Local draft</text>
+<text x="508" y="736" font-size="13" fill="#243247" font-weight="400">Back / Next / Skip / Clear</text>
+<text x="508" y="758" font-size="13" fill="#243247" font-weight="400">Save edits in this browser only</text>
+<text x="508" y="780" font-size="13" fill="#243247" font-weight="400">One shared timer; reading counts once</text>
+<text x="508" y="802" font-size="13" fill="#243247" font-weight="400">Final unresolved response freezes batch</text>
+<rect x="950" y="680" width="420" height="154" rx="12" fill="white" stroke="#526a8a" stroke-width="2"/>
+<text x="968" y="709" font-size="19" fill="#526a8a" font-weight="700">3. Submit unit</text>
+<text x="968" y="736" font-size="13" fill="#243247" font-weight="400">submissionId + reason + UnitAnswer[]</text>
+<text x="968" y="758" font-size="13" fill="#243247" font-weight="400">Answers + closure + totals commit once</text>
+<text x="968" y="780" font-size="13" fill="#243247" font-weight="400">Next unit or own final score returned</text>
+<text x="968" y="802" font-size="13" fill="#243247" font-weight="400">Closed units cannot be reopened</text>
+<path d="M450,750 L490,750" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M910,750 L950,750" stroke="#60718a" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<rect x="30" y="870" width="1340" height="135" rx="12" fill="white" stroke="#526a8a" stroke-width="2"/>
+<text x="48" y="899" font-size="19" fill="#526a8a" font-weight="700">Results and clock boundaries</text>
+<text x="48" y="926" font-size="13" fill="#243247" font-weight="400">Personal overall deadline = join + SUM(unit allowances) + slack; admission cutoff is separate.</text>
+<text x="48" y="948" font-size="13" fill="#243247" font-weight="400">Editing freezes at deadline; the frozen batch has 5 seconds to reach the server.</text>
+<text x="48" y="970" font-size="13" fill="#243247" font-weight="400">Ranking: marks DESC, sum of reached-unit elapsed ASC. No per-question timing or V1 bonus.</text>
+<text x="48" y="992" font-size="13" fill="#243247" font-weight="400">Rank/review unlock only after safe close and atomic board publication; review timing appears once per unit.</text>
+</svg>

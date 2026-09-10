@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Question bank — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <h1 class="phdr__title">Question bank</h1>
+            <p class="phdr__sub">Browse, filter, edit and delete. Every question shows whether it has been used and in which quiz.</p>
+          </div>
+          <div class="phdr__actions">
+            <a class="btn sec" href="import-upload.html">Import CSV</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 1 — browse, no filters applied. Diverse rows on purpose: an
+           MCQ with LaTeX, a vocabulary item, an LR arrangement, a retired
+           (used-in-a-locked-quiz) row, a TITA item, a passage-linked row
+           (links through to passage-group.html) and an image question
+           (reuses S2's geometry figure for continuity).
+           =================================================================== -->
+      <div class="mock-state"><b>State — browse, all questions</b> <span>filter-bar A (chips, desktop) / C (sheet, mobile) &middot; data-table A (desktop) / C (mobile card, &lt;640px) &middot; 2 rows selected to show the selection bar</span></div>
+
+      <div class="bankhead">
+        <div class="banktoolbar">
+          <div class="filterbar">
+            <div class="rowflex">
+              <span class="chip">+ Section</span>
+              <span class="chip">+ Topic</span>
+              <span class="chip">+ Difficulty</span>
+              <span class="chip">+ Used / unused</span>
+              <button class="btn ghost sm" type="button">Clear all</button>
+            </div>
+          </div>
+          <details class="filtersheet">
+            <summary class="btn sec">Filters</summary>
+            <div class="filtersheet__applied">
+              <span class="tiny">No filters applied.</span>
+            </div>
+          </details>
+          <span class="tiny"><span class="num">1,412</span> questions</span>
+        </div>
+
+        <div class="selectbar">
+          <b><span class="num">2</span> selected</b>
+          <button class="btn dgr sm" type="button">Delete</button>
+        </div>
+
+        <div class="tablewrap">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th class="chk"><input type="checkbox" aria-label="Select all"></th>
+                <th>Stem <span aria-hidden="true">↑</span></th>
+                <th>Section</th>
+                <th>Topic</th>
+                <th>Diff</th>
+                <th class="n">Used</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="sel">
+                <td><input type="checkbox" checked aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">If <span class="math">x<sup>2</sup>&minus;5x+6=0</span> and <span class="math">x&gt;2</span>, find <span class="math">x<sup>3</sup>&minus;8</span>.</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Quadratics</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">3</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">Closest antonym for OBDURATE</a></td>
+                <td><span class="badge sq b-sec b-verbal">VA</span></td>
+                <td>Vocabulary</td>
+                <td><span class="badge sq b-easy">E</span></td>
+                <td class="n"><span class="num">11</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">Six friends sit in a row facing north. Ravi is not at either end&hellip;</a></td>
+                <td><span class="badge sq b-sec b-lr">LR</span></td>
+                <td>Seating</td>
+                <td><span class="badge sq b-hard">H</span></td>
+                <td class="n"><span class="num">0</span></td>
+                <td><span class="badge b-unused">Unused</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#tita" class="truncate"><span class="tiny">TITA &middot;</span> A vessel holds 40 litres of milk. 8 litres are drawn off and replaced with water; the same is done a second time&hellip;</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Mixtures &amp; Alligation</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">0</span></td>
+                <td><span class="badge b-unused">Unused</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked aria-label="Select this question"></td>
+                <td><a href="passage-group.html" class="truncate"><span class="tiny">RC-12 &middot; Q1 &middot;</span> According to the passage, the tank system fell into disrepair chiefly because&hellip;</a></td>
+                <td><span class="badge sq b-sec b-verbal">VA</span></td>
+                <td>Reading Comprehension</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">2</span></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">In the figure, a circle of radius 5 cm and a circle of radius 3 cm are drawn so that they touch externally&hellip;</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Geometry &amp; Mensuration</td>
+                <td><span class="badge sq b-hard">H</span></td>
+                <td class="n"><span class="num">1</span></td>
+                <td><span class="tiny" aria-hidden="true">▤</span><span class="sr-only">Has an image</span></td>
+              </tr>
+              <tr class="retired">
+                <td><input type="checkbox" disabled aria-label="Retired — cannot be selected"></td>
+                <td class="truncate">A train travels 240 km at a uniform speed. Had the speed been 5 km/h more, it would have taken 1 hour less&hellip;</td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Speed, Time &amp; Distance</td>
+                <td><span class="badge sq b-easy">E</span></td>
+                <td class="n"><span class="num">1</span></td>
+                <td><span class="badge b-retired">Retired</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bankcards">
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" checked aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">If <span class="math">x<sup>2</sup>&minus;5x+6=0</span> and <span class="math">x&gt;2</span>, find <span class="math">x<sup>3</sup>&minus;8</span>.</div>
+            <div class="rowflex"><span class="tiny">Quadratics</span><span class="badge sq b-med">M</span><span class="badge b-used">Used &times;3</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-verbal">VA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">Closest antonym for OBDURATE</div>
+            <div class="rowflex"><span class="tiny">Vocabulary</span><span class="badge sq b-easy">E</span><span class="badge b-used">Used &times;11</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-lr">LR</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">Six friends sit in a row facing north. Ravi is not at either end&hellip;</div>
+            <div class="rowflex"><span class="tiny">Seating</span><span class="badge sq b-hard">H</span><span class="badge b-unused">Unused</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem"><span class="tiny">TITA &middot;</span> A vessel holds 40 litres of milk. 8 litres are drawn off and replaced with water; the same is done a second time&hellip;</div>
+            <div class="rowflex"><span class="tiny">Mixtures &amp; Alligation</span><span class="badge sq b-med">M</span><span class="badge b-unused">Unused</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-verbal">VA</span><label class="bankcard__check"><input type="checkbox" checked aria-label="Select this question"></label></div>
+            <div class="bankcard__stem"><a href="passage-group.html"><span class="tiny">RC-12 &middot; Q1 &middot;</span> According to the passage, the tank system fell into disrepair chiefly because&hellip;</a></div>
+            <div class="rowflex"><span class="tiny">Reading Comprehension</span><span class="badge sq b-med">M</span><span class="badge b-used">Used &times;2</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">In the figure, a circle of radius 5 cm and a circle of radius 3 cm are drawn so that they touch externally&hellip; <span class="tiny" aria-hidden="true">▤</span><span class="sr-only">Has an image</span></div>
+            <div class="rowflex"><span class="tiny">Geometry &amp; Mensuration</span><span class="badge sq b-hard">H</span><span class="badge b-used">Used &times;1</span></div>
+          </div>
+          <div class="bankcard bankcard--retired">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><span class="badge b-retired">Retired</span></div>
+            <div class="bankcard__stem">A train travels 240 km at a uniform speed. Had the speed been 5 km/h more, it would have taken 1 hour less&hellip;</div>
+            <div class="rowflex"><span class="tiny">Speed, Time &amp; Distance</span><span class="badge sq b-easy">E</span></div>
+          </div>
+        </div>
+
+        <div class="pager">
+          <button class="btn sec" type="button">Load 50 more</button>
+          <span class="tiny">Showing <span class="num">50</span> of <span class="num">1,412</span></span>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — browse, filtered. Same toolbar, chips now active. The
+           count matches console-home's "41 unused Medium" callout, so a
+           reviewer can check the two screens against each other.
+           =================================================================== -->
+      <div class="mock-state"><b>State — browse, filtered</b> <span>Quant &middot; Medium &middot; Unused &mdash; the exact shortfall console-home warns about</span></div>
+
+      <div class="bankhead">
+        <div class="banktoolbar">
+          <div class="filterbar">
+            <div class="rowflex">
+              <span class="chip on">Quant <span class="x">✕</span></span>
+              <span class="chip on">Medium <span class="x">✕</span></span>
+              <span class="chip on">Unused <span class="x">✕</span></span>
+              <span class="chip">+ Topic</span>
+              <button class="btn ghost sm" type="button">Clear all</button>
+            </div>
+          </div>
+          <details class="filtersheet" open>
+            <summary class="btn sec">Filters &middot; 3</summary>
+            <div class="filtersheet__applied">
+              <span class="chip on">Quant <span class="x">✕</span></span>
+              <span class="chip on">Medium <span class="x">✕</span></span>
+              <span class="chip on">Unused <span class="x">✕</span></span>
+            </div>
+          </details>
+          <span class="tiny"><span class="num">41</span> of <span class="num">1,412</span> questions</span>
+        </div>
+
+        <div class="tablewrap">
+          <table class="dt">
+            <thead>
+              <tr>
+                <th class="chk"><input type="checkbox" aria-label="Select all"></th>
+                <th>Stem <span aria-hidden="true">↑</span></th>
+                <th>Section</th>
+                <th>Topic</th>
+                <th>Diff</th>
+                <th class="n">Used</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">A sum of ₹12,000 is divided among A, B and C such that A gets twice as much as B and B gets thrice as much as C. Find C&rsquo;s share.</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Ratio &amp; Proportion</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">0</span></td>
+                <td><span class="badge b-unused">Unused</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">The average of 11 numbers is 42. If one number is excluded, the average drops to 40. Find the excluded number.</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Averages</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">0</span></td>
+                <td><span class="badge b-unused">Unused</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" aria-label="Select this question"></td>
+                <td><a href="item-editor.html#mcq" class="truncate">In how many ways can the letters of the word &lsquo;MEDIAN&rsquo; be arranged so that the vowels always come together?</a></td>
+                <td><span class="badge sq b-sec b-quant">QA</span></td>
+                <td>Permutations &amp; Combinations</td>
+                <td><span class="badge sq b-med">M</span></td>
+                <td class="n"><span class="num">0</span></td>
+                <td><span class="badge b-unused">Unused</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="bankcards">
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">A sum of ₹12,000 is divided among A, B and C such that A gets twice as much as B and B gets thrice as much as C. Find C&rsquo;s share.</div>
+            <div class="rowflex"><span class="tiny">Ratio &amp; Proportion</span><span class="badge sq b-med">M</span><span class="badge b-unused">Unused</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">The average of 11 numbers is 42. If one number is excluded, the average drops to 40. Find the excluded number.</div>
+            <div class="rowflex"><span class="tiny">Averages</span><span class="badge sq b-med">M</span><span class="badge b-unused">Unused</span></div>
+          </div>
+          <div class="bankcard">
+            <div class="rowflex-between"><span class="badge sq b-sec b-quant">QA</span><label class="bankcard__check"><input type="checkbox" aria-label="Select this question"></label></div>
+            <div class="bankcard__stem">In how many ways can the letters of the word &lsquo;MEDIAN&rsquo; be arranged so that the vowels always come together?</div>
+            <div class="rowflex"><span class="tiny">Permutations &amp; Combinations</span><span class="badge sq b-med">M</span><span class="badge b-unused">Unused</span></div>
+          </div>
+        </div>
+
+        <div class="pager">
+          <button class="btn sec" disabled type="button">All 41 loaded</button>
+          <span class="tiny">Showing <span class="num">41</span> of <span class="num">41</span></span>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — bank empty. A brand-new install, before any import.
+           =================================================================== -->
+      <div class="mock-state"><b>State — empty</b> <span>no questions imported yet</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>No questions yet</h5>
+        <p>Import a CSV to add your first questions. Nothing is written until you confirm the preview.</p>
+        <a class="btn" href="import-upload.html">Import CSV</a>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

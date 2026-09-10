@@ -1,0 +1,1 @@
+// QUIZZING creation tables: quizzes, quiz_templates, quiz_units, quiz_questions. Draw/reshape units, policy/overrides, derive windowSec independently of admission length, lock/retire, cancel and materialize — QUIZZING.md §4.

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css">
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0}body{width:1280px;height:854px;display:flex;font-family:var(--font-ui)}
+.main{flex:1;background:var(--accent-500);display:grid;place-items:center;position:relative;overflow:hidden}
+.main::after{content:"";position:absolute;inset:0;background:radial-gradient(50% 60% at 20% 10%,rgba(255,255,255,.22),transparent 70%),radial-gradient(45% 50% at 88% 88%,rgba(0,0,0,.14),transparent 70%)}
+.mark{position:relative;z-index:1;color:#fff;font-weight:600;font-size:168px;letter-spacing:-.03em;line-height:1;white-space:nowrap}
+.strip{width:24%;display:flex;flex-direction:column}
+.strip i{flex:1;display:block}</style></head>
+<body><div class="main"><div class="mark">Quizzer</div></div>
+<div class="strip"><i style="background:var(--sec-lr-a)"></i><i style="background:var(--sec-quant-a)"></i><i style="background:var(--sec-verbal-a)"></i><i style="background:var(--accent-800)"></i></div>
+</body></html>

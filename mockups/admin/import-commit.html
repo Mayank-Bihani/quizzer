@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import — commit — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+<link rel="stylesheet" href="../css/screens-s8.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <a class="phdr__back" href="import-preview.html"><span aria-hidden="true">&larr;</span> Validation preview</a>
+            <h1 class="phdr__title">Commit import</h1>
+            <p class="phdr__sub">batch14-quant-verbal-lr.csv &middot; 2 Sep, 6:14 PM</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 1 — commit confirm. Ready to write. import-commit-bar A
+           (sticky footer bar) — the bar itself states the count and the
+           irreversibility, which is the explicit, unambiguous step AJ-2
+           requires; no separate modal on top of it. Reuses .facts (S1 §22)
+           for the write summary.
+           =================================================================== -->
+      <div class="mock-state"><b>State — commit confirm</b> <span>nothing has been written yet</span></div>
+      <div class="commitwrap">
+        <dl class="facts">
+          <div class="fact"><dt>Questions to add</dt><dd class="num">192</dd></div>
+          <div class="fact"><dt>Passage groups</dt><dd class="num">2 <small>RC-20, RC-21</small></dd></div>
+          <div class="fact"><dt>Images attached</dt><dd class="num">22</dd></div>
+          <div class="fact"><dt>Rows skipped</dt><dd class="num">6 <small>errors</small></dd></div>
+        </dl>
+        <div class="commitbar">
+          <span class="commitbar__msg">Nothing has been written yet. Committing adds <b>194 rows</b> (192 questions + 2 passages) to the bank; the 6 error rows are skipped and can be fixed in a later import.</span>
+          <button class="btn sec">Cancel import</button>
+          <button class="btn">Commit 194 rows</button>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — committing. Reuses .pbar (S2 §30), not a second bar.
+           =================================================================== -->
+      <div class="mock-state"><b>State — committing</b> <span>chunked batch writes in progress, per BANK.md §3.3</span></div>
+      <div class="commitwrap">
+        <div class="commitbar">
+          <span class="commitbar__msg">Committing&hellip; do not close this tab.</span>
+        </div>
+        <div class="pbar" aria-hidden="true"><span class="pbar__fill" style="width:73%"></span></div>
+        <p class="tiny">Writing in chunks of 50 rows &middot; <span class="num">142</span> / <span class="num">194</span></p>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — success.
+           =================================================================== -->
+      <div class="mock-state"><b>State — success</b> <span>reconciles with console-home.html's "committed 194 of 200 rows"</span></div>
+      <div class="commitwrap">
+        <div class="commitbar commitbar--ok">
+          <span class="commitbar__msg">✓ <b>194 rows added</b> to the bank (192 questions, 2 passage groups). 6 rows were skipped — nothing else was affected.</span>
+          <button class="btn sec">Download skipped rows</button>
+          <a class="btn" href="bank.html">Open bank</a>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 4 — import failed. The mid-commit failure case: BANK.md §3.3's
+           import_id mechanism means a chunk failure rolls the whole import
+           back, so the copy states plainly that nothing was written, never
+           "partially imported."
+           =================================================================== -->
+      <div class="mock-state"><b>State — import failed</b> <span>a chunk write failed mid-commit &mdash; the whole import is rolled back</span></div>
+      <div class="commitwrap">
+        <div class="commitbar commitbar--err">
+          <span class="commitbar__msg">✕ <b>Commit failed at row 142.</b> Nothing was written — the bank is unchanged. This is not a validation problem; retrying is usually enough.</span>
+          <button class="btn sec">Cancel</button>
+          <button class="btn">Retry commit</button>
+        </div>
+        <div class="alert a-info">
+          <span aria-hidden="true">i</span>
+          <span>Imports write in an all-or-nothing batch keyed to this attempt. A failure partway through undoes every row already written for it — the bank never holds a half-finished import.</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

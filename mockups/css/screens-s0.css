@@ -1,0 +1,23 @@
+/* Sprint S0 — layout only. No tokens defined here, no colours. */
+
+/* student home: quiz lists. Cards grow into columns rather than the page
+   capping its width — see MOCKUP_PROMPT.md "do not equalise". */
+.home-section{display:grid;gap:var(--sp-5)}
+.home-section__head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sp-4)}
+.home-section__head h2{font:var(--type-h2)}
+.quiz-grid{display:grid;gap:var(--sp-5);grid-template-columns:1fr}
+.quiz-card{display:grid;gap:var(--sp-4)}
+.quiz-card__head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp-4)}
+.quiz-card__name{font:var(--type-h3);text-wrap:balance}
+.quiz-card__facts{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-5)}
+.quiz-card__facts div{display:flex;gap:var(--sp-2);align-items:baseline}
+.quiz-card__foot{display:flex;gap:var(--sp-4);align-items:center;justify-content:space-between;flex-wrap:wrap}
+.result-row{display:flex;align-items:center;gap:var(--sp-5);justify-content:space-between}
+.result-row__score{font:var(--type-numeric);color:var(--text-1)}
+
+@media (min-width:640px){
+  .quiz-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+}
+@media (min-width:1280px){
+  .quiz-grid{grid-template-columns:repeat(auto-fill,minmax(360px,1fr))}
+}

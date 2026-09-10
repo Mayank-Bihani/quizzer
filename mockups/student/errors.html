@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>403 · 404 · session expired — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<main class="app__main">
+  <div class="stack-lg">
+
+    <!-- error-state A for all three. 403 and 404 render inside the student
+         shell when the visitor is signed in; they are shown bare here so the
+         three sit side by side. Session expired is always bare — there is no
+         session left to draw a shell for. -->
+
+    <!-- ===== 403 ======================================================
+         AUTH acceptance: a student who reaches an admin URL gets a 403,
+         not a redirect loop. It never says what the page contains and never
+         offers "request access" — roles are granted by a superadmin. -->
+    <div class="mock-state"><b>403 — not authorised</b> <span>a student opened an admin URL, or an admin was demoted mid-session</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-error.svg" alt="">
+        <h1 class="h2">Not authorised</h1>
+        <p>This page is part of the admin console. You are signed in as a student.</p>
+        <div class="state__actions">
+          <a class="btn sec" href="home.html">Back to Home</a>
+        </div>
+        <p class="tiny">Signed in as ananya.krishnamurthy@example.com</p>
+      </div>
+    </div>
+
+    <!-- ===== 404 ====================================================== -->
+    <div class="mock-state"><b>404 — page not found</b> <span>usually a shared quiz link after its window closed</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h1 class="h2">Page not found</h1>
+        <p>That link may have expired — a quiz link stops working once its window closes.</p>
+        <div class="state__actions">
+          <a class="btn sec" href="home.html">Back to Home</a>
+          <a class="btn ghost" href="join.html">Join by room code</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== session expired ==========================================
+         The session TTL comfortably exceeds the longest quiz window, so this
+         should never interrupt a run. If it somehow does, the copy has to say
+         what happened to the run — submitted answers are server-side and the
+         per-question clock kept running. -->
+    <div class="mock-state"><b>Session expired</b> <span>signed out by the server; no shell, because there is no session</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-waiting.svg" alt="">
+        <h1 class="h2">You have been signed out</h1>
+        <p>Your session expired. Sign in again and you will land back where you were.</p>
+        <div class="state__actions">
+          <a class="btn" href="signin.html">Sign in with Google</a>
+        </div>
+        <p class="tiny">Nothing you submitted was lost — answers are saved on the server as you lock them.</p>
+      </div>
+    </div>
+
+    <div class="mock-state"><b>Session expired — during a quiz</b> <span>the run is still open; the clock did not stop</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-waiting.svg" alt="">
+        <h1 class="h2">You have been signed out</h1>
+        <p>Weekly Quant Sprint #27 is still open. Sign in again to return to the question you were on.</p>
+        <div class="alert a-warn">
+          <span aria-hidden="true">▲</span>
+          <span>The clock on that question kept running while you were signed out, and the window still closes at <span class="num">9:55 PM</span> IST.</span>
+        </div>
+        <div class="state__actions">
+          <a class="btn" href="signin.html">Sign in and continue</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

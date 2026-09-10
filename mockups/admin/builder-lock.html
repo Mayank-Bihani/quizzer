@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz builder — Lock — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s9.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a class="on" href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a class="on" href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="builder-schedule.html"><span aria-hidden="true">&larr;</span> Schedule</a>
+        <h1 class="phdr__title">Lock this quiz</h1>
+        <p class="phdr__sub">destructive-confirm B, built on modal-sheet A (dialog &ge;640px, bottom sheet below — resize this file to see both real shells).</p>
+      </div>
+
+      <nav class="steps" aria-label="Quiz builder steps">
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Define</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Draw</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Scoring</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step done"><span class="n" aria-hidden="true">✓</span>Schedule</span>
+        <span class="sep" aria-hidden="true"></span>
+        <span class="step on" aria-current="step"><span class="n" aria-hidden="true">5</span>Lock</span>
+      </nav>
+
+      <!-- ===================================================================
+           State 1 — confirm dialog, nothing typed yet. Lock quiz is a real
+           disabled <button>. Both real shells (dlg >=640px, sheet <640px)
+           are in the markup at once and toggled purely by width — resize
+           the browser (or the proof page) to see the swap for real.
+           =================================================================== -->
+      <div class="mock-state" id="confirm"><b>State — confirm, not yet typed</b> <span>Lock quiz disabled until "LOCK" is typed exactly</span></div>
+
+      <div class="stage">
+        <div class="lockpage" aria-hidden="true">
+          <span class="wlabel" style="margin:0">Behind the dialog</span>
+          <p><b>Weekly Quant Sprint #28</b> &middot; 20 questions drawn (6 easy / 10 medium / 4 hard) &middot; 45s/question &middot; +3 / &minus;1 / +0.5 &middot; opens 9 Sep, 9:30 PM IST, closes 9:55 PM IST</p>
+        </div>
+        <div class="scrim" aria-hidden="true"></div>
+
+        <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="lock1a-h">
+          <h2 id="lock1a-h" class="h2">Lock &ldquo;Weekly Quant Sprint #28&rdquo;?</h2>
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>Locking retires <b class="num">20</b> questions from the bank <b>permanently</b>. They can never be drawn again.</span>
+          </div>
+          <div class="confirmbody">
+            <label class="lbl" for="lock1a-in">Type LOCK to confirm</label>
+            <input class="inp" id="lock1a-in" placeholder="LOCK" autocomplete="off">
+          </div>
+          <div class="rowflex" style="justify-content:flex-end">
+            <a class="btn ghost" href="builder-schedule.html">Cancel</a>
+            <button class="btn dgr" type="button" disabled aria-disabled="true">Lock quiz</button>
+          </div>
+        </div>
+
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lock1b-h">
+          <span class="grabber" aria-hidden="true"></span>
+          <h2 id="lock1b-h" class="h2">Lock &ldquo;Weekly Quant Sprint #28&rdquo;?</h2>
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>Locking retires <b class="num">20</b> questions from the bank <b>permanently</b>. They can never be drawn again.</span>
+          </div>
+          <div class="confirmbody">
+            <label class="lbl" for="lock1b-in">Type LOCK to confirm</label>
+            <input class="inp" id="lock1b-in" placeholder="LOCK" autocomplete="off">
+          </div>
+          <button class="btn dgr" type="button" disabled aria-disabled="true">Lock quiz</button>
+          <a class="btn ghost" href="builder-schedule.html">Cancel</a>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — "LOCK" typed exactly, Lock quiz enabled. Consequence 2
+           (selections.md): the button reads "Lock quiz", never "OK".
+           =================================================================== -->
+      <div class="mock-state"><b>State — typed correctly</b> <span>Lock quiz enabled &middot; the only exit is this button or Cancel</span></div>
+
+      <div class="stage">
+        <div class="lockpage" aria-hidden="true">
+          <span class="wlabel" style="margin:0">Behind the dialog</span>
+          <p><b>Weekly Quant Sprint #28</b> &middot; 20 questions drawn &middot; two admins building at once can never receive the same question (QUIZ-5)</p>
+        </div>
+        <div class="scrim" aria-hidden="true"></div>
+
+        <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="lock2a-h">
+          <h2 id="lock2a-h" class="h2">Lock &ldquo;Weekly Quant Sprint #28&rdquo;?</h2>
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>Locking retires <b class="num">20</b> questions from the bank <b>permanently</b>. They can never be drawn again.</span>
+          </div>
+          <div class="confirmbody">
+            <label class="lbl" for="lock2a-in">Type LOCK to confirm</label>
+            <input class="inp" id="lock2a-in" value="LOCK" autocomplete="off">
+          </div>
+          <div class="rowflex" style="justify-content:flex-end">
+            <a class="btn ghost" href="builder-schedule.html">Cancel</a>
+            <a class="btn dgr" href="#locked">Lock quiz</a>
+          </div>
+        </div>
+
+        <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="lock2b-h">
+          <span class="grabber" aria-hidden="true"></span>
+          <h2 id="lock2b-h" class="h2">Lock &ldquo;Weekly Quant Sprint #28&rdquo;?</h2>
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>Locking retires <b class="num">20</b> questions from the bank <b>permanently</b>. They can never be drawn again.</span>
+          </div>
+          <div class="confirmbody">
+            <label class="lbl" for="lock2b-in">Type LOCK to confirm</label>
+            <input class="inp" id="lock2b-in" value="LOCK" autocomplete="off">
+          </div>
+          <a class="btn dgr" href="#locked">Lock quiz</a>
+          <a class="btn ghost" href="builder-schedule.html">Cancel</a>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — locked. The quiz gets a sequential number and a room
+           code (QUIZ-8), withheld from students until T-5m exactly as every
+           other room code in this build (S1's quiz-detail.html, S9's own
+           schedule step which deliberately shows no code at all — see
+           SYSTEM-GAPS). "Schedule" links to console-home.html as a
+           placeholder for S10's schedule list, per the established
+           handover convention.
+           =================================================================== -->
+      <div id="locked" class="mock-state"><b>State — locked</b> <span>irreversible &middot; room code assigned, still withheld from students</span></div>
+
+      <div class="card stack" style="max-width:520px">
+        <div class="rowflex">
+          <span class="badge b-sched">◇ Scheduled</span>
+          <span class="tiny">Quiz #28</span>
+        </div>
+        <h2 class="h2">Weekly Quant Sprint #28 is locked</h2>
+        <p class="tiny">20 questions are retired from the bank permanently. Room code <b class="num">QNT-9103</b> is assigned but stays hidden from students until 9:25 PM IST on 9 Sep — T&minus;5 minutes, same as every quiz.</p>
+        <div class="alert a-ok">
+          <span aria-hidden="true">✓</span>
+          <span>Nothing else to do before 9 Sep. The room opens itself (SYS-2).</span>
+        </div>
+        <div class="rowflex">
+          <a class="btn sec" href="schedule.html">View in Schedule</a>
+          <a class="btn" href="console-home.html">Done</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

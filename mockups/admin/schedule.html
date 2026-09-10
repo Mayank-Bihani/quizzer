@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schedule — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+<link rel="stylesheet" href="../css/screens-s10.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a class="on" href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a class="on" href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="eyebrow">Wednesday, 2 September</div>
+        <h1 class="phdr__title">Schedule</h1>
+        <p class="phdr__sub">Every quiz across draft &rarr; scheduled &rarr; open &rarr; live &rarr; closed (AJ-6), plus the recurring templates that generate most of them (AJ-5). No live-monitor or void controls here &mdash; both are open product questions (PRD Q5/Q6) this sprint was not asked to resolve.</p>
+      </div>
+
+      <!-- ===================================================================
+           quiz-card-schedule A, on .card--solid (S0's opaque admin surface).
+           The seg control below is decorative navigation between two static
+           views of this one page, not a live JS tab — see the two
+           .mock-state blocks, matching the S9 schedule-picker precedent for
+           a non-interactive .seg showing which side is "on".
+           =================================================================== -->
+      <div class="mock-state" id="quizzes"><b>View — Quizzes</b> <span>every quiz, newest activity first</span></div>
+
+      <div class="seg" role="tablist" aria-label="Schedule view">
+        <button class="on" type="button" role="tab" aria-selected="true" style="min-height:var(--tap-min)">Quizzes</button>
+        <button type="button" role="tab" aria-selected="false" tabindex="-1" style="min-height:var(--tap-min)">Templates</button>
+      </div>
+
+      <div class="schedgrid">
+
+        <!-- draft: still being built, never locked, safe to delete outright -->
+        <article class="card card--solid schedcard">
+          <div class="schedcard__hdr">
+            <span class="badge b-draft">○ Draft</span>
+            <span class="tiny">edited 2h ago</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Speed Drill 10</div>
+            <div class="schedcard__facts">Quant &middot; <span class="num">20</span> questions &middot; not yet scheduled</div>
+          </div>
+          <div class="schedcard__foot">
+            <a class="btn sec" href="builder-define.html">Continue building</a>
+            <button class="btn ghost" type="button">Delete</button>
+          </div>
+        </article>
+
+        <!-- scheduled: locked already (assumed no unlock, per the design
+             system's own open question), so there is nothing left for an
+             admin to do except wait — matches builder-lock.html's own
+             "nothing else to do" copy for Sprint #28, below. -->
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-sched">◇ Scheduled</span>
+            <span class="tiny num">Thu 3 Sep, 9:00 PM</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Reading Comprehension Set 12</div>
+            <div class="schedcard__facts">Verbal &middot; <span class="num">16</span> questions &middot; 30m window &middot; locked, room code withheld until T&minus;5m</div>
+          </div>
+          <div class="schedcard__foot">
+            <span class="tiny">Nothing to do &mdash; the room opens itself.</span>
+          </div>
+        </article>
+
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-sched">◇ Scheduled</span>
+            <span class="tiny num">Fri 4 Sep, 9:00 PM</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Arrangements &amp; Puzzles &mdash; Friday Drill</div>
+            <div class="schedcard__facts">Logical Reasoning &middot; <span class="num">18</span> questions &middot; 25m window &middot; from the <b>Friday Drill</b> template</div>
+          </div>
+          <div class="schedcard__foot">
+            <span class="tiny">Nothing to do &mdash; the room opens itself.</span>
+          </div>
+        </article>
+
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-sched">◇ Scheduled</span>
+            <span class="tiny num">9 Sep, 9:30 PM</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Weekly Quant Sprint #28</div>
+            <div class="schedcard__facts">Quant &middot; <span class="num">20</span> questions &middot; room <b class="num">QNT-9103</b> assigned, withheld &middot; from the <b>Weekly Quant Sprint</b> template</div>
+          </div>
+          <div class="schedcard__foot">
+            <a class="tiny" href="builder-lock.html">View lock record</a>
+          </div>
+        </article>
+
+        <!-- live: no monitor control by design (see the header note above) -->
+        <article class="card card--solid schedcard schedcard--live">
+          <div class="schedcard__hdr">
+            <span class="badge b-live">● Live</span>
+            <span class="tiny num">closes 9:55 PM</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Weekly Quant Sprint #27</div>
+            <div class="schedcard__facts">Room <b class="num">QNT-8417</b> &middot; <span class="num">41</span> joined &middot; <span class="num">17</span> finished &middot; <span class="num">59</span> seats left</div>
+          </div>
+          <div class="schedcard__foot">
+            <span class="tiny">Report available once it closes.</span>
+          </div>
+        </article>
+
+        <!-- closed: entry point into the report (AJ-8) -->
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-closed">■ Closed</span>
+            <span class="tiny num">31 Aug</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Weekly Quant Sprint #26</div>
+            <div class="schedcard__facts"><span class="num">87</span> participants &middot; avg <span class="num">29.8</span> / 60</div>
+          </div>
+          <div class="schedcard__foot">
+            <a class="btn sec" href="report.html">Report</a>
+          </div>
+        </article>
+
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-closed">■ Closed</span>
+            <span class="tiny num">28 Aug</span>
+          </div>
+          <div>
+            <div class="schedcard__title">Arrangements &amp; Puzzles &mdash; Friday Drill</div>
+            <div class="schedcard__facts"><span class="num">64</span> participants &middot; from the <b>Friday Drill</b> template</div>
+          </div>
+          <div class="schedcard__foot">
+            <a class="btn sec" href="report.html">Report</a>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ===================================================================
+           Templates view (AJ-5). recurrence-editor A already exists (S9,
+           builder-schedule.html) for creating/editing one; this list is new
+           — read-only recap cards, edit hands off to that existing form.
+           =================================================================== -->
+      <div class="mock-state" id="templates"><b>View &mdash; Templates</b> <span>recurring templates, generate drafts only &mdash; a human always approves the draw</span></div>
+
+      <div class="seg" role="tablist" aria-label="Schedule view">
+        <button type="button" role="tab" aria-selected="false" tabindex="-1" style="min-height:var(--tap-min)">Quizzes</button>
+        <button class="on" type="button" role="tab" aria-selected="true" style="min-height:var(--tap-min)">Templates</button>
+      </div>
+
+      <div class="schedgrid">
+
+        <article class="card card--solid schedcard">
+          <div class="schedcard__hdr">
+            <span class="badge b-rec">◐ Recurring &middot; active</span>
+            <span class="tiny">next draw <span class="num">9 Sep</span></span>
+          </div>
+          <div>
+            <div class="schedcard__title">Weekly Quant Sprint</div>
+            <div class="schedcard__facts">Quant &middot; <span class="num">20</span> questions (6/10/4 easy/med/hard) &middot; every <b>Wednesday</b>, 9:30 PM IST &middot; no end date</div>
+          </div>
+          <div class="alert a-warn">
+            <span aria-hidden="true">▲</span>
+            <span>Needs <span class="num">62</span> unused Medium questions across its next <span class="num">6</span> occurrences; only <span class="num">41</span> remain in the bank. <a href="bank.html">Import more</a> before occurrence 4.</span>
+          </div>
+          <div class="schedcard__foot">
+            <a class="btn sec" href="builder-schedule.html">Edit recurrence</a>
+            <button class="btn ghost" type="button">Pause</button>
+          </div>
+        </article>
+
+        <article class="card card--solid schedcard schedcard--closed">
+          <div class="schedcard__hdr">
+            <span class="badge b-draft">◐ Recurring &middot; paused</span>
+            <span class="tiny">last generated <span class="num">4 Sep</span></span>
+          </div>
+          <div>
+            <div class="schedcard__title">Friday Drill</div>
+            <div class="schedcard__facts">Logical Reasoning &middot; <span class="num">18</span> questions &middot; every <b>Friday</b>, 9:00 PM IST</div>
+          </div>
+          <div class="alert a-info">
+            <span aria-hidden="true">●</span>
+            <span>Paused after the 4 Sep occurrence. No new quizzes will be generated until this is resumed; the 4 Sep instance already on the schedule is unaffected.</span>
+          </div>
+          <div class="schedcard__foot">
+            <a class="btn sec" href="builder-schedule.html">Edit recurrence</a>
+            <button class="btn" type="button">Resume</button>
+            <button class="btn ghost" type="button">Delete</button>
+          </div>
+        </article>
+
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

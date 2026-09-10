@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Room full — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<main class="app__main">
+  <div class="stack-lg">
+
+    <!-- ===== room-full A — full-screen illustrated block ================
+         ROOM-14. The seat cap was reached before this student claimed one.
+         A dead end in v1: there is no waitlist and no practice mode, so the
+         screen says so plainly rather than implying a seat may free up. -->
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-error.svg" alt="">
+        <h1 class="h2">This room is full</h1>
+        <p>All <span class="num">120</span> seats for Weekly Quant Sprint #27 were taken. Seats are not released once a quiz has opened, so there is nothing to wait for.</p>
+        <div class="state__actions">
+          <a class="btn sec" href="home.html">Back to Home</a>
+        </div>
+        <p class="tiny">The next Quant sprint is Wed <span class="num">9 Sep</span>, <span class="num">9:30 PM</span> IST. Room codes go out in the Telegram group five minutes before.</p>
+      </div>
+    </div>
+
+    <!-- ---------------- stacked states ---------------- -->
+
+    <div class="mock-state"><b>State — window already closed</b> <span>joined with a valid code after the hard deadline</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-finished.svg" alt="">
+        <h1 class="h2">That quiz has finished</h1>
+        <p>Weekly Quant Sprint #27 closed at <span class="num">9:55 PM</span> IST. The window ends for everyone at the same moment, whether or not they finished.</p>
+        <div class="state__actions">
+          <a class="btn sec" href="home.html">Back to Home</a>
+          <a class="btn ghost" href="home.html">Weekly leaderboards</a>
+        </div>
+        <p class="tiny">Its review and its leaderboard are open to the <span class="num">87</span> students who took it.</p>
+      </div>
+    </div>
+
+    <div class="mock-state"><b>State — seat lost to a second device</b> <span>the same student opened the room on another device</span></div>
+    <div class="deadend">
+      <div class="state">
+        <img src="../assets/illustrations/shade-error.svg" alt="">
+        <h1 class="h2">You are in this quiz on another device</h1>
+        <p>Your seat is held on the device where you started. Go back to it and carry on — your answers and the time left on your current question are safe.</p>
+        <div class="state__actions">
+          <a class="btn sec" href="home.html">Back to Home</a>
+        </div>
+        <p class="tiny">One seat is one student. Opening the room twice does not give you two runs.</p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Passage group — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <a class="phdr__back" href="bank.html"><span aria-hidden="true">&larr;</span> Question bank</a>
+            <h1 class="phdr__title">Passage group</h1>
+            <p class="phdr__sub">A passage and its questions are drawn or retired as one indivisible unit &mdash; a set can never be split across quizzes. This is the same passage Reading Comprehension Set 12 uses in the live run.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State — passage group detail. Header + child rows (passage-group-
+           card A). Reuses the exact passage and two of the four questions
+           already shown live in S3's run-passage.html (Q1 = the run's Q13,
+           Q3 = the run's Q15), so an admin reading this record and a
+           student sitting the run see the same content.
+           =================================================================== -->
+      <div class="mock-state"><b>State — passage group</b> <span>passage-group-card A &middot; header + child rows &middot; 4 questions, indivisible</span></div>
+
+      <div class="pgroup">
+        <div class="pgroup__head">
+          <div class="pgroup__toprow">
+            <span class="pgroup__title">
+              <span class="badge sq b-sec b-verbal">VA</span>
+              <b>RC-12 &middot; The commons problem</b>
+            </span>
+            <span class="badge b-used">Used &times;2</span>
+          </div>
+          <span class="tiny"><span class="num">198</span> words &middot; <span class="num">4</span> questions &middot; indivisible</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">1</span>
+          <span class="grow">According to the passage, the tank system fell into disrepair chiefly because&hellip;</span>
+          <span class="badge sq b-med">M</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">2</span>
+          <span class="grow">In context, the word &ldquo;cascading&rdquo; most nearly describes&hellip;</span>
+          <span class="badge sq b-easy">E</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">3</span>
+          <span class="grow">The author&rsquo;s characterisation of the colonial administrators&rsquo; view of the tank system is best described as&hellip;</span>
+          <span class="badge sq b-med">M</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">4</span>
+          <span class="grow">Which of the following, if true, would most weaken the agrarian historians&rsquo; argument in the second paragraph?</span>
+          <span class="badge sq b-hard">H</span>
+        </div>
+        <div class="pgroup__child">
+          <button class="btn sec sm" type="button">Edit passage</button>
+          <span class="tiny">Add question <span class="tiny">(max 5)</span></span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <span class="wlabel" style="margin:0">Passage text</span>
+        <p class="tiny" style="line-height:var(--lh-relaxed)">For centuries the semi-arid plains of the northern Deccan relied not on rivers but on a dense mesh of human-made tanks &mdash; shallow reservoirs that captured monsoon run-off and released it through sluices as the dry season wore on. Colonial administrators, encountering this system in the nineteenth century, tended to read it as a patchwork of isolated ponds rather than what it was: a cascading network in which the overflow of one tank fed the inlet of the next, maintained by village councils that assigned desilting duties, adjudicated disputes over sluice timing, and financed repairs from a share of the harvest.</p>
+        <p class="tiny" style="line-height:var(--lh-relaxed)">The arrival of large dams and canal-fed irrigation after independence did not simply add capacity to this older system; it also removed the fiscal and social logic that had kept the tanks in repair, since a farmer who could draw water from a canal had little reason to fund the upkeep of a tank three villages upstream. The result, several agrarian historians now argue, was not modernisation cleanly displacing tradition but one commons regime being dismantled before its replacement could cover the same ground &mdash; leaving a visible gap in drought years that the canal network was never sized to fill.</p>
+      </div>
+
+      <!-- ===================================================================
+           State — validation error. A group of 3 or 6 is a hard error
+           (BANK-6: every passage group needs 4&ndash;5 questions).
+           =================================================================== -->
+      <div class="mock-state"><b>State — validation error</b> <span>a group of 2 questions &mdash; BANK-6 requires 4&ndash;5</span></div>
+
+      <div class="pgroup pgroup--bad">
+        <div class="pgroup__head">
+          <div class="pgroup__toprow">
+            <span class="pgroup__title">
+              <span class="badge sq b-sec b-verbal">VA</span>
+              <b>RC-19 &middot; Untitled</b>
+            </span>
+            <span class="badge b-hard">✕ only 2 questions</span>
+          </div>
+          <span class="tiny">Fix before this group can be drawn into a quiz</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">1</span>
+          <span class="grow">The passage suggests that the committee&rsquo;s recommendation was ultimately rejected because&hellip;</span>
+          <span class="badge sq b-med">M</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="ln">2</span>
+          <span class="grow">Which word could replace &ldquo;perfunctory&rdquo; without changing the meaning of the sentence?</span>
+          <span class="badge sq b-easy">E</span>
+        </div>
+        <div class="pgroup__child">
+          <span class="tiny">Add question <span class="tiny">(needs at least 2 more)</span></span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

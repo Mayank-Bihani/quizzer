@@ -1,0 +1,8 @@
+:root{
+--sp-0:0px;--sp-1:2px;--sp-2:4px;--sp-3:6px;--sp-4:8px;--sp-5:12px;--sp-6:16px;--sp-7:20px;--sp-8:24px;--sp-9:32px;--sp-10:40px;--sp-11:48px;--sp-12:64px;--sp-13:80px;
+--gutter-mobile:16px;--gutter-desktop:24px;
+--content-max:1200px;--content-narrow:720px;--phone-w:375px;
+--tap-min:44px;--tap-comfortable:52px;
+--r-xs:4px;--r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;--r-2xl:28px;--r-pill:999px;--r-circle:50%;
+--border-hairline:1px;--border-strong:1.5px;--border-focus:2px;
+}

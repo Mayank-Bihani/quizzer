@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S7 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S7 — responsive proof</h1>
+    <p class="tiny">Every S7 screen at <span class="num">390</span>, <span class="num">820</span> and <span class="num">1440</span>. Frames are real iframes at exact CSS widths. This is the first sprint to ship a real admin screen — S0 built only the bare <code class="tiny">.adm</code> shell, so the mobile drawer nav, the mandatory &lt;640px table/filter fallbacks, and the two-pane editor's own breakpoint are all exercised here for the first time. Verified with headless Chrome (<code class="tiny">body.scrollWidth === clientWidth</code>) at 390/820/900/1440 on all four files — zero overflow.</p>
+    <p class="tiny">Continuity with earlier sprints: the MCQ editor holds the exact Q7 quadratic from Weekly Quant Sprint #27 (S5's <code class="tiny">review.html</code>), corrected to the right answer (19, not the guideline's broken 21); the TITA editor holds the milk-mixture question from S2's <code class="tiny">run-tita.html</code> (locked at 25.6); the passage group holds the same tank-irrigation passage from S3's <code class="tiny">run-passage.html</code> (Reading Comprehension Set 12); and console-home's bank stat (88 unused this week) and the "41 unused Medium" warning both reconcile with bank.html's filtered state.</p>
+  </div>
+
+  <section>
+    <h2>Console home</h2>
+    <p class="tiny">Needs-attention alerts plus quick links into each section. The admin drawer (<code class="tiny">&lt;900px</code>, a real zero-JS <code class="tiny">&lt;details&gt;</code> disclosure) replaces the persistent sidebar shown at 1440.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/console-home.html" title="Console home at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/console-home.html" title="Console home at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/console-home.html" title="Console home at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Question bank — browse, filtered, empty</h2>
+    <p class="tiny">data-table A (dense, sticky header) + C (mobile card, mandatory &lt;640px) · filter-bar A (chips) + C (sheet, mandatory &lt;640px, a real <code class="tiny">&lt;details&gt;</code>) · pagination A (load more). The dense table scrolls on its own horizontal axis from 640px up — that is the one permitted exception to "no horizontal scrolling", and it is what the mobile card fallback exists to avoid below 640px.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone (card fallback)</figcaption><div class="shell"><iframe src="admin/bank.html" title="Bank at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet (dense table)</figcaption><div class="shell"><iframe src="admin/bank.html" title="Bank at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/bank.html" title="Bank at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Question editor — MCQ, TITA, validation error</h2>
+    <p class="tiny">question-editor A (two-pane, edit left / preview right). The guideline calls for the split at "&ge;1000px" — not one of this build's three breakpoints — so it lands at 1280px instead (stacks below that, per SYSTEM-GAPS #32). Check that 820 stacks and 1440 splits.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone (stacked)</figcaption><div class="shell"><iframe src="admin/item-editor.html" title="Editor at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet (stacked)</figcaption><div class="shell"><iframe src="admin/item-editor.html" title="Editor at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop (two-pane)</figcaption><div class="shell"><iframe src="admin/item-editor.html" title="Editor at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Passage group detail</h2>
+    <p class="tiny">passage-group-card A (header + child rows) — a passage and its 4&ndash;5 questions as one indivisible unit, plus the validation-error state for a group of 2 (BANK-6 requires 4&ndash;5).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/passage-group.html" title="Passage group at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/passage-group.html" title="Passage group at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/passage-group.html" title="Passage group at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

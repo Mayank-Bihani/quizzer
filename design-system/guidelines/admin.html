@@ -1,0 +1,942 @@
+<!-- @dsCard group="Components" viewport="1280x760" name="Batch 5 — Admin console" subtitle="CSV import, bank rows, question editor, builder wizard, scoring, schedule, room code, reports, admins" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quizzer — Admin (Batch 5)</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+*{box-sizing:border-box;min-width:0}
+html{scroll-behavior:smooth;scroll-padding-top:24px;background:var(--amb-base)}
+body{margin:0;font:var(--type-body);color:var(--text-1)}
+body::before{content:"";position:fixed;inset:0;background:var(--amb-b);z-index:-2}
+.wrap{display:grid;grid-template-columns:236px minmax(0,1fr);gap:var(--sp-9);max-width:1360px;margin:0 auto;padding:var(--sp-9) var(--sp-8) var(--sp-13)}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;gap:var(--sp-6);padding:var(--sp-6)}}
+.toc{position:sticky;top:var(--sp-6);align-self:start;background:var(--glass-bg);backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));-webkit-backdrop-filter:blur(var(--glass-blur)) saturate(var(--glass-sat));border:var(--glass-border);box-shadow:var(--glass-shadow),var(--glass-ring);border-radius:var(--r-lg);padding:var(--sp-6);max-height:calc(100vh - var(--sp-11));overflow:auto}
+.toc h4{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin:0 0 var(--sp-4)}
+.toc a{display:block;font:var(--type-body-sm);color:var(--text-2);text-decoration:none;padding:5px var(--sp-3);border-radius:var(--r-sm)}
+.toc a:hover{background:var(--accent-50);color:var(--text-link-hover)}
+a{color:var(--text-link)}a:hover{color:var(--text-link-hover)}
+.eyebrow{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--accent-600)}
+h1{font:var(--type-display);letter-spacing:var(--ls-tight);margin:var(--sp-3) 0 var(--sp-4)}
+.lede{font:var(--type-body);color:var(--text-2);max-width:76ch;text-wrap:pretty}
+section{margin-bottom:var(--sp-12);scroll-margin-top:var(--sp-8)}
+h2{font:var(--type-h1);letter-spacing:var(--ls-snug);margin:0 0 var(--sp-2);display:flex;align-items:baseline;gap:var(--sp-4);flex-wrap:wrap}
+h2 .kb{font:var(--fw-medium) var(--fs-13)/1 var(--font-num);color:var(--text-3)}
+h3{font:var(--type-h2);margin:var(--sp-8) 0 var(--sp-4)}
+p.note{font:var(--type-body-sm);color:var(--text-2);max-width:82ch;margin:var(--sp-3) 0;text-wrap:pretty}
+code,.tok{font:var(--fw-medium) var(--fs-12)/1.4 var(--font-num);color:var(--text-2);background:rgba(16,24,40,.05);padding:1px 5px;border-radius:var(--r-xs);white-space:nowrap}
+.tokens-used{font:var(--type-caption);color:var(--text-3);margin-top:var(--sp-5);padding-top:var(--sp-4);border-top:var(--hairline);display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-3);align-items:baseline}
+.tokens-used b{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3)}
+.card{background:var(--surface-raised);border:1px solid var(--border-1);box-shadow:var(--elev-2);border-radius:var(--r-lg);padding:var(--sp-7)}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-6);align-items:start}
+@media(max-width:1200px){.trio{grid-template-columns:1fr}}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-6);align-items:start}
+@media(max-width:900px){.duo{grid-template-columns:1fr}}
+.vh{display:flex;flex-direction:column;gap:var(--sp-4)}
+.vlabel{display:flex;align-items:center;gap:var(--sp-4)}
+.vbadge{width:26px;height:26px;flex:0 0 26px;border-radius:var(--r-sm);background:var(--n-900);color:var(--n-0);font:var(--fw-semibold) var(--fs-13)/26px var(--font-ui);text-align:center}
+.vname{font:var(--type-h3)}
+.vmeta{font:var(--type-caption);color:var(--text-2);display:grid;gap:3px}
+.vmeta i{font-style:normal;color:var(--text-3);font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;margin-right:6px}
+.wlabel{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);margin-bottom:var(--sp-3)}
+.stack{display:flex;flex-direction:column;gap:var(--sp-4)}
+.rowflex{display:flex;gap:var(--sp-4);flex-wrap:wrap;align-items:center}
+.tiny{font:var(--type-caption);color:var(--text-3)}
+.num{font-variant-numeric:var(--numeric-features);font-family:var(--font-num)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-3);min-height:var(--tap-min);padding:0 var(--sp-6);border-radius:var(--r-md);border:1px solid transparent;font:var(--type-option);cursor:pointer;background:var(--action-primary-bg);color:var(--action-primary-fg)}
+.btn.sec{background:var(--action-secondary-bg);color:var(--action-secondary-fg);border-color:var(--action-secondary-border)}
+.btn.ghost{background:transparent;color:var(--action-ghost-fg)}
+.btn.dgr{background:var(--action-danger-bg)}
+.btn.sm{min-height:36px;padding:0 var(--sp-5);font:var(--type-label)}
+.btn[disabled]{background:var(--action-disabled-bg);color:var(--action-disabled-fg);cursor:not-allowed}
+.badge{display:inline-flex;align-items:center;gap:var(--sp-2);padding:4px 10px;border-radius:var(--r-pill);font:var(--type-label);border:1px solid transparent;white-space:nowrap}
+.b-square{border-radius:var(--r-xs);text-transform:uppercase;letter-spacing:var(--ls-caps);font:var(--type-overline);padding:4px 7px}
+.b-sec{color:#fff}
+.b-draft{color:var(--status-neutral-fg);background:var(--status-neutral-bg);border-color:var(--status-neutral-border)}
+.b-sched{color:var(--status-info-fg);background:var(--status-info-bg);border-color:var(--status-info-border)}
+.b-open{color:var(--status-success-fg);background:var(--status-success-bg);border-color:var(--status-success-border)}
+.b-live{color:#fff;background:var(--danger-600)}
+.b-closed{color:var(--text-3);background:transparent;border-color:var(--border-2)}
+.b-easy{color:var(--success-700);background:var(--success-50);border-color:var(--success-100)}
+.b-med{color:var(--warning-700);background:var(--warning-50);border-color:var(--warning-100)}
+.b-hard{color:var(--danger-700);background:var(--danger-50);border-color:var(--danger-100)}
+.b-unused{color:var(--accent-700);background:var(--accent-50);border-color:var(--accent-100)}
+.b-used{color:var(--text-2);background:var(--n-100);border-color:var(--n-200)}
+.b-retired{color:var(--text-3);background:transparent;border-color:var(--border-2);border-style:dashed}
+.inp{width:100%;min-height:var(--tap-min);padding:0 var(--sp-5);border-radius:var(--r-md);border:1px solid var(--border-2);background:#fff;font:var(--type-body)}
+textarea.inp{min-height:78px;padding:var(--sp-4) var(--sp-5);line-height:var(--lh-normal);font-family:var(--font-num);font-size:var(--fs-13)}
+.field{display:grid;gap:var(--sp-3)}
+.flabel{font:var(--type-label)}
+.solid{border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:var(--sp-3)}
+.sunken{border-radius:var(--r-md);background:var(--n-50);border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:var(--sp-3)}
+table.dt{width:100%;border-collapse:separate;border-spacing:0;font:var(--type-table);background:#fff;border:1px solid var(--border-1);border-radius:var(--r-md);overflow:hidden}
+table.dt th{position:sticky;top:0;background:var(--n-50);text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2);white-space:nowrap}
+table.dt td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:0}
+table.dt td.n,table.dt th.n{text-align:right;font-family:var(--font-num);font-variant-numeric:var(--numeric-features)}
+table.dt tr.bad td{background:var(--danger-50)}
+table.dt tr.warn td{background:var(--warning-50)}
+table.dt tr.ok td{background:#fff}
+.ln{font-family:var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-3);font-size:var(--fs-12)}
+.tscroll{max-height:230px;overflow:auto;border-radius:var(--r-md)}
+.math{font-family:var(--font-math);font-style:italic}
+.math sup{font-style:normal;font-size:.7em}
+.stem{font:var(--type-body-sm)}
+.alert{display:flex;gap:var(--sp-4);padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);font:var(--type-body-sm);border:1px solid transparent;align-items:flex-start}
+.a-dgr{color:var(--status-danger-fg);background:var(--status-danger-bg);border-color:var(--status-danger-border)}
+.a-warn{color:var(--status-warning-fg);background:var(--status-warning-bg);border-color:var(--status-warning-border)}
+.a-ok{color:var(--status-success-fg);background:var(--status-success-bg);border-color:var(--status-success-border)}
+.a-info{color:var(--status-info-fg);background:var(--status-info-bg);border-color:var(--status-info-border)}
+.commitbar{display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);background:var(--glass-bg-strong);border:1px solid var(--border-2);box-shadow:var(--elev-3);flex-wrap:wrap}
+.steps{display:flex;align-items:center;gap:var(--sp-3);flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:var(--sp-3);font:var(--type-label);color:var(--text-3)}
+.step .n{width:24px;height:24px;border-radius:50%;border:1px solid var(--border-2);display:grid;place-items:center;font:var(--fw-semibold) var(--fs-12)/1 var(--font-num);background:#fff}
+.step.done{color:var(--text-2)}.step.done .n{background:var(--success-500);border-color:var(--success-500);color:#fff}
+.step.on{color:var(--text-1);font-weight:var(--fw-semibold)}.step.on .n{background:var(--accent-500);border-color:var(--accent-500);color:#fff}
+.step .sep{width:18px;height:1px;background:var(--border-2)}
+.mix{display:grid;gap:var(--sp-3)}
+.mixrow{display:grid;grid-template-columns:66px 1fr 56px;gap:var(--sp-4);align-items:center;font:var(--type-body-sm)}
+.mixbar{height:12px;border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.mixbar i{display:block;height:100%;border-radius:var(--r-pill)}
+.stackbar{display:flex;height:16px;border-radius:var(--r-pill);overflow:hidden;background:var(--n-100)}
+input[type=range]{width:100%;accent-color:var(--accent-500)}
+.chip{display:inline-flex;align-items:center;gap:var(--sp-2);padding:6px 11px;border-radius:var(--r-pill);border:1px solid var(--border-2);background:#fff;font:var(--type-label);color:var(--text-2);cursor:pointer}
+.chip.on{background:var(--accent-50);border-color:var(--accent-300);color:var(--accent-700)}
+.code{font:var(--fw-semibold) var(--fs-48)/1 var(--font-num);font-variant-numeric:var(--numeric-features);letter-spacing:.06em}
+.codebox{display:grid;gap:var(--sp-4);justify-items:center;padding:var(--sp-6);border-radius:var(--r-lg);background:var(--n-900);color:#fff}
+.codebox .tiny{color:rgba(255,255,255,.6)}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp-3)}
+.tile{border-radius:var(--r-md);background:#fff;border:1px solid var(--border-1);padding:var(--sp-4);display:grid;gap:2px}
+.tile .v{font:var(--type-numeric);font-variant-numeric:var(--numeric-features)}
+.tile .l{font:var(--type-caption);color:var(--text-3)}
+.qrow{display:grid;grid-template-columns:24px 1fr auto auto auto auto;gap:var(--sp-4);align-items:center;padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);font:var(--type-table)}
+.mobcard{border:1px solid var(--border-1);border-radius:var(--r-md);background:#fff;padding:var(--sp-4);display:grid;gap:var(--sp-3);max-width:343px}
+.itembar{height:8px;border-radius:var(--r-pill);background:var(--n-100);overflow:hidden}
+.itembar i{display:block;height:100%;border-radius:var(--r-pill)}
+.state{display:grid;gap:var(--sp-4);justify-items:center;text-align:center;padding:var(--sp-6);border-radius:var(--r-md);background:var(--n-25);border:1px solid var(--border-1)}
+.state img{width:104px;height:auto}
+.state h5{font:var(--type-h3);margin:0}
+.state p{font:var(--type-body-sm);color:var(--text-2);margin:0;max-width:34ch}
+.spec{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+.spec th{text-align:left;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-2)}
+.spec td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);vertical-align:top}
+table.pick{width:100%;border-collapse:collapse;font:var(--type-body-sm)}
+table.pick th{font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--text-3);text-align:left;padding:var(--sp-4);border-bottom:1px solid var(--border-2)}
+table.pick th.c,table.pick td.c{text-align:center;width:64px}
+table.pick td{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1)}
+table.pick td.name{font-family:var(--font-num);font-size:var(--fs-12)}
+table.pick input{width:18px;height:18px;accent-color:var(--accent-500)}
+ul.oq{max-width:82ch;padding-left:var(--sp-7);font:var(--type-body-sm);color:var(--text-2)}
+ul.oq li{margin-bottom:var(--sp-3);text-wrap:pretty}
+.flag{display:inline-block;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--status-warning-fg);background:var(--status-warning-bg);border:1px solid var(--status-warning-border);padding:2px 6px;border-radius:var(--r-xs);margin-right:var(--sp-3)}
+.spec-flag{display:inline-block;font:var(--type-overline);letter-spacing:var(--ls-caps);text-transform:uppercase;color:var(--status-info-fg);background:var(--status-info-bg);border:1px solid var(--status-info-border);padding:2px 6px;border-radius:var(--r-xs);margin-right:var(--sp-3)}
+.rule{display:flex;gap:var(--sp-4);align-items:flex-start;padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);background:var(--status-danger-bg);border:1px solid var(--status-danger-border);color:var(--status-danger-fg);font:var(--type-body-sm);max-width:84ch}
+.pgroup{border:1px solid var(--border-2);border-radius:var(--r-md);background:#fff;overflow:hidden}
+.pgroup .head{padding:var(--sp-4);background:var(--n-50);border-bottom:1px solid var(--border-1);display:grid;gap:var(--sp-2)}
+.pgroup .child{padding:var(--sp-3) var(--sp-4);border-bottom:1px solid var(--border-1);display:flex;gap:var(--sp-4);align-items:center;font:var(--type-table)}
+.pgroup .child:last-child{border-bottom:0}
+.lockbar{border-left:3px solid var(--sec-quant);padding-left:var(--sp-4)}
+</style></head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+<h4>Batch 5 · Bank &amp; import</h4>
+<a href="#validation">csv-validation-preview <b>[3]</b></a>
+<a href="#errsum">import-error-summary <b>[3]</b></a>
+<a href="#commit">import-commit-bar <b>[3]</b></a>
+<a href="#qrow">question-row <b>[3]</b></a>
+<a href="#editor">question-editor <b>[3]</b></a>
+<a href="#passage">passage-group-card <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Builder</h4>
+<a href="#wizard">quiz-builder-wizard <b>[3]</b></a>
+<a href="#mix">difficulty-mix-control <b>[3]</b></a>
+<a href="#composition">composition-report <b>[3]</b></a>
+<a href="#draw">draw-preview <b>[3]</b></a>
+<a href="#scoring">scoring-parameter-panel <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Schedule</h4>
+<a href="#schedule">schedule-picker <b>[3]</b></a>
+<a href="#recurrence">recurrence-editor <b>[3]</b></a>
+<a href="#roomcode">room-code-display <b>[3]</b></a>
+<a href="#quizcard">quiz-card-schedule <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Reports &amp; admins</h4>
+<a href="#reporttiles">report-summary-tiles <b>[3]</b></a>
+<a href="#participants">participants-table <b>[3]</b></a>
+<a href="#itemrow">item-analysis-row <b>[3]</b></a>
+<a href="#export">export-action <b>[3]</b></a>
+<a href="#admins">manage-admins-row <b>[3]</b></a>
+<a href="#monitor">live-quiz-monitor <b>[3]</b></a>
+<h4 style="margin-top:var(--sp-5)">Hand back</h4>
+<a href="#pick">Pick sheet</a><a href="#open">Open questions</a>
+<h4 style="margin-top:var(--sp-5)">Other artifacts</h4>
+<a href="foundations.html">← Batch 1</a><a href="primitives-forms.html">← Batch 2a</a><a href="layout-feedback.html">← Batch 2b</a><a href="live-run.html">← Batch 3</a><a href="results-review.html">← Batch 4</a>
+</nav>
+
+<main>
+<header style="margin-bottom:var(--sp-9)">
+<div class="eyebrow">Quizzer Design System · Artifact 5 of 5</div>
+<h1>Admin console</h1>
+<p class="lede">Desktop-first. The admin surface uses the same tokens but a different surface strategy: <strong>ambient B (flat wash) and glass recipe B (solid-leaning)</strong>, because these views hold long tables, line-numbered errors and six-figure numbers where translucency is a liability. Glass is reserved for the commit bar and dialogs.</p>
+<div class="rule" style="margin-top:var(--sp-5)"><span>■</span><div><b>Two irreversible acts, both surfaced in the component.</b> <b>Committing an import</b> writes rows to the bank — nothing is written until commit, and every variant of the commit bar says so. <b>Locking a quiz</b> permanently retires its questions: they can never be drawn again. Both use Batch 2b's <code>destructive-confirm</code> — type-to-confirm for the lock.</div></div>
+<p class="note">Sample marks scheme throughout, matching Batch 4: <code>+3</code> correct, <code>−1</code> wrong, up to <code>+0.5</code> speed bonus per question, so a 20-question quiz is out of 60.</p>
+</header>
+
+<section id="validation">
+<h2>csv-validation-preview <span class="flag">3 variants</span><span class="kb">valid rows alongside errors, by line number</span></h2>
+<p class="note">The import table's job is to make a 400-row file triageable. Errors are always identified by <strong>CSV line number</strong> (not row index), name the offending column, and quote the offending value. States: all-valid, mixed, all-invalid, and still-parsing.</p>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Single table, rows tinted by status</div></div>
+<div class="vmeta"><div><i>trades</i>Keeps file order so an admin can fix the CSV alongside it; errors are scattered through 400 rows.</div><div><i>use</i>Default.</div></div>
+<div class="tscroll"><table class="dt"><thead><tr><th class="n">Line</th><th>Stem</th><th>Sec</th><th>Diff</th><th>Status</th></tr></thead><tbody>
+<tr class="ok"><td class="n">2</td><td>If <span class="math">x<sup>2</sup>−5x+6=0</span>…</td><td>Quant</td><td>Med</td><td><span class="badge b-open">✓ Valid</span></td></tr>
+<tr class="ok"><td class="n">3</td><td>Closest antonym for OBDURATE</td><td>Verbal</td><td>Easy</td><td><span class="badge b-open">✓ Valid</span></td></tr>
+<tr class="bad"><td class="n">4</td><td>Six friends sit in a row…</td><td>LR</td><td>—</td><td><span class="badge b-hard">✕ <code>difficulty</code> empty</span></td></tr>
+<tr class="warn"><td class="n">5</td><td>A train travels 240 km…</td><td>Quant</td><td>Easy</td><td><span class="badge b-med">▲ image <code>train.png</code> not in ZIP</span></td></tr>
+<tr class="bad"><td class="n">6</td><td>Assertion–Reason: …</td><td>LR</td><td>Hard</td><td><span class="badge b-hard">✕ <code>correct_option</code> = “E”</span></td></tr>
+<tr class="ok"><td class="n">7</td><td>What is <span class="math">√1764</span>?</td><td>Quant</td><td>Easy</td><td><span class="badge b-open">✓ Valid</span></td></tr>
+</tbody></table></div>
+<div class="rowflex"><span class="chip on">All 412</span><span class="chip">✓ 396</span><span class="chip">✕ 11</span><span class="chip">▲ 5</span></div>
+</div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Errors first, valid collapsed</div></div>
+<div class="vmeta"><div><i>trades</i>Shortest path to fixing the file; loses file order, so the admin has to jump around the CSV.</div><div><i>use</i>Large imports with few errors.</div></div>
+<div class="stack">
+<div class="alert a-dgr"><span>✕</span><div><b>11 rows cannot be imported</b><div>Fix these lines in the CSV and re-upload, or import the 396 valid rows now.</div></div></div>
+<table class="dt"><thead><tr><th class="n">Line</th><th>Problem</th><th>Column</th></tr></thead><tbody>
+<tr class="bad"><td class="n">4</td><td><code>difficulty</code> is empty</td><td class="ln">difficulty</td></tr>
+<tr class="bad"><td class="n">6</td><td>Value “E” is not one of A–D</td><td class="ln">correct_option</td></tr>
+<tr class="bad"><td class="n">47</td><td>TITA row has no <code>tolerance</code></td><td class="ln">tolerance</td></tr>
+<tr class="bad"><td class="n">88</td><td>Passage id “RC-3” has only 2 child rows (needs 4–5)</td><td class="ln">passage_id</td></tr>
+</tbody></table>
+<button class="btn sec sm">Show 396 valid rows ▾</button>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Split panes, synced</div></div>
+<div class="vmeta"><div><i>trades</i>Raw CSV line beside the parsed result — fastest for diagnosing a quoting or delimiter problem; widest layout, desktop only.</div><div><i>use</i>If malformed CSVs turn out to be common.</div></div>
+<div class="duo" style="gap:var(--sp-4)">
+<div class="sunken"><span class="wlabel" style="margin:0">Raw CSV</span><textarea class="inp" readonly style="min-height:150px">1  stem,section,difficulty,correct_option
+2  "If $x^2-5x+6=0$…",Quant,medium,C
+3  "Closest antonym…",Verbal,easy,B
+4  "Six friends sit…",LR,,A
+5  "A train travels…",Quant,easy,B</textarea></div>
+<div class="solid"><span class="wlabel" style="margin:0">Parsed</span>
+<div class="rowflex"><span class="ln">line 4</span><span class="badge b-hard">✕ difficulty empty</span></div>
+<div class="stem">Six friends sit in a row facing north…</div>
+<div class="rowflex"><span class="badge b-sec" style="background:var(--sec-lr)">LR</span><span class="badge b-draft">difficulty missing</span></div>
+<div class="rowflex"><button class="btn sm">Set to Medium</button><button class="btn sec sm">Skip this row</button></div>
+</div></div>
+<span class="tiny">Inline fixes are applied to the staged import only — the source CSV is never modified.</span>
+</div>
+</div>
+<h3>Other states</h3>
+<div class="trio">
+<div class="card"><span class="wlabel">All valid</span><div class="alert a-ok"><span>✓</span><div><b>All 412 rows valid.</b><div>Ready to commit — 412 questions will be added to the bank.</div></div></div></div>
+<div class="card"><span class="wlabel">Still parsing</span><div class="stack"><div class="rowflex"><span class="tiny">Reading 412 of 412 rows…</span></div><div class="itembar"><i style="width:74%;background:var(--accent-500)"></i></div><span class="tiny">Validation runs in the browser; nothing is uploaded until you commit.</span></div></div>
+<div class="card"><span class="wlabel">Nothing importable</span><div class="alert a-dgr"><span>✕</span><div><b>No valid rows</b><div>The header row doesn't match the template. Expected <code>stem, section, difficulty, correct_option…</code></div></div></div><button class="btn sec sm" style="margin-top:var(--sp-4)">Download template</button></div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--danger-50</span><span class="tok">--warning-50</span><span class="tok">--type-table</span><span class="tok">--font-num</span><span class="tok">--n-50</span><span class="tok">--status-*</span></div>
+</section>
+
+<section id="errsum">
+<h2>import-error-summary <span class="flag">3 variants</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Grouped by cause</div></div>
+<div class="vmeta"><div><i>trades</i>Shows that 11 errors are really 3 problems, which is usually one CSV formula away from fixed; hides individual lines until expanded.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span><b>6 ×</b> <code>difficulty</code> empty</span><span class="tiny">lines 4, 12, 19, 44, 51, 90 ▾</span></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span><b>3 ×</b> <code>correct_option</code> not A–D</span><span class="tiny">lines 6, 33, 71 ▾</span></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span><b>2 ×</b> passage group incomplete</span><span class="tiny">lines 88, 104 ▾</span></div></div>
+<div class="rowflex"><button class="btn sec sm">Copy line numbers</button><button class="btn ghost sm">Download error report (CSV)</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Flat count strip</div></div>
+<div class="vmeta"><div><i>trades</i>One line of chrome above the table; no diagnosis.</div><div><i>use</i>When paired with validation variant A, which already shows the detail.</div></div>
+<div class="stack">
+<div class="rowflex"><span class="badge b-open">✓ 396 valid</span><span class="badge b-hard">✕ 11 errors</span><span class="badge b-med">▲ 5 warnings</span><span class="tiny">412 rows read</span></div>
+<div class="stackbar"><span style="width:96%;background:var(--success-500)"></span><span style="width:3%;background:var(--danger-500)"></span><span style="width:1%;background:var(--warning-500)"></span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Blocking checklist</div></div>
+<div class="vmeta"><div><i>trades</i>Makes the requirements explicit and teachable; reads as bureaucratic on a clean file.</div><div><i>use</i>First import by a new admin.</div></div>
+<div class="stack">
+<div class="rowflex"><span style="color:var(--success-600)">✓</span><span class="tiny">Header row matches template</span></div>
+<div class="rowflex"><span style="color:var(--success-600)">✓</span><span class="tiny">All sections are Verbal / Quant / LR</span></div>
+<div class="rowflex"><span style="color:var(--danger-600)">✕</span><span class="tiny">Every row has a difficulty — <b>6 missing</b></span></div>
+<div class="rowflex"><span style="color:var(--danger-600)">✕</span><span class="tiny">MCQ answers are A–D — <b>3 invalid</b></span></div>
+<div class="rowflex"><span style="color:var(--warning-600)">▲</span><span class="tiny">Referenced images exist in the ZIP — <b>5 missing</b> (imports without image)</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="commit">
+<h2>import-commit-bar <span class="flag">3 variants</span><span class="kb">nothing is written until confirmed</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Sticky footer bar</div></div>
+<div class="vmeta"><div><i>trades</i>Always reachable while scrolling 400 rows, and states the write count in the button; covers the last table row.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="commitbar"><span class="tiny" style="flex:1">Nothing has been written yet. Committing adds <b>396 questions</b> to the bank; 11 error rows are skipped.</span><button class="btn sec sm">Cancel import</button><button class="btn sm">Commit 396 rows</button></div>
+<div class="commitbar"><span class="tiny" style="flex:1">Committing…</span><div style="flex:2"><div class="itembar"><i style="width:42%;background:var(--accent-500)"></i></div></div><span class="tiny num">166 / 396</span></div>
+<div class="commitbar" style="border-color:var(--success-100);background:var(--success-50)"><span class="tiny" style="flex:1;color:var(--status-success-fg)">✓ 396 questions added to the bank. 11 rows skipped.</span><button class="btn sec sm">Download skipped rows</button><button class="btn sm">Open bank</button></div>
+<div class="commitbar" style="border-color:var(--danger-100);background:var(--danger-50)"><span class="tiny" style="flex:1;color:var(--status-danger-fg)">✕ Commit failed at row 212 — nothing was written. The bank is unchanged.</span><button class="btn sm">Retry</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Two-step summary panel</div></div>
+<div class="vmeta"><div><i>trades</i>Restates exactly what will happen on its own screen, so a large import is never a single click; an extra step every time.</div><div><i>use</i>Imports over ~200 rows.</div></div>
+<div class="stack">
+<div class="solid"><span class="wlabel" style="margin:0">Confirm import</span>
+<table class="spec"><tbody>
+<tr><td>Questions added</td><td class="num" style="text-align:right">396</td></tr>
+<tr><td>Rows skipped (errors)</td><td class="num" style="text-align:right">11</td></tr>
+<tr><td>Images attached</td><td class="num" style="text-align:right">38</td></tr>
+<tr><td>Passage groups created</td><td class="num" style="text-align:right">7</td></tr>
+</tbody></table>
+<span class="tiny">This cannot be undone in bulk — questions must then be deleted individually.</span>
+<div class="rowflex"><button class="btn sm">Write 396 questions</button><button class="btn ghost sm">Back</button></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Inline per-row commit</div></div>
+<div class="vmeta"><div><i>trades</i>Fine-grained control over which rows land; unusable at 400 rows and makes "nothing is written until commit" impossible to promise.</div><div><i>use</i>Not recommended — included to be ruled out.</div></div>
+<div class="stack">
+<div class="rowflex"><span class="ln">line 2</span><span class="tiny" style="flex:1">If x²−5x+6=0…</span><button class="btn sm">Add</button></div>
+<div class="rowflex"><span class="ln">line 3</span><span class="tiny" style="flex:1">Closest antonym…</span><button class="btn sm">Add</button></div>
+<span class="tiny" style="color:var(--status-warning-fg)">▲ Partial writes leave the bank in an unknown state mid-import.</span>
+</div></div>
+</div>
+</section>
+
+<section id="qrow">
+<h2>question-row <span class="flag">3 variants</span><span class="kb">table row + mobile card · stem preview with LaTeX, section, topic, difficulty, used/unused, image indicator</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Dense table row</div></div>
+<div class="vmeta"><div><i>trades</i>Most rows per screen and sortable on every column; stem truncates to one line.</div><div><i>use</i>Default in the bank.</div></div>
+<table class="dt"><thead><tr><th style="width:24px"><input type="checkbox"></th><th>Stem</th><th>Section</th><th>Topic</th><th>Diff</th><th class="n">Used</th><th></th></tr></thead><tbody>
+<tr><td><input type="checkbox"></td><td>If <span class="math">x<sup>2</sup>−5x+6=0</span> and <span class="math">x&gt;2</span>…</td><td><span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span></td><td>Quadratics</td><td><span class="badge b-square b-med">M</span></td><td class="n">3</td><td class="tiny">▤</td></tr>
+<tr><td><input type="checkbox"></td><td>Closest antonym for OBDURATE</td><td><span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span></td><td>Vocabulary</td><td><span class="badge b-square b-easy">E</span></td><td class="n">11</td><td></td></tr>
+<tr><td><input type="checkbox"></td><td>Six friends sit in a row facing north…</td><td><span class="badge b-square b-sec" style="background:var(--sec-lr)">LR</span></td><td>Seating</td><td><span class="badge b-square b-hard">H</span></td><td class="n">0</td><td></td></tr>
+<tr style="opacity:.6"><td><input type="checkbox" disabled></td><td>A train travels 240 km…</td><td><span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span></td><td>Speed</td><td><span class="badge b-square b-easy">E</span></td><td class="n">1</td><td><span class="badge b-retired">Retired</span></td></tr>
+</tbody></table>
+<span class="tiny">▤ = has an image. Retired rows (used in a locked quiz) are dimmed and not selectable.</span>
+</div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Two-line row with full stem</div></div>
+<div class="vmeta"><div><i>trades</i>Enough stem to recognise a question without opening it; ~40% fewer rows visible.</div><div><i>use</i>Reviewing an import or a topic.</div></div>
+<div class="solid" style="padding:0;gap:0">
+<div class="qrow" style="grid-template-columns:24px 1fr auto"><input type="checkbox"><div><div class="stem">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, find the value of <span class="math">x<sup>3</sup> − 8</span>.</div><div class="rowflex" style="gap:var(--sp-3);margin-top:4px"><span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span><span class="tiny">Quadratics</span><span class="badge b-square b-med">Medium</span><span class="badge b-used">Used ×3</span><span class="tiny">▤ image</span></div></div><span class="tiny">⋯</span></div>
+<div class="qrow" style="grid-template-columns:24px 1fr auto"><input type="checkbox"><div><div class="stem">Six friends sit in a row facing north. Ravi is not at either end…</div><div class="rowflex" style="gap:var(--sp-3);margin-top:4px"><span class="badge b-square b-sec" style="background:var(--sec-lr)">LR</span><span class="tiny">Seating</span><span class="badge b-square b-hard">Hard</span><span class="badge b-unused">Unused</span></div></div><span class="tiny">⋯</span></div>
+</div>
+</div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Mobile card (mandatory fallback)</div></div>
+<div class="vmeta"><div><i>trades</i>Same data at 375px with no horizontal scroll; no column comparison.</div><div><i>use</i>Below 640px for A and B.</div></div>
+<div class="stack">
+<div class="mobcard"><div class="rowflex" style="justify-content:space-between"><span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span><input type="checkbox"></div><div class="stem">If <span class="math">x<sup>2</sup>−5x+6=0</span> and <span class="math">x&gt;2</span>, find <span class="math">x<sup>3</sup>−8</span>.</div><div class="rowflex" style="gap:var(--sp-3)"><span class="tiny">Quadratics</span><span class="badge b-square b-med">M</span><span class="badge b-used">×3</span><span class="tiny">▤</span></div></div>
+<div class="mobcard" style="opacity:.6"><div class="rowflex" style="justify-content:space-between"><span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span><span class="badge b-retired">Retired</span></div><div class="stem">A train travels 240 km at a uniform speed…</div></div>
+</div></div>
+</div>
+</section>
+
+<section id="editor">
+<h2>question-editor <span class="flag">3 variants</span><span class="kb">MCQ (4 options, one correct) · TITA (answer + tolerance) · explanation with live LaTeX preview · image attach</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Two-pane: edit left, preview right</div></div>
+<div class="vmeta"><div><i>trades</i>Live student-eye preview of stem, options and explanation — the only way to catch broken LaTeX before a quiz; needs ≥1000px.</div><div><i>use</i>Default on desktop.</div></div>
+<div class="duo" style="gap:var(--sp-4)">
+<div class="stack">
+<div class="rowflex"><span class="chip on">MCQ</span><span class="chip">TITA</span></div>
+<div class="field"><span class="flabel">Stem</span><textarea class="inp">If $x^2-5x+6=0$ and $x&gt;2$, find $x^3-8$.</textarea></div>
+<div class="field"><span class="flabel">Options · pick the correct one</span>
+<div class="rowflex" style="flex-wrap:nowrap"><input type="radio" name="ce"><span class="ln">A</span><input class="inp" value="17"></div>
+<div class="rowflex" style="flex-wrap:nowrap"><input type="radio" name="ce"><span class="ln">B</span><input class="inp" value="19"></div>
+<div class="rowflex" style="flex-wrap:nowrap"><input type="radio" name="ce" checked><span class="ln">C</span><input class="inp" value="21"></div>
+<div class="rowflex" style="flex-wrap:nowrap"><input type="radio" name="ce"><span class="ln">D</span><input class="inp" value="23"></div>
+</div>
+<div class="field"><span class="flabel">Explanation</span><textarea class="inp">Factorising, $x=3$; so $x^3-8=21$.</textarea></div>
+<div class="rowflex"><button class="btn sec sm">▤ Attach image</button><span class="tiny">1 max · ≤ 2 MB</span></div>
+</div>
+<div class="sunken"><span class="wlabel" style="margin:0">Student preview</span>
+<div class="solid"><div class="stem" style="font:var(--type-stem)">If <span class="math">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, find <span class="math">x<sup>3</sup> − 8</span>.</div>
+<div class="rowflex" style="gap:var(--sp-3)"><span class="chip">A 17</span><span class="chip">B 19</span><span class="chip on">C 21 ✓</span><span class="chip">D 23</span></div>
+<div class="tiny">Explanation: Factorising, <span class="math">x = 3</span>; so <span class="math">x<sup>3</sup> − 8 = 21</span>.</div></div>
+<div class="alert a-ok"><span>✓</span><span>LaTeX parses. 4 options, one correct.</span></div>
+</div></div>
+</div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Single column, preview on demand</div></div>
+<div class="vmeta"><div><i>trades</i>Works at any width including a tablet; LaTeX errors are only caught when the admin remembers to preview.</div><div><i>use</i>Narrow screens, quick edits.</div></div>
+<div class="stack">
+<div class="rowflex"><span class="chip">MCQ</span><span class="chip on">TITA</span></div>
+<div class="field"><span class="flabel">Stem</span><textarea class="inp">Remainder when $7^{103}$ is divided by 5?</textarea></div>
+<div class="duo" style="gap:var(--sp-4)"><div class="field"><span class="flabel">Answer</span><input class="inp num" value="3"></div><div class="field"><span class="flabel">Tolerance ±</span><input class="inp num" value="0"></div></div>
+<div class="field"><span class="flabel">Explanation</span><textarea class="inp">Powers of 7 cycle mod 5 with period 4.</textarea></div>
+<div class="rowflex"><button class="btn sec sm">Preview as student</button><button class="btn sec sm">▤ Attach image</button></div>
+<div class="alert a-dgr"><span>✕</span><div><b>Unclosed <code>$</code> in the explanation</b><div>Line 2: <code>$7^{103}</code> — add a closing <code>$</code>.</div></div></div>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Inline WYSIWYG-ish field</div></div>
+<div class="vmeta"><div><i>trades</i>Renders math in place as you type, so there is no separate preview to forget; a rich editor is far more code and can mangle pasted LaTeX.</div><div><i>use</i>Only if admins reject the two-pane model.</div></div>
+<div class="stack">
+<div class="solid" style="min-height:96px"><span class="tiny">Stem — math renders inline as you type</span><div class="stem" style="font:var(--type-stem)">If <span class="math" style="background:var(--accent-50);border-radius:3px;padding:0 3px">x<sup>2</sup> − 5x + 6 = 0</span> and <span class="math" style="background:var(--accent-50);border-radius:3px;padding:0 3px">x &gt; 2</span>, find …<span style="display:inline-block;width:2px;height:16px;background:var(--accent-500);vertical-align:-3px"></span></div></div>
+<div class="rowflex"><button class="btn sec sm">∑ Insert math</button><button class="btn sec sm">▤ Image</button><span class="tiny">Tinted spans are math nodes</span></div>
+<span class="tiny" style="color:var(--status-warning-fg)">▲ Round-tripping to the CSV format is the risk here — the bank stores raw <code>$…$</code>.</span>
+</div></div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--font-math</span><span class="tok">--accent-50</span><span class="tok">--status-success/danger-*</span><span class="tok">--n-50</span><span class="tok">--type-stem</span></div>
+</section>
+
+<section id="passage">
+<h2>passage-group-card <span class="flag">3 variants</span><span class="kb">passage + its 4–5 child questions as one indivisible unit</span></h2>
+<p class="note">A passage group is drawn or retired as a whole — a set can never be split across quizzes. All three variants make the unit visible and show the child count, because a group of 3 or 6 is a validation error.</p>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Header + child rows</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the passage and every child at once; tall in a list of groups.</div><div><i>use</i>Default in the bank.</div></div>
+<div class="pgroup"><div class="head"><div class="rowflex" style="justify-content:space-between"><span class="rowflex" style="gap:var(--sp-3)"><span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span><b>RC-3 · The commons problem</b></span><span class="badge b-unused">Unused</span></div><div class="tiny">184 words · 4 questions · indivisible</div></div>
+<div class="child"><span class="ln">1</span><span style="flex:1">The author's attitude to the standard framing is…</span><span class="badge b-square b-med">M</span></div>
+<div class="child"><span class="ln">2</span><span style="flex:1">“Durable rights of access” most nearly means…</span><span class="badge b-square b-easy">E</span></div>
+<div class="child"><span class="ln">3</span><span style="flex:1">Which of the following would weaken the argument?</span><span class="badge b-square b-hard">H</span></div>
+<div class="child"><span class="ln">4</span><span style="flex:1">The passage implies that monitoring arrangements…</span><span class="badge b-square b-med">M</span></div>
+</div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Collapsed summary chip</div></div>
+<div class="vmeta"><div><i>trades</i>One row per group so 20 groups are scannable; the children are invisible until expanded.</div><div><i>use</i>Group lists and the draw preview.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="rowflex" style="gap:var(--sp-3)"><span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span><b>RC-3 · The commons problem</b><span class="badge b-draft">4 questions</span></span><span class="tiny">Unused ▾</span></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="rowflex" style="gap:var(--sp-3)"><span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span><b>RC-4 · Monsoon economics</b><span class="badge b-draft">5 questions</span></span><span class="tiny">Used ×2 ▾</span></div></div>
+<div class="solid" style="border-color:var(--danger-100);background:var(--danger-50)"><div class="rowflex" style="justify-content:space-between"><span class="rowflex" style="gap:var(--sp-3)"><b>RC-7 · Untitled</b><span class="badge b-hard">✕ only 2 questions</span></span><span class="tiny">Fix before use</span></div></div>
+</div></div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Side-by-side passage / questions</div></div>
+<div class="vmeta"><div><i>trades</i>Best for editing — passage text and children visible together; desktop only and wide.</div><div><i>use</i>The passage editor, not the list.</div></div>
+<div class="duo" style="gap:var(--sp-4)">
+<div class="sunken"><span class="wlabel" style="margin:0">Passage</span><div class="tiny" style="line-height:1.5">The commons problem is often framed as a failure of individual restraint, but the historical record suggests otherwise…</div><button class="btn sec sm">Edit passage</button></div>
+<div class="solid"><span class="wlabel" style="margin:0">4 questions</span>
+<div class="child" style="padding-left:0"><span class="ln">1</span><span style="flex:1">Author's attitude…</span></div>
+<div class="child" style="padding-left:0"><span class="ln">2</span><span style="flex:1">“Durable rights”…</span></div>
+<div class="child" style="padding-left:0"><span class="ln">3</span><span style="flex:1">Weakens the argument…</span></div>
+<div class="child" style="padding-left:0;border-bottom:0"><span class="ln">4</span><span style="flex:1">Implies monitoring…</span></div>
+<button class="btn sec sm">Add question <span class="tiny">(max 5)</span></button>
+</div></div>
+</div>
+</div>
+</section>
+
+<section id="wizard">
+<h2>quiz-builder-wizard <span class="flag">3 variants</span><span class="kb">define → draw → review → schedule → lock</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Horizontal stepper</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the whole path and where lock sits at the end; horizontal space limits step labels.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="steps"><span class="step done"><span class="n">✓</span>Define</span><span class="sep"></span><span class="step done"><span class="n">✓</span>Draw</span><span class="sep"></span><span class="step on"><span class="n">3</span>Review</span><span class="sep"></span><span class="step"><span class="n">4</span>Schedule</span><span class="sep"></span><span class="step"><span class="n">5</span>Lock</span></div>
+<div class="sunken" style="min-height:88px"><span class="tiny">Step 3 content — draw preview and composition report</span></div>
+<div class="rowflex" style="justify-content:space-between"><button class="btn sec sm">← Back</button><span class="tiny">Nothing is published until step 5</span><button class="btn sm">Continue</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Left rail checklist</div></div>
+<div class="vmeta"><div><i>trades</i>Room for sub-state per step ("18 of 20 drawn") and jumping back; costs 180px of width.</div><div><i>use</i>If the builder grows more steps.</div></div>
+<div class="duo" style="gap:var(--sp-4);grid-template-columns:170px 1fr">
+<div class="stack" style="gap:var(--sp-3)">
+<span class="step done"><span class="n">✓</span>Define</span>
+<span class="step done"><span class="n">✓</span>Draw <span class="tiny">20 / 20</span></span>
+<span class="step on"><span class="n">3</span>Review</span>
+<span class="step"><span class="n">4</span>Schedule</span>
+<span class="step"><span class="n">5</span>Lock</span>
+</div>
+<div class="sunken" style="min-height:120px"><span class="tiny">Step content</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Single scrolling form with anchors</div></div>
+<div class="vmeta"><div><i>trades</i>Everything visible and editable at once, fastest for a practised admin; loses the sense that lock is irreversible and final.</div><div><i>use</i>Duplicating a previous quiz.</div></div>
+<div class="stack">
+<div class="solid"><span class="wlabel" style="margin:0">1 · Define</span><span class="tiny">Name, section, question count</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">2 · Draw</span><span class="tiny">Difficulty mix, draw preview</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">3 · Review</span><span class="tiny">Composition report</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">4 · Schedule</span><span class="tiny">Date, window, recurrence</span></div>
+<div class="solid" style="border-color:var(--danger-100);background:var(--danger-50)"><span class="wlabel" style="margin:0;color:var(--status-danger-fg)">5 · Lock</span><span class="tiny" style="color:var(--status-danger-fg)">Retires 20 questions permanently</span></div>
+</div></div>
+</div>
+<p class="note">In all three: <strong>draw happens at build time, not at open time</strong> (assumed — see open questions), a quiz can be re-drawn any number of times before lock, and the lock step is the only place with a destructive confirm.</p>
+</section>
+
+<section id="mix">
+<h2>difficulty-mix-control <span class="flag">3 variants</span><span class="kb">distributing N questions across easy / medium / hard</span></h2>
+<p class="note">The constraint that makes this hard: the three numbers must total N, and the bank may not have enough unused questions in a bucket. Every variant shows availability, not just the target.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Three steppers + running total</div></div>
+<div class="vmeta"><div><i>trades</i>Exact and obvious; the admin does the arithmetic.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="mix">
+<div class="mixrow"><span>Easy</span><input type="range" value="30" min="0" max="100"><span class="num" style="text-align:right">6</span></div>
+<div class="mixrow"><span>Medium</span><input type="range" value="50" min="0" max="100"><span class="num" style="text-align:right">10</span></div>
+<div class="mixrow"><span>Hard</span><input type="range" value="20" min="0" max="100"><span class="num" style="text-align:right">4</span></div>
+</div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny">Total</span><span class="num" style="font:var(--type-label)">20 / 20 ✓</span></div>
+<div class="alert a-warn"><span>▲</span><span>Only <b>6 unused Hard</b> questions in Quant — asking for more will reuse questions.</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Single split bar (drag handles)</div></div>
+<div class="vmeta"><div><i>trades</i>The mix is always valid because the bar is N — no arithmetic possible; precise single-question adjustments are fiddly.</div><div><i>use</i>Recommended: the constraint is enforced by the control.</div></div>
+<div class="stack">
+<div class="stackbar" style="height:22px"><span style="width:30%;background:var(--success-500)"></span><span style="width:50%;background:var(--warning-500)"></span><span style="width:20%;background:var(--danger-500)"></span></div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny" style="color:var(--success-700)">Easy 6</span><span class="tiny" style="color:var(--warning-700)">Medium 10</span><span class="tiny" style="color:var(--danger-700)">Hard 4</span></div>
+<span class="tiny">Drag the two boundaries; the total is fixed at 20 by construction. Keyboard: arrow keys move one question.</span>
+<div class="rowflex"><span class="chip">Even 7/7/6</span><span class="chip on">Exam-like 6/10/4</span><span class="chip">Hard-heavy 4/8/8</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Preset only</div></div>
+<div class="vmeta"><div><i>trades</i>One decision instead of three, and every quiz in a series is comparable; no fine control at all.</div><div><i>use</i>If mixes should be standardised across the group.</div></div>
+<div class="stack">
+<div class="rowflex"><span class="chip on">Exam-like <span class="tiny">6/10/4</span></span><span class="chip">Warm-up <span class="tiny">10/8/2</span></span><span class="chip">Stretch <span class="tiny">2/8/10</span></span></div>
+<div class="mix">
+<div class="mixrow"><span class="tiny">Easy</span><span class="mixbar"><i style="width:30%;background:var(--success-500)"></i></span><span class="num tiny" style="text-align:right">6</span></div>
+<div class="mixrow"><span class="tiny">Medium</span><span class="mixbar"><i style="width:50%;background:var(--warning-500)"></i></span><span class="num tiny" style="text-align:right">10</span></div>
+<div class="mixrow"><span class="tiny">Hard</span><span class="mixbar"><i style="width:20%;background:var(--danger-500)"></i></span><span class="num tiny" style="text-align:right">4</span></div>
+</div>
+</div></div>
+</div>
+</section>
+
+<section id="composition">
+<h2>composition-report <span class="flag">3 variants</span><span class="kb">shown before locking · "4-question RC set + 3-question set + 13 standalone"</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Sentence + breakdown table</div></div>
+<div class="vmeta"><div><i>trades</i>Leads with the one sentence an admin will read, then backs it with numbers.</div><div><i>use</i>Default, on the review and lock steps.</div></div>
+<div class="stack">
+<div class="solid"><b>4-question RC set + 3-question set + 13 standalone = 20 questions</b><span class="tiny">Passage sets stay intact and appear consecutively in the run.</span></div>
+<table class="spec"><tbody>
+<tr><td>Passage sets</td><td class="num" style="text-align:right">2 (7 questions)</td></tr>
+<tr><td>Standalone</td><td class="num" style="text-align:right">13</td></tr>
+<tr><td>Easy / Medium / Hard</td><td class="num" style="text-align:right">6 / 10 / 4</td></tr>
+<tr><td>With images</td><td class="num" style="text-align:right">3</td></tr>
+<tr><td>TITA</td><td class="num" style="text-align:right">4</td></tr>
+<tr><td>Previously used</td><td class="num" style="text-align:right">0</td></tr>
+<tr><td>Max score</td><td class="num" style="text-align:right">60 + 10 bonus</td></tr>
+</tbody></table>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Visual question map</div></div>
+<div class="vmeta"><div><i>trades</i>Shows where the sets fall in the run order — a set at position 18 with 45s each is a design problem; needs a legend.</div><div><i>use</i>Recommended alongside A when sets are involved.</div></div>
+<div class="stack">
+<div class="rowflex" style="gap:3px">
+<span class="badge b-square b-easy">1</span><span class="badge b-square b-med">2</span><span class="badge b-square b-med">3</span><span class="badge b-square b-hard">4</span>
+<span class="badge b-square" style="background:var(--sec-verbal);color:#fff">5</span><span class="badge b-square" style="background:var(--sec-verbal);color:#fff">6</span><span class="badge b-square" style="background:var(--sec-verbal);color:#fff">7</span><span class="badge b-square" style="background:var(--sec-verbal);color:#fff">8</span>
+<span class="badge b-square b-easy">9</span><span class="badge b-square b-med">10</span><span class="badge b-square b-easy">11</span>
+<span class="badge b-square" style="background:var(--sec-verbal);color:#fff">12</span><span class="badge b-square" style="background:var(--sec-verbal);color:#fff">13</span><span class="badge b-square" style="background:var(--sec-verbal);color:#fff">14</span>
+<span class="badge b-square b-med">15</span><span class="badge b-square b-hard">16</span><span class="badge b-square b-med">17</span><span class="badge b-square b-easy">18</span><span class="badge b-square b-hard">19</span><span class="badge b-square b-med">20</span>
+</div>
+<div class="rowflex"><span class="tiny">Q5–8 = RC set 1</span><span class="tiny">Q12–14 = set 2</span><span class="tiny">Colour = difficulty; section fill = passage set</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Warnings-only</div></div>
+<div class="vmeta"><div><i>trades</i>Shows nothing when the composition is fine, which respects an experienced admin's time; no record of what was built.</div><div><i>use</i>Duplicated quizzes from a known-good template.</div></div>
+<div class="stack">
+<div class="alert a-warn"><span>▲</span><div><b>A 3-question set starts at Q12</b><div>Students get 45s per question, so this set allows 2:15 of total reading time.</div></div></div>
+<div class="alert a-warn"><span>▲</span><div><b>2 questions were used in the 7 Sep quiz</b></div></div>
+<div class="alert a-ok"><span>✓</span><span>Difficulty mix matches the target 6/10/4.</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="draw">
+<h2>draw-preview <span class="flag">3 variants</span><span class="kb">the picked questions + a re-draw affordance</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">List with per-row swap</div></div>
+<div class="vmeta"><div><i>trades</i>Surgical — swap one question without disturbing the rest; tempts an admin into hand-picking, which defeats the draw.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="rowflex" style="justify-content:space-between"><span class="tiny">Drawn 20 of 20 · seed <span class="num">a7f3</span></span><button class="btn sec sm">↻ Re-draw all</button></div>
+<div class="solid" style="padding:0;gap:0">
+<div class="qrow" style="grid-template-columns:28px 1fr auto auto"><span class="ln">1</span><span class="stem">If <span class="math">x<sup>2</sup>−5x+6=0</span>…</span><span class="badge b-square b-med">M</span><button class="btn ghost sm">↻</button></div>
+<div class="qrow" style="grid-template-columns:28px 1fr auto auto"><span class="ln">2</span><span class="stem">Closest antonym for OBDURATE</span><span class="badge b-square b-easy">E</span><button class="btn ghost sm">↻</button></div>
+<div class="qrow" style="grid-template-columns:28px 1fr auto auto;background:var(--accent-50)"><span class="ln">3</span><span class="stem">Six friends sit in a row… <span class="tiny">(swapped)</span></span><span class="badge b-square b-hard">H</span><button class="btn ghost sm">↻</button></div>
+<div class="qrow" style="grid-template-columns:28px 1fr auto auto;border-bottom:0"><span class="ln">4</span><span class="stem">RC-3 set · 4 questions <span class="tiny">indivisible</span></span><span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span><span class="tiny">—</span></div>
+</div>
+<span class="tiny">A passage set can only be re-drawn as a whole — its rows have no individual swap.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Summary + re-draw only</div></div>
+<div class="vmeta"><div><i>trades</i>Protects randomness — the admin accepts or re-draws, never curates; no way to remove one bad question without re-rolling everything.</div><div><i>use</i>If draws should be defensibly random.</div></div>
+<div class="stack">
+<div class="solid"><b>20 questions drawn</b><span class="tiny">6 easy · 10 medium · 4 hard · 2 passage sets · 0 previously used</span></div>
+<div class="rowflex"><button class="btn sec sm">↻ Re-draw</button><button class="btn sm">Accept draw</button></div>
+<span class="tiny">Draw 3 of 3 this session · seed <span class="num">a7f3</span></span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Side-by-side compare</div></div>
+<div class="vmeta"><div><i>trades</i>Keeps the previous draw so a re-roll is reversible; doubles the reading and only works for one step back.</div><div><i>use</i>If admins re-draw repeatedly and regret it.</div></div>
+<div class="duo" style="gap:var(--sp-4)">
+<div class="sunken"><span class="wlabel" style="margin:0">Previous · seed 3c11</span><span class="tiny">6/10/4 · 2 sets · 2 reused</span><button class="btn sec sm">Keep this</button></div>
+<div class="solid" style="border-color:var(--accent-300)"><span class="wlabel" style="margin:0">New · seed a7f3</span><span class="tiny">6/10/4 · 2 sets · 0 reused</span><button class="btn sm">Keep this</button></div>
+</div></div>
+</div>
+</section>
+
+<section id="scoring">
+<h2>scoring-parameter-panel <span class="flag">3 variants</span><span class="kb">6 numbers: seconds/question, grace, marks correct, marks wrong, max bonus, seat cap</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Field list + live decay curve</div></div>
+<div class="vmeta"><div><i>trades</i>The curve makes the grace window and bonus decay legible in a way six numbers never do; needs ~320px of width for the chart.</div><div><i>use</i>Default — recommended.</div></div>
+<div class="card stack">
+<div class="duo" style="gap:var(--sp-4)">
+<div class="stack" style="gap:var(--sp-3)">
+<div class="field"><span class="flabel">Seconds per question</span><input class="inp num" value="45"></div>
+<div class="field"><span class="flabel">Grace window</span><input class="inp num" value="10"></div>
+<div class="field"><span class="flabel">Marks, correct</span><input class="inp num" value="3"></div>
+<div class="field"><span class="flabel">Marks, wrong</span><input class="inp num" value="−1"></div>
+<div class="field"><span class="flabel">Max speed bonus</span><input class="inp num" value="0.5"></div>
+<div class="field"><span class="flabel">Seat cap</span><input class="inp num" value="100"></div>
+</div>
+<div class="sunken"><span class="wlabel" style="margin:0">Speed bonus over time</span>
+<svg viewBox="0 0 300 170" style="width:100%;height:auto">
+<rect x="38" y="12" width="248" height="120" fill="#fff" stroke="var(--border-1)"/>
+<rect x="38" y="12" width="55" height="120" fill="var(--success-500)" opacity=".14"/>
+<line x1="38" y1="132" x2="286" y2="132" stroke="var(--border-2)"/>
+<line x1="38" y1="12" x2="38" y2="132" stroke="var(--border-2)"/>
+<polyline points="38,20 93,20 286,132" fill="none" stroke="var(--accent-500)" stroke-width="2.5" stroke-linejoin="round"/>
+<line x1="93" y1="12" x2="93" y2="132" stroke="var(--success-500)" stroke-width="1.5" stroke-dasharray="4 4"/>
+<circle cx="150" cy="65" r="4" fill="var(--accent-600)"/>
+<text x="156" y="62" font-family="IBM Plex Mono, monospace" font-size="9" fill="#414A57">+0.30 at 23s</text>
+<text x="44" y="28" font-family="IBM Plex Mono, monospace" font-size="9" fill="#0C8341">full bonus</text>
+<text x="98" y="146" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8699">grace ends 10s</text>
+<text x="8" y="18" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8699">+0.5</text>
+<text x="14" y="136" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8699">0</text>
+<text x="262" y="146" font-family="IBM Plex Mono, monospace" font-size="9" fill="#7A8699">45s</text>
+</svg>
+<span class="tiny">Curve redraws as the fields change. Max score for 20 questions: <b class="num">60</b> + <b class="num">10</b> bonus.</span>
+</div>
+</div>
+<div class="alert a-warn"><span>▲</span><span>Grace window is 22% of the question time. Above ~30% the bonus stops discriminating between students.</span></div>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Compact grid + worked example</div></div>
+<div class="vmeta"><div><i>trades</i>Explains the scheme in the admin's own numbers instead of a chart — cheaper and fully accessible; no feel for the decay shape.</div><div><i>use</i>The accessible fallback for A.</div></div>
+<div class="card stack">
+<div class="duo" style="gap:var(--sp-3)">
+<div class="field"><span class="flabel">Seconds / question</span><input class="inp num" value="45"></div>
+<div class="field"><span class="flabel">Grace window</span><input class="inp num" value="10"></div>
+<div class="field"><span class="flabel">Marks correct</span><input class="inp num" value="3"></div>
+<div class="field"><span class="flabel">Marks wrong</span><input class="inp num" value="−1"></div>
+<div class="field"><span class="flabel">Max bonus</span><input class="inp num" value="0.5"></div>
+<div class="field"><span class="flabel">Seat cap</span><input class="inp num" value="100"></div>
+</div>
+<div class="sunken"><span class="wlabel" style="margin:0">Worked example</span>
+<table class="spec"><tbody>
+<tr><td>Correct in 6s (within grace)</td><td class="num" style="text-align:right">+3.50</td></tr>
+<tr><td>Correct in 23s</td><td class="num" style="text-align:right">+3.30</td></tr>
+<tr><td>Correct in 44s</td><td class="num" style="text-align:right">+3.01</td></tr>
+<tr><td>Wrong, any time</td><td class="num" style="text-align:right">−1.00</td></tr>
+<tr><td>Not answered</td><td class="num" style="text-align:right">0.00</td></tr>
+<tr><td>Max possible, 20 questions</td><td class="num" style="text-align:right">70.00</td></tr>
+</tbody></table></div>
+</div></div>
+
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Preset schemes + advanced disclosure</div></div>
+<div class="vmeta"><div><i>trades</i>Keeps six-number tuning away from the everyday path and makes quizzes comparable; hides the levers that a coach may legitimately want.</div><div><i>use</i>If scoring should be consistent across the group.</div></div>
+<div class="card stack">
+<div class="rowflex"><span class="chip on">Standard <span class="tiny">45s · +3/−1</span></span><span class="chip">Speed drill <span class="tiny">25s · +3/−1</span></span><span class="chip">No negative <span class="tiny">45s · +3/0</span></span></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Grace</span><span class="num tiny">10s</span></div><div class="rowflex" style="justify-content:space-between"><span class="tiny">Max bonus</span><span class="num tiny">+0.5</span></div><div class="rowflex" style="justify-content:space-between"><span class="tiny">Seat cap</span><span class="num tiny">100</span></div></div>
+<button class="btn sec sm">Advanced — edit all six ▾</button>
+<span class="tiny">Changing a preset after students have joined is blocked; the panel goes read-only once the quiz is open.</span>
+</div></div>
+</div>
+<div class="tokens-used"><b>consumes</b><span class="tok">--q-timer-grace</span><span class="tok">--accent-500/600</span><span class="tok">--success-500</span><span class="tok">--font-num</span><span class="tok">--n-50</span><span class="tok">--status-warning-*</span></div>
+</section>
+
+<section id="schedule">
+<h2>schedule-picker <span class="flag">3 variants</span><span class="kb">date + time in IST · window length</span></h2>
+<p class="note">Everything is Asia/Kolkata and the IST suffix is always printed. All three variants show the derived close time, because "9:30 PM + 90 minutes" is the fact an admin actually needs to check.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Date + time + duration</div></div>
+<div class="vmeta"><div><i>trades</i>Three simple fields and an unambiguous derived close time; duration in minutes needs mental arithmetic for long windows.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="duo" style="gap:var(--sp-3)"><div class="field"><span class="flabel">Date</span><input class="inp" value="14 Sep 2026"></div><div class="field"><span class="flabel">Opens (IST)</span><input class="inp num" value="21:30"></div></div>
+<div class="field"><span class="flabel">Window length</span><div class="rowflex"><input class="inp num" value="90" style="max-width:100px"><span class="chip">60m</span><span class="chip on">90m</span><span class="chip">120m</span></div></div>
+<div class="alert a-info"><span>◇</span><span>Opens <b>14 Sep, 9:30 PM IST</b> · closes <b>11:00 PM IST</b> · room code releases 9:25 PM.</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Open / close pair</div></div>
+<div class="vmeta"><div><i>trades</i>Both boundaries are explicit, which suits an irregular window; invites invalid ranges that need validation.</div><div><i>use</i>One-off long windows (e.g. a weekend mock).</div></div>
+<div class="stack">
+<div class="duo" style="gap:var(--sp-3)"><div class="field"><span class="flabel">Opens</span><input class="inp" value="14 Sep 21:30 IST"></div><div class="field"><span class="flabel">Closes</span><input class="inp" value="14 Sep 23:00 IST"></div></div>
+<div class="alert a-dgr"><span>✕</span><span>Close time is before open time.</span></div>
+<span class="tiny">Window length is shown as derived: <b>90 minutes</b>.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Calendar + slot picker</div></div>
+<div class="vmeta"><div><i>trades</i>Shows collisions with other quizzes at a glance, which matters for a group running three sections a week; heaviest control.</div><div><i>use</i>If clashes become a problem.</div></div>
+<div class="stack">
+<div class="rowflex" style="gap:4px">
+<span class="chip">Mon 8</span><span class="chip">Tue 9</span><span class="chip">Wed 10</span><span class="chip on">Mon 14</span><span class="chip" style="opacity:.5">Tue 15 · Verbal</span>
+</div>
+<div class="rowflex" style="gap:4px"><span class="chip">8:00 PM</span><span class="chip on">9:30 PM</span><span class="chip" style="opacity:.5">10:00 PM · LR</span></div>
+<span class="tiny">Greyed slots already hold a quiz for another section.</span>
+</div></div>
+</div>
+</section>
+
+<section id="recurrence">
+<h2>recurrence-editor <span class="flag">3 variants</span><span class="kb">recurring templates</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Weekday chips + end rule</div></div>
+<div class="vmeta"><div><i>trades</i>Covers "every Monday and Thursday at 9:30 PM" in one glance; no support for odd patterns.</div><div><i>use</i>Default — the group runs a weekly cycle.</div></div>
+<div class="stack">
+<div class="rowflex" style="gap:4px"><span class="chip on">Mon</span><span class="chip">Tue</span><span class="chip">Wed</span><span class="chip on">Thu</span><span class="chip">Fri</span><span class="chip">Sat</span><span class="chip">Sun</span></div>
+<div class="duo" style="gap:var(--sp-3)"><div class="field"><span class="flabel">At (IST)</span><input class="inp num" value="21:30"></div><div class="field"><span class="flabel">Ends</span><input class="inp" value="After 12 occurrences"></div></div>
+<div class="alert a-info"><span>◇</span><span>Next 3: <b>14 Sep</b>, 17 Sep, 21 Sep — each draws a fresh set of questions at build time.</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Sentence builder</div></div>
+<div class="vmeta"><div><i>trades</i>Reads as plain English, so a mistake is obvious; each dropdown is a separate control to operate.</div><div><i>use</i>If recurrence rules get more complex.</div></div>
+<div class="stack">
+<div class="rowflex" style="gap:var(--sp-3);font:var(--type-body)">Every <span class="chip on">1 week</span> on <span class="chip on">Mon, Thu</span> at <span class="chip on">9:30 PM IST</span> for <span class="chip on">12 weeks</span></div>
+<span class="tiny">Generates 24 quizzes. Each is a draft until you lock it — recurrence never auto-locks.</span>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Template + manual instances</div></div>
+<div class="vmeta"><div><i>trades</i>Full control over each date and per-instance edits; the admin schedules every occurrence by hand.</div><div><i>use</i>Irregular exam-season calendars.</div></div>
+<div class="stack">
+<div class="solid"><b>Template · Weekly Quant Sprint</b><span class="tiny">20 questions · 45s · +3/−1 · 90m window</span></div>
+<div class="rowflex"><span class="chip on">14 Sep 9:30 PM</span><span class="chip on">21 Sep 9:30 PM</span><span class="chip on">28 Sep 8:00 PM</span><span class="chip">+ Add date</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="roomcode">
+<h2>room-code-display <span class="flag">3 variants</span><span class="kb">withheld until T−5 minutes · large, readable, copyable</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Dark code block</div></div>
+<div class="vmeta"><div><i>trades</i>Maximum legibility when read aloud or projected; the dark block is a break from the light UI.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="codebox"><span class="tiny">Room code</span><span class="code">QNT-8417</span><div class="rowflex"><button class="btn sec sm">Copy</button><button class="btn sec sm">Share</button></div></div>
+<div class="codebox" style="background:var(--n-100);color:var(--text-2)"><span class="tiny">Code releases in</span><span class="code" style="letter-spacing:.02em">04:12</span><span class="tiny">Available from 9:25 PM IST</span></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Inline row with copy</div></div>
+<div class="vmeta"><div><i>trades</i>Fits in a quiz card without dominating it; too small to read from across a room.</div><div><i>use</i>Schedule list rows.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="num" style="font:var(--type-numeric)">QNT-8417</span><button class="btn sec sm">Copy</button></div></div>
+<div class="solid" style="opacity:.7"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Code hidden until 9:25 PM IST</span><span class="badge b-sched">◇ T−5</span></div></div>
+<div class="solid" style="border-color:var(--success-100);background:var(--success-50)"><div class="rowflex"><span style="color:var(--status-success-fg)">✓</span><span class="tiny" style="color:var(--status-success-fg)">Copied to clipboard</span></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Projector mode</div></div>
+<div class="vmeta"><div><i>trades</i>Built for a screen at the front of a room — code plus a live joined count; a whole screen for one string.</div><div><i>use</i>In-person sessions.</div></div>
+<div class="stack">
+<div class="codebox" style="padding:var(--sp-8)"><span class="tiny">Join at quizzer.app</span><span class="code" style="font-size:var(--fs-64)">QNT-8417</span><span class="tiny">Opens 9:30 PM IST · <span class="num">41</span> joined · <span class="num">59</span> seats left</span></div>
+</div></div>
+</div>
+<p class="note">The code is never shown in an email, a notification or a screenshot-able list before T−5; the component's withheld state is the default, not an edge case.</p>
+</section>
+
+<section id="quizcard">
+<h2>quiz-card-schedule <span class="flag">3 variants</span><span class="kb">draft · scheduled · open · live · closed</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Card with status header</div></div>
+<div class="vmeta"><div><i>trades</i>Room for the state-specific action on each card; three per row on desktop.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="badge b-draft">○ Draft</span><span class="tiny">edited 2h ago</span></div><b>Speed Drill 10</b><span class="tiny">Quant · 20 questions · not scheduled</span><div class="rowflex"><button class="btn sm">Continue building</button><button class="btn ghost sm">Delete</button></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="badge b-sched">◇ Scheduled</span><span class="tiny num">14 Sep 9:30 PM IST</span></div><b>Weekly Quant Sprint</b><span class="tiny">20 questions · 90m window · code at 9:25 PM</span><div class="rowflex"><button class="btn sec sm">Edit</button><button class="btn sm">Lock now</button></div></div>
+<div class="solid" style="border-color:var(--success-100)"><div class="rowflex" style="justify-content:space-between"><span class="badge b-open">▲ Open</span><span class="tiny">closes 11:00 PM</span></div><b>Weekly Quant Sprint</b><span class="tiny num">41 joined · 17 finished · 59 seats left</span><div class="rowflex"><span class="num" style="font:var(--type-label)">QNT-8417</span><button class="btn sec sm">Monitor</button></div></div>
+<div class="solid" style="border-color:var(--danger-100)"><div class="rowflex" style="justify-content:space-between"><span class="badge b-live">● Live</span><span class="tiny num">0:04:59 left</span></div><b>RC Practice 4</b><span class="tiny num">76 joined · 61 finished</span><div class="rowflex"><button class="btn sec sm">Monitor</button><button class="btn ghost sm" style="color:var(--danger-600)">Void quiz</button></div></div>
+<div class="solid" style="opacity:.85"><div class="rowflex" style="justify-content:space-between"><span class="badge b-closed">■ Closed</span><span class="tiny num">7 Sep</span></div><b>Seating Arrangements</b><span class="tiny num">83 participants · avg 31.2 / 60</span><div class="rowflex"><button class="btn sec sm">Report</button><button class="btn ghost sm">Duplicate</button></div></div>
+</div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Table row per quiz</div></div>
+<div class="vmeta"><div><i>trades</i>Best for a term's worth of quizzes and sortable by date; actions hide behind a menu.</div><div><i>use</i>The schedule list at scale.</div></div>
+<table class="dt"><thead><tr><th>Quiz</th><th>Status</th><th>When (IST)</th><th class="n">Joined</th><th></th></tr></thead><tbody>
+<tr><td>Speed Drill 10</td><td><span class="badge b-square b-draft">Draft</span></td><td class="tiny">—</td><td class="n">—</td><td class="tiny">⋯</td></tr>
+<tr><td>Weekly Quant Sprint</td><td><span class="badge b-square b-sched">Sched</span></td><td class="tiny num">14 Sep 21:30</td><td class="n">—</td><td class="tiny">⋯</td></tr>
+<tr><td>RC Practice 4</td><td><span class="badge b-square b-live">● Live</span></td><td class="tiny num">closes 23:00</td><td class="n">76</td><td class="tiny">⋯</td></tr>
+<tr><td>Seating Arrangements</td><td><span class="badge b-square b-closed">Closed</span></td><td class="tiny num">7 Sep</td><td class="n">83</td><td class="tiny">⋯</td></tr>
+</tbody></table>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Timeline grouped by day</div></div>
+<div class="vmeta"><div><i>trades</i>Makes the week's rhythm and clashes visible; poor for finding one quiz by name.</div><div><i>use</i>A "this week" dashboard.</div></div>
+<div class="stack">
+<span class="wlabel" style="margin:0">Mon 14 Sep</span>
+<div class="solid lockbar"><div class="rowflex" style="justify-content:space-between"><span><b>Weekly Quant Sprint</b> <span class="tiny num">9:30–11:00 PM</span></span><span class="badge b-sched">Scheduled</span></div></div>
+<span class="wlabel" style="margin:0">Tue 15 Sep</span>
+<div class="solid" style="border-left:3px solid var(--sec-verbal);padding-left:var(--sp-4)"><div class="rowflex" style="justify-content:space-between"><span><b>RC Practice 5</b> <span class="tiny num">9:00–10:30 PM</span></span><span class="badge b-draft">Draft</span></div></div>
+<span class="wlabel" style="margin:0">Thu 17 Sep</span>
+<div class="solid" style="border-left:3px solid var(--sec-lr);padding-left:var(--sp-4)"><div class="rowflex" style="justify-content:space-between"><span><b>LR Sprint 6</b> <span class="tiny num">9:30–11:00 PM</span></span><span class="badge b-sched">Scheduled</span></div></div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="reporttiles">
+<h2>report-summary-tiles <span class="flag">3 variants</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Four tiles</div></div>
+<div class="vmeta"><div><i>trades</i>Scannable headline numbers; no distribution.</div><div><i>use</i>Default at the top of a report.</div></div>
+<div class="tiles"><div class="tile"><span class="v">83</span><span class="l">Participants</span></div><div class="tile"><span class="v">31.2</span><span class="l">Avg score / 60</span></div><div class="tile"><span class="v">7:41</span><span class="l">Avg time</span></div><div class="tile"><span class="v">62%</span><span class="l">Avg accuracy</span></div></div>
+</div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Tiles + score histogram</div></div>
+<div class="vmeta"><div><i>trades</i>Shows the spread, which is what tells an admin whether the paper was too hard; taller.</div><div><i>use</i>Recommended — an average alone hides a bimodal room.</div></div>
+<div class="stack">
+<div class="tiles" style="grid-template-columns:repeat(2,1fr)"><div class="tile"><span class="v">83</span><span class="l">Participants</span></div><div class="tile"><span class="v">31.2</span><span class="l">Avg / 60</span></div></div>
+<div class="sunken"><span class="wlabel" style="margin:0">Score distribution</span>
+<div class="rowflex" style="align-items:flex-end;gap:3px;height:64px">
+<span style="flex:1;height:18%;background:var(--n-300);border-radius:2px 2px 0 0"></span><span style="flex:1;height:34%;background:var(--n-300);border-radius:2px 2px 0 0"></span><span style="flex:1;height:62%;background:var(--n-400);border-radius:2px 2px 0 0"></span><span style="flex:1;height:100%;background:var(--accent-500);border-radius:2px 2px 0 0"></span><span style="flex:1;height:74%;background:var(--n-400);border-radius:2px 2px 0 0"></span><span style="flex:1;height:40%;background:var(--n-300);border-radius:2px 2px 0 0"></span><span style="flex:1;height:16%;background:var(--n-300);border-radius:2px 2px 0 0"></span>
+</div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny num">0</span><span class="tiny">median 32.0</span><span class="tiny num">60</span></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Comparison to previous</div></div>
+<div class="vmeta"><div><i>trades</i>Puts this quiz in a series, which is what a coach actually asks; a delta is meaningless if the papers differed in difficulty.</div><div><i>use</i>Recurring quizzes only, with the caveat printed.</div></div>
+<div class="stack">
+<div class="tiles" style="grid-template-columns:repeat(2,1fr)"><div class="tile"><span class="v">31.2</span><span class="l">Avg / 60 <span style="color:var(--success-600)">▲ 2.4</span></span></div><div class="tile"><span class="v">83</span><span class="l">Participants <span style="color:var(--danger-600)">▼ 4</span></span></div></div>
+<span class="tiny">vs Weekly Quant Sprint · 7 Sep. Difficulty mix was 6/10/4 in both.</span>
+</div></div>
+</div>
+</section>
+
+<section id="participants">
+<h2>participants-table <span class="flag">3 variants</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Dense sortable table</div></div>
+<div class="vmeta"><div><i>trades</i>All 83 rows in a few screens, sortable by any column; wide.</div><div><i>use</i>Default.</div></div>
+<div class="tscroll"><table class="dt"><thead><tr><th>Student</th><th class="n">Score</th><th class="n">Attempted</th><th class="n">Correct</th><th class="n">Time</th><th class="n">Rank</th></tr></thead><tbody>
+<tr><td>Sanjay Verma</td><td class="n">44.0</td><td class="n">20</td><td class="n">16</td><td class="n">6:04</td><td class="n">1</td></tr>
+<tr><td>Divya Nair</td><td class="n">41.5</td><td class="n">20</td><td class="n">15</td><td class="n">6:41</td><td class="n">2</td></tr>
+<tr><td>Meera Pillai</td><td class="n">39.0</td><td class="n">19</td><td class="n">15</td><td class="n">7:02</td><td class="n">3</td></tr>
+<tr><td>Rohit Sharma</td><td class="n">38.5</td><td class="n">18</td><td class="n">14</td><td class="n">7:12</td><td class="n">4</td></tr>
+<tr style="opacity:.7"><td>Kavya Iyer <span class="badge b-square b-draft">Did not finish</span></td><td class="n">12.0</td><td class="n">6</td><td class="n">5</td><td class="n">3:20</td><td class="n">—</td></tr>
+</tbody></table></div>
+</div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Rows with mini score bar</div></div>
+<div class="vmeta"><div><i>trades</i>Spread is visible while scanning; fewer rows per screen and one less sortable column of room.</div><div><i>use</i>When looking for who struggled.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span>Sanjay Verma</span><span class="num">44.0</span></div><div class="itembar"><i style="width:73%;background:var(--success-500)"></i></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span>Rohit Sharma</span><span class="num">38.5</span></div><div class="itembar"><i style="width:64%;background:var(--accent-500)"></i></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span>Kavya Iyer <span class="tiny">did not finish</span></span><span class="num">12.0</span></div><div class="itembar"><i style="width:20%;background:var(--warning-500)"></i></div></div>
+</div></div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Grouped by outcome band</div></div>
+<div class="vmeta"><div><i>trades</i>Immediately answers "who needs help"; banding is a judgement the product hasn't defined.</div><div><i>use</i>Only if the group agrees on bands. <span class="spec-flag">speculative</span></div></div>
+<div class="stack">
+<div class="solid"><span class="wlabel" style="margin:0">45–60 · 6 students</span><span class="tiny">Sanjay Verma, Divya Nair, …</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">30–44 · 41 students</span><span class="tiny">Meera Pillai, Rohit Sharma, …</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">Below 30 · 36 students</span><span class="tiny">Kavya Iyer, …</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="itemrow">
+<h2>item-analysis-row <span class="flag">3 variants</span><span class="kb">which questions the room got wrong</span></h2>
+<div class="trio">
+<div class="vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Row with % correct bar</div></div>
+<div class="vmeta"><div><i>trades</i>Sorts straight to the worst questions; one metric only.</div><div><i>use</i>Default.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q9 · LR · Hard</span><span class="num" style="color:var(--danger-700)">18% correct</span></div><div class="itembar"><i style="width:18%;background:var(--danger-500)"></i></div><span class="tiny">Six friends sit in a row… · avg 0:58 of 45s limit · 22 skipped</span></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q7 · QA · Medium</span><span class="num" style="color:var(--warning-700)">34% correct</span></div><div class="itembar"><i style="width:34%;background:var(--warning-500)"></i></div><span class="tiny">41% of the room chose B (a distractor)</span></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q8 · VA · Easy</span><span class="num" style="color:var(--success-700)">71% correct</span></div><div class="itembar"><i style="width:71%;background:var(--success-500)"></i></div></div>
+</div></div>
+<div class="vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Row with option distribution</div></div>
+<div class="vmeta"><div><i>trades</i>Exposes which distractor is doing the damage — the most actionable view for fixing a question; four bars per row.</div><div><i>use</i>Recommended for the worst 5 questions.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny num">Q7 · QA · Medium</span><span class="num tiny">n = 79</span></div>
+<div class="mixrow"><span class="tiny">A</span><span class="mixbar"><i style="width:12%;background:var(--n-400)"></i></span><span class="tiny num" style="text-align:right">12%</span></div>
+<div class="mixrow"><span class="tiny" style="color:var(--danger-700)">B</span><span class="mixbar"><i style="width:41%;background:var(--danger-500)"></i></span><span class="tiny num" style="text-align:right">41%</span></div>
+<div class="mixrow"><span class="tiny" style="color:var(--success-700)">C ✓</span><span class="mixbar"><i style="width:34%;background:var(--success-500)"></i></span><span class="tiny num" style="text-align:right">34%</span></div>
+<div class="mixrow"><span class="tiny">D</span><span class="mixbar"><i style="width:13%;background:var(--n-400)"></i></span><span class="tiny num" style="text-align:right">13%</span></div>
+<span class="tiny">More students chose B than the correct answer — check the stem for ambiguity.</span>
+</div></div>
+<div class="vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Compact table with flags</div></div>
+<div class="vmeta"><div><i>trades</i>All 20 questions on one screen with automatic flags; no distribution detail.</div><div><i>use</i>Post-quiz triage across the whole paper.</div></div>
+<table class="dt"><thead><tr><th class="n">Q</th><th>Section</th><th class="n">% correct</th><th class="n">Avg time</th><th>Flag</th></tr></thead><tbody>
+<tr><td class="n">9</td><td>LR</td><td class="n">18</td><td class="n">0:58</td><td><span class="badge b-hard">Too hard</span></td></tr>
+<tr><td class="n">7</td><td>QA</td><td class="n">34</td><td class="n">0:41</td><td><span class="badge b-med">Distractor</span></td></tr>
+<tr><td class="n">14</td><td>QA</td><td class="n">96</td><td class="n">0:12</td><td><span class="badge b-easy">Too easy</span></td></tr>
+<tr><td class="n">19</td><td>LR</td><td class="n">—</td><td class="n">—</td><td><span class="badge b-draft">62 not reached</span></td></tr>
+</tbody></table>
+<span class="tiny">"Not reached" by most of the room usually means the quiz was too long, not that the question was hard.</span>
+</div>
+</div>
+</section>
+
+<section id="export">
+<h2>export-action <span class="flag">3 variants</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Button with format menu</div></div>
+<div class="vmeta"><div><i>trades</i>One target, format chosen at the moment of need; no control over columns.</div><div><i>use</i>Default.</div></div>
+<div class="stack"><div class="rowflex"><button class="btn sec sm">Export ▾</button></div><div class="solid" style="max-width:220px"><span class="tiny">Participants (CSV)</span><span class="tiny">Item analysis (CSV)</span><span class="tiny">Full report (CSV)</span></div><div class="rowflex"><button class="btn sec sm" disabled>Preparing export…</button></div></div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Export panel with options</div></div>
+<div class="vmeta"><div><i>trades</i>Column and scope control for a coach who post-processes in a spreadsheet; an extra dialog.</div><div><i>use</i>If exports get reworked downstream.</div></div>
+<div class="stack">
+<div class="solid"><span class="wlabel" style="margin:0">Export report</span>
+<div class="rowflex"><span class="chip on">Participants</span><span class="chip on">Item analysis</span><span class="chip">Raw answers</span></div>
+<div class="rowflex"><span class="chip on">CSV</span><span class="chip">TSV</span></div>
+<label class="tiny"><input type="checkbox" checked> Include student emails</label>
+<button class="btn sm">Download</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Copy to clipboard</div></div>
+<div class="vmeta"><div><i>trades</i>Fastest path into a Google Sheet with no file handling; breaks for large tables and loses formatting.</div><div><i>use</i>Alongside A, not instead of it.</div></div>
+<div class="stack"><button class="btn sec sm">Copy table</button><div class="solid" style="border-color:var(--success-100);background:var(--success-50)"><span class="tiny" style="color:var(--status-success-fg)">✓ 83 rows copied — paste into a sheet</span></div></div></div>
+</div>
+</section>
+
+<section id="admins">
+<h2>manage-admins-row <span class="flag">3 variants</span><span class="kb">promote / demote · role badge · confirm step</span></h2>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Row with role menu</div></div>
+<div class="vmeta"><div><i>trades</i>Compact and consistent with other tables; role change is two clicks plus a confirm.</div><div><i>use</i>Default.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="rowflex"><span class="badge b-square b-draft">RS</span><span>Rohit Sharma <span class="tiny">rohit@example.com</span></span></span><span class="rowflex"><span class="badge b-unused">Admin</span><button class="btn sec sm">Change role ▾</button></span></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="rowflex"><span class="badge b-square b-draft">AK</span><span>Ananya Krishnan</span></span><span class="rowflex"><span class="badge b-used">Student</span><button class="btn sec sm">Promote</button></span></div></div>
+<div class="solid" style="opacity:.85"><div class="rowflex" style="justify-content:space-between"><span class="rowflex"><span class="badge b-square b-draft">YOU</span><span>Priya Menon <span class="tiny">you</span></span></span><span class="rowflex"><span class="badge" style="border-color:var(--accent-300);color:var(--accent-700)">Superadmin</span><button class="btn sec sm" disabled>Can't change own role</button></span></div></div>
+<div class="alert a-warn"><span>▲</span><div><b>Promote Ananya to admin?</b><div>Admins can create quizzes, import questions and see every student's results. This can be reversed.</div><div class="rowflex" style="margin-top:var(--sp-3)"><button class="btn sm">Promote to admin</button><button class="btn ghost sm">Cancel</button></div></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Grouped by role</div></div>
+<div class="vmeta"><div><i>trades</i>Makes the shape of the team obvious — 1 superadmin, 3 admins, 96 students; changing a role means moving between groups.</div><div><i>use</i>Small teams (this one).</div></div>
+<div class="stack">
+<div class="solid"><span class="wlabel" style="margin:0">Superadmin · 1</span><span class="tiny">Priya Menon (you)</span></div>
+<div class="solid"><span class="wlabel" style="margin:0">Admins · 3</span><span class="tiny">Rohit Sharma · Divya Nair · Sanjay Verma</span><button class="btn sec sm">Add admin</button></div>
+<div class="solid"><span class="wlabel" style="margin:0">Students · 96</span><button class="btn ghost sm">View all</button></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Permission matrix</div></div>
+<div class="vmeta"><div><i>trades</i>States exactly what each role can do, which prevents surprises; overkill for three fixed roles and implies per-permission editing that doesn't exist.</div><div><i>use</i>As help content, not a control. <span class="spec-flag">speculative</span></div></div>
+<table class="spec"><thead><tr><th>Can</th><th>Student</th><th>Admin</th><th>Super</th></tr></thead><tbody>
+<tr><td>Take quizzes</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Import questions</td><td>—</td><td>✓</td><td>✓</td></tr>
+<tr><td>Lock / void a quiz</td><td>—</td><td>✓</td><td>✓</td></tr>
+<tr><td>Change roles</td><td>—</td><td>—</td><td>✓</td></tr>
+</tbody></table></div>
+</div>
+</section>
+
+<section id="monitor">
+<h2>live-quiz-monitor <span class="flag">3 variants</span> <span class="spec-flag">speculative</span><span class="kb">joined / in progress / finished · abort-void control</span></h2>
+<p class="note"><span class="spec-flag">speculative</span>Nothing in the brief describes live monitoring or voiding a quiz. These are drawn as a best guess and should be treated as a proposal, not a spec. The void control is deliberately the most guarded action in the whole system.</p>
+<div class="trio">
+<div class="card vh"><div class="vlabel"><div class="vbadge">A</div><div class="vname">Counter tile</div></div>
+<div class="vmeta"><div><i>trades</i>Three numbers and a clock — enough to know a quiz is healthy; no per-student detail.</div><div><i>use</i>Default proposal.</div></div>
+<div class="stack">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><b>Weekly Quant Sprint</b><span class="badge b-live">● Live</span></div>
+<div class="tiles" style="grid-template-columns:repeat(3,1fr)"><div class="tile"><span class="v">41</span><span class="l">Joined</span></div><div class="tile"><span class="v">24</span><span class="l">In progress</span></div><div class="tile"><span class="v">17</span><span class="l">Finished</span></div></div>
+<div class="rowflex" style="justify-content:space-between"><span class="tiny">Closes 11:00 PM IST</span><span class="num tiny">0:28:41</span></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">B</div><div class="vname">Progress bar per student</div></div>
+<div class="vmeta"><div><i>trades</i>Spots a stuck or disconnected student in real time; feels like surveillance of a self-paced practice quiz.</div><div><i>use</i>Only if the group explicitly wants it.</div></div>
+<div class="stack" style="gap:var(--sp-3)">
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Sanjay Verma</span><span class="tiny num">Q18 / 20</span></div><div class="itembar"><i style="width:90%;background:var(--accent-500)"></i></div></div>
+<div class="solid"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Rohit Sharma</span><span class="tiny num">Q7 / 20</span></div><div class="itembar"><i style="width:35%;background:var(--accent-500)"></i></div></div>
+<div class="solid" style="border-color:var(--warning-100)"><div class="rowflex" style="justify-content:space-between"><span class="tiny">Kavya Iyer <span class="badge b-med">reconnecting</span></span><span class="tiny num">Q4 / 20</span></div><div class="itembar"><i style="width:20%;background:var(--warning-500)"></i></div></div>
+</div></div>
+<div class="card vh"><div class="vlabel"><div class="vbadge">C</div><div class="vname">Health strip + void control</div></div>
+<div class="vmeta"><div><i>trades</i>Minimal chrome, surfaces only anomalies, and keeps void behind two gates; an admin watching for reassurance sees very little.</div><div><i>use</i>Recommended if monitoring ships at all.</div></div>
+<div class="stack">
+<div class="alert a-ok"><span>✓</span><span>41 joined · 24 in progress · 17 finished · no errors reported</span></div>
+<div class="alert a-warn"><span>▲</span><span>3 students reconnected in the last 5 minutes.</span></div>
+<div class="solid" style="border-color:var(--danger-100)"><span class="wlabel" style="margin:0;color:var(--status-danger-fg)">Danger zone</span><span class="tiny">Voiding ends all 24 in-progress attempts now and discards every score. Students see “This quiz was voided by an admin”. It cannot be undone.</span><button class="btn dgr sm">Void quiz…</button><span class="tiny">Opens type-to-confirm.</span></div>
+</div></div>
+</div>
+</section>
+
+<section id="pick">
+<h2>Pick sheet — Batch 5</h2>
+<div class="card"><table class="pick"><thead><tr><th>Component</th><th class="c">A</th><th class="c">B</th><th class="c">C</th><th>Recommended</th></tr></thead><tbody id="pickRows"></tbody></table>
+<div class="rowflex" style="margin-top:var(--sp-6)"><button class="btn" id="copyPicks">Copy as text</button><button class="btn sec" id="resetPicks">Reset</button><span id="pickMsg" style="font:var(--type-body-sm);color:var(--status-success-fg);align-self:center"></span></div></div>
+</section>
+
+<section id="open">
+<h2>Open questions</h2>
+<ul class="oq">
+<li><strong>When is the draw made?</strong> Rendered as: drawn at build time, visible to the admin, re-drawable until lock. If instead questions are drawn per student at open time, <code>draw-preview</code> and <code>composition-report</code> both change meaning entirely.</li>
+<li><strong>Does locking retire questions immediately or at close?</strong> Assumed at lock. The bank's "Retired" badge depends on it.</li>
+<li><strong>Can a locked quiz be edited or unlocked?</strong> Assumed no, ever. That is what makes the type-to-confirm justified.</li>
+<li><strong>CSV schema.</strong> Invented for these components: <code>stem, section, difficulty, topic, type, option_a–d, correct_option, answer, tolerance, explanation, image, passage_id, passage_text</code>. Send the real header row and I'll align every error message to it.</li>
+<li><strong>Passage set size.</strong> Assumed 4–5 children, enforced as a validation error outside that range.</li>
+<li><strong>Speed bonus formula.</strong> The decay curve is drawn as linear from the end of the grace window to zero at the question limit. If it's exponential, only the polyline changes.</li>
+<li><strong>Seat cap semantics.</strong> Assumed seats are consumed on join and never released, so a full room stays full.</li>
+<li><strong>Report visibility.</strong> Assumed every admin sees every student's results, and students never see another student's breakdown. The promote dialog says so.</li>
+<li><strong>Live monitoring and void.</strong> Entirely speculative — no product decision exists. If monitoring is not wanted, the <code>quiz-card-schedule</code> "Monitor" action disappears too.</li>
+<li><strong>Recurrence and locking.</strong> Assumed recurrence generates drafts and never auto-locks, so a human always approves the draw.</li>
+</ul>
+</section>
+</main>
+</div>
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const picks=[['csv-validation-preview','A — Single tinted table'],['import-error-summary','A — Grouped by cause'],['import-commit-bar','A — Sticky footer bar'],['question-row','A table / C mobile'],['question-editor','A — Two-pane with preview'],['passage-group-card','A — Header + child rows'],['quiz-builder-wizard','A — Horizontal stepper'],['difficulty-mix-control','B — Split bar'],['composition-report','A + B together'],['draw-preview','A — Per-row swap'],['scoring-parameter-panel','A — Fields + decay curve'],['schedule-picker','A — Date + time + duration'],['recurrence-editor','A — Weekday chips'],['room-code-display','A — Dark code block'],['quiz-card-schedule','A cards / B at scale'],['report-summary-tiles','B — Tiles + histogram'],['participants-table','A — Dense sortable'],['item-analysis-row','A list / B for worst 5'],['export-action','A — Button + format menu'],['manage-admins-row','B — Grouped by role'],['live-quiz-monitor','C — Health strip (if at all)']];
+const KEY='quizzer.picks.batch5';
+const store=JSON.parse(localStorage.getItem(KEY)||'{}');
+$('#pickRows').innerHTML=picks.map(([n,rec])=>`<tr><td class="name">${n}</td>${['A','B','C'].map(o=>`<td class="c"><input type="radio" name="${n}" value="${o}" ${store[n]===o?'checked':''} aria-label="${n} ${o}"></td>`).join('')}<td style="color:var(--text-2)">${rec}</td></tr>`).join('');
+document.querySelectorAll('#pickRows input').forEach(i=>i.addEventListener('change',()=>{store[i.name]=i.value;localStorage.setItem(KEY,JSON.stringify(store))}));
+$('#copyPicks').addEventListener('click',async()=>{const txt=picks.map(([n])=>`${n}: ${store[n]||'—'}`).join('\n');try{await navigator.clipboard.writeText(txt)}catch(e){}$('#pickMsg').textContent='Copied.';setTimeout(()=>$('#pickMsg').textContent='',1800)});
+$('#resetPicks').addEventListener('click',()=>{localStorage.removeItem(KEY);document.querySelectorAll('#pickRows input').forEach(i=>i.checked=false);Object.keys(store).forEach(k=>delete store[k])});
+</script>
+</body></html>

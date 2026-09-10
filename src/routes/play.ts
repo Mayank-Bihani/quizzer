@@ -1,0 +1,1 @@
+// GET open quizzes; POST join; GET current; POST /api/play/:quizId/units/:unitPosition/submit; GET finished-only status. Serve active ServedUnit, local navigation and one final batch; no per-question answer/skip/timeout routes — API.md.

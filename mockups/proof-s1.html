@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S1 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:820px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S1 — responsive proof</h1>
+    <p class="tiny">Every S1 screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths, so what you see is the breakpoint behaviour, not a scaled image. Scroll a row sideways to reach 1440.</p>
+    <p class="tiny">Relayout to watch for: the bottom tab bar becomes a top nav at <span class="num">900</span>; the fact grid goes 2→4 columns at <span class="num">640</span>; quiz detail and profile split into a main column and an aside at <span class="num">900</span>; the room code block steps up a size at <span class="num">640</span>.</p>
+  </div>
+
+  <section>
+    <h2>Sign-in</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/signin.html" title="Sign-in at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/signin.html" title="Sign-in at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/signin.html" title="Sign-in at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Quiz detail — pre-join</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/quiz-detail.html" title="Quiz detail at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/quiz-detail.html" title="Quiz detail at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/quiz-detail.html" title="Quiz detail at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Join by room code</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/join.html" title="Join by code at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/join.html" title="Join by code at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/join.html" title="Join by code at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Lobby</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/lobby.html" title="Lobby at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/lobby.html" title="Lobby at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/lobby.html" title="Lobby at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Room full</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/room-full.html" title="Room full at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/room-full.html" title="Room full at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/room-full.html" title="Room full at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Profile</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/profile.html" title="Profile at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/profile.html" title="Profile at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/profile.html" title="Profile at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>403 · 404 · session expired</h2>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/errors.html" title="Error states at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/errors.html" title="Error states at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/errors.html" title="Error states at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

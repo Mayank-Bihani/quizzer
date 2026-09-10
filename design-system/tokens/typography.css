@@ -1,0 +1,49 @@
+:root{
+--font-ui:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; /* @kind font */
+--font-num:"IBM Plex Mono","IBM Plex Sans",ui-monospace,monospace; /* @kind font */
+--font-math:"Source Serif 4",Georgia,serif; /* @kind font */ /* LaTeX-ish inline math fallback when KaTeX is unavailable */
+/* size scale — mobile-first, 12px floor */
+--fs-11:11px; /* @kind font */
+--fs-12:12px; /* @kind font */
+--fs-13:13px; /* @kind font */
+--fs-14:14px; /* @kind font */
+--fs-15:15px; /* @kind font */
+--fs-16:16px; /* @kind font */
+--fs-18:18px; /* @kind font */
+--fs-20:20px; /* @kind font */
+--fs-24:24px; /* @kind font */
+--fs-30:30px; /* @kind font */
+--fs-38:38px; /* @kind font */
+--fs-48:48px; /* @kind font */
+--fs-64:64px; /* @kind font */
+--lh-tight:1.15; /* @kind font */
+--lh-snug:1.3; /* @kind font */
+--lh-normal:1.45; /* @kind font */
+--lh-relaxed:1.6; /* @kind font */
+--fw-regular:400; /* @kind font */
+--fw-medium:500; /* @kind font */
+--fw-semibold:600; /* @kind font */
+--fw-bold:700; /* @kind font */
+--ls-tight:-0.02em; /* @kind font */
+--ls-snug:-0.01em; /* @kind font */
+--ls-normal:0; /* @kind font */
+--ls-wide:0.02em; /* @kind font */
+--ls-caps:0.06em; /* @kind font */
+/* semantic roles */
+--type-display:var(--fw-semibold) var(--fs-48)/var(--lh-tight) var(--font-ui); /* @kind font */
+--type-h1:var(--fw-semibold) var(--fs-30)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-h2:var(--fw-semibold) var(--fs-20)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-h3:var(--fw-semibold) var(--fs-16)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-body:var(--fw-regular) var(--fs-15)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-body-sm:var(--fw-regular) var(--fs-13)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-stem:var(--fw-regular) var(--fs-16)/var(--lh-relaxed) var(--font-ui); /* @kind font */ /* question stem, 375px */
+--type-option:var(--fw-medium) var(--fs-15)/var(--lh-normal) var(--font-ui); /* @kind font */
+--type-label:var(--fw-medium) var(--fs-13)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-caption:var(--fw-regular) var(--fs-12)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-overline:var(--fw-semibold) var(--fs-11)/var(--lh-snug) var(--font-ui); /* @kind font */
+--type-table:var(--fw-regular) var(--fs-13)/1.35 var(--font-ui); /* @kind font */ /* dense admin rows */
+--type-numeric:var(--fw-semibold) var(--fs-20)/1 var(--font-num); /* @kind font */
+--type-numeric-lg:var(--fw-semibold) var(--fs-38)/1 var(--font-num); /* @kind font */
+--type-timer:var(--fw-medium) var(--fs-14)/1 var(--font-num); /* @kind font */
+--numeric-features:tabular-nums lining-nums; /* @kind other */ /* apply as font-variant-numeric anywhere a number can change */
+}

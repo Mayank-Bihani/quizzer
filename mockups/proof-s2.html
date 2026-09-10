@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S2 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:860px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S2 — responsive proof</h1>
+    <p class="tiny">Every S2 run screen at <span class="num">390</span> (phone, student default), <span class="num">820</span> (tablet) and <span class="num">1440</span> (laptop). Frames are real iframes at exact CSS widths, so what you see is the breakpoint behaviour, not a scaled image. Each frame is <span class="num">860</span>px tall, so one <code>.qcard</code> — one run screen — fills it exactly; scroll a frame to reach the states stacked below it.</p>
+    <p class="tiny">Relayout to watch for: the action foot goes from stacked (skip above, consequence line, Submit &amp; lock below) to a single row with skip far left and Submit &amp; lock far right at <span class="num">640</span>; the header collapses from three rows to two at <span class="num">900</span>, with identity and the window clock grouped left and progress taking the rest of the row; the stem steps up a type size at <span class="num">900</span> and again at <span class="num">1280</span> rather than the container being capped.</p>
+    <p class="tiny">Measured, not eyeballed: every frame below reports <code>documentElement.scrollWidth</code> equal to its viewport at all three widths — <span class="num">390</span>/<span class="num">390</span>, <span class="num">820</span>/<span class="num">820</span>, <span class="num">1440</span>/<span class="num">1440</span>.</p>
+  </div>
+
+  <section>
+    <h2>Question — MCQ</h2>
+    <p class="tiny">Served · selected · submitting · locked · just-skipped, then the two clocks and the progress indicator as component references.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-mcq.html" title="MCQ question at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-mcq.html" title="MCQ question at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-mcq.html" title="MCQ question at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Question — TITA</h2>
+    <p class="tiny">Nothing entered · answer entered · locked. The keypad sits below the display so the OS keyboard can never cover Submit &amp; lock.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-tita.html" title="TITA question at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-tita.html" title="TITA question at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-tita.html" title="TITA question at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Question — with an image</h2>
+    <p class="tiny">Three-line stem, a figure at its natural size, an option that wraps to two lines, and the same question again in its final seconds with the window closing.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="student/run-image.html" title="Image question at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="student/run-image.html" title="Image question at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="student/run-image.html" title="Image question at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

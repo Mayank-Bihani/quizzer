@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Import — validation preview — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+<link rel="stylesheet" href="../css/screens-s8.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <a class="phdr__back" href="import-upload.html"><span aria-hidden="true">&larr;</span> Upload</a>
+            <h1 class="phdr__title">Validation preview</h1>
+            <p class="phdr__sub">Parsed against the current bank template — <code>type, topic, subtopic, difficulty, format, passage_ref, body, image, option_a..d, correct, numeric_answer, tolerance, explanation, source</code>. Nothing is written until you commit.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 1 — mixed. csv-validation-preview B (errors first, valid
+           collapsed) + import-error-summary A (grouped by cause). Reconciles
+           with console-home.html's "committed 194 of 200 rows — 6 errors" and
+           import-commit.html's numbers: 200 read, 6 line-level errors across
+           6 distinct causes, 194 valid.
+           =================================================================== -->
+      <div class="mock-state"><b>State — mixed</b> <span>batch14-quant-verbal-lr.csv &middot; 200 rows read, 6 errors</span></div>
+      <div class="stack">
+        <div class="rowflex">
+          <span class="chip on">All <span class="num">200</span></span>
+          <span class="chip">✓ <span class="num">194</span> valid</span>
+          <span class="chip">✕ <span class="num">6</span> errors</span>
+        </div>
+
+        <div class="alert a-dgr">
+          <span aria-hidden="true">✕</span>
+          <div><b><span class="num">6</span> rows cannot be imported.</b> Fix these lines in the CSV and re-upload, or commit the <span class="num">194</span> valid rows now — the 6 error rows are skipped, nothing else is affected.</div>
+        </div>
+
+        <div class="errgroup">
+          <div class="panel">
+            <span><b>1 ×</b> <code>difficulty</code> is empty, not one of <code>easy / medium / hard</code></span>
+            <span class="tiny ln">line 14</span>
+          </div>
+          <div class="panel">
+            <span><b>1 ×</b> <code>format=tita</code> row has no <code>tolerance</code></span>
+            <span class="tiny ln">line 47</span>
+          </div>
+          <div class="panel">
+            <span><b>1 ×</b> <code>passage_ref</code> “RC-9” does not match any passage row in the file</span>
+            <span class="tiny ln">line 88</span>
+          </div>
+          <div class="panel">
+            <span><b>1 ×</b> <code>correct</code> = “E”, not one of A&ndash;D</span>
+            <span class="tiny ln">line 112</span>
+          </div>
+          <div class="panel">
+            <span><b>1 ×</b> <code>type</code> = “quantitative”, not one of <code>verbal / quant / lr</code></span>
+            <span class="tiny ln">line 140</span>
+          </div>
+          <div class="panel">
+            <span><b>1 ×</b> <code>image</code> “triangle-07.png” not found in batch14-images.zip</span>
+            <span class="tiny ln">line 156</span>
+          </div>
+        </div>
+
+        <div class="rowflex">
+          <button class="btn sec">Copy line numbers</button>
+          <button class="btn ghost">Download error report (CSV)</button>
+        </div>
+
+        <details>
+          <summary class="btn sec" style="width:fit-content">Show 194 valid rows</summary>
+          <div class="errgroup" style="margin-top:var(--sp-4)">
+            <div class="panel">
+              <span class="ln">line 2</span>
+              <span class="grow tiny truncate">A can complete a task in <span class="num">12</span> days, B in <span class="num">18</span>. Working together&hellip;</span>
+              <span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span>
+              <span class="badge b-med">M</span>
+              <span class="badge b-open">✓ Valid</span>
+            </div>
+            <div class="panel">
+              <span class="ln">line 3</span>
+              <span class="grow tiny truncate">Closest antonym for OBDURATE</span>
+              <span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span>
+              <span class="badge b-easy">E</span>
+              <span class="badge b-open">✓ Valid</span>
+            </div>
+            <div class="panel">
+              <span class="ln">line 4</span>
+              <span class="grow tiny truncate">Six colleagues sit around a circular table facing the centre&hellip;</span>
+              <span class="badge b-square b-sec" style="background:var(--sec-lr)">LR</span>
+              <span class="badge b-hard">H</span>
+              <span class="badge b-open">✓ Valid</span>
+            </div>
+            <div class="panel">
+              <span class="ln">line 5</span>
+              <span class="grow tiny truncate">RC-20 &middot; The urban commons <span class="tiny">(passage, 5 questions)</span></span>
+              <span class="badge b-square b-sec" style="background:var(--sec-verbal)">VA</span>
+              <span class="badge b-open">✓ Valid</span>
+            </div>
+            <div class="panel">
+              <span class="ln">line 15</span>
+              <span class="grow tiny truncate">What is <span class="math">&radic;1764</span>?</span>
+              <span class="badge b-square b-sec" style="background:var(--sec-quant)">QA</span>
+              <span class="badge b-easy">E</span>
+              <span class="badge b-open">✓ Valid</span>
+            </div>
+          </div>
+          <p class="tiny" style="margin-top:var(--sp-3)">&hellip; and <span class="num">189</span> more valid rows, in file order.</p>
+        </details>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — all valid. A smaller, clean batch.
+           =================================================================== -->
+      <div class="mock-state"><b>State — all valid</b> <span>vocab-refresh-sep.csv, no companion ZIP</span></div>
+      <div class="stack">
+        <div class="alert a-ok">
+          <span aria-hidden="true">✓</span>
+          <div><b>All <span class="num">42</span> rows are valid.</b> Ready to commit — 42 questions will be added to the bank.</div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — nothing importable. The rejected file uses the OLD,
+           invented header — deliberately, so the guideline's fictional
+           schema (stem, section, correct_option) shows up exactly once in
+           this build: as the wrong answer being rejected in favour of
+           BANK.md's real one.
+           =================================================================== -->
+      <div class="mock-state"><b>State — nothing importable</b> <span>header row doesn't match the current template</span></div>
+      <div class="stack">
+        <div class="alert a-dgr">
+          <span aria-hidden="true">✕</span>
+          <div><b>No valid rows.</b> The header row doesn't match the current template.
+            <div class="tiny" style="margin-top:var(--sp-2)">Found: <code>stem, section, difficulty, correct_option, explanation</code></div>
+            <div class="tiny">Expected: <code>type, topic, subtopic, difficulty, format, passage_ref, body, image, option_a, option_b, option_c, option_d, correct, numeric_answer, tolerance, explanation, source</code></div>
+          </div>
+        </div>
+        <button class="btn sec" style="width:fit-content">Download template</button>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

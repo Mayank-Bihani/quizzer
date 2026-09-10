@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finish — own score only — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s4.css">
+</head>
+<body>
+
+<main class="resultpage">
+
+  <!-- ===================================================================
+       Tier 1 of the disclosure ladder (RESULT-1, selections.md's "correctness
+       colour lives only [in tier 3]" rule). finish-card A — score hero.
+       Exactly two numbers: total score and how many answered. No rank, no
+       correctness, no comparison, no leaderboard, no "you beat N people" —
+       every other variant in the guidelines was rejected for showing more.
+       No app shell: there is nowhere to go from here except Home. =========
+  -->
+  <div class="mock-state"><b>State — finish, normal</b> <span>finish-card A · RESULT-1 · own total score and how many answered, nothing else</span></div>
+
+  <div class="state">
+    <img src="../assets/illustrations/shade-finished.svg" alt="">
+    <h1 class="wlabel">Your score</h1>
+    <p class="hero num">38.5</p>
+    <p class="tiny">of <span class="num">60</span> · <span class="num">18</span> of <span class="num">20</span> answered</p>
+    <div class="alert a-info">
+      <span aria-hidden="true">●</span>
+      <span>Ranks and answers unlock at <span class="num">9:55 PM</span> IST — the same moment for everyone, whether you finished first or last.</span>
+    </div>
+    <div class="state__actions">
+      <a class="btn lg" href="home.html">Done</a>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       Second state: arrival via S3's deadline-mid-question (silent cut, no
+       T-10s warning — selections.md consequence 4). Same tier-1 content and
+       the same two numbers, but consequence 4 requires the card to state
+       plainly which question was not submitted, because the run gave no
+       chance to see it coming. Numbers match run-deadline.html exactly
+       (17 of 20, Q18) so the two screens read as one continuous story. ====
+  -->
+  <div class="mock-state"><b>State — finish, arrived via a deadline cut</b> <span>same tier, plus the plain statement selections.md consequence 4 requires</span></div>
+
+  <div class="state">
+    <img src="../assets/illustrations/shade-finished.svg" alt="">
+    <h1 class="wlabel">Your score</h1>
+    <p class="hero num">32.3</p>
+    <p class="tiny">of <span class="num">60</span> · <span class="num">17</span> of <span class="num">20</span> answered</p>
+    <div class="alert a-warn">
+      <span aria-hidden="true">⏱</span>
+      <span>The window closed while you were answering Q<span class="num">18</span>. It was not submitted and scored <span class="num">0</span> — no penalty.</span>
+    </div>
+    <div class="alert a-info">
+      <span aria-hidden="true">●</span>
+      <span>Ranks and answers unlock at <span class="num">9:55 PM</span> IST — the same moment for everyone.</span>
+    </div>
+    <div class="state__actions">
+      <a class="btn lg" href="home.html">Done</a>
+    </div>
+  </div>
+
+</main>
+</body>
+</html>

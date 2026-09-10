@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leaderboard — weekly — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s6.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html" class="on" aria-current="page">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <!-- =================================================================
+           board-switcher A (segmented sections + week stepper) driving
+           leaderboard-row A. BOARD-4/5/6: ranked on average score per quiz,
+           no minimum quiz count, produced per section AND combined. Visible
+           to every signed-in student, participant or not (SJ-9) — unlike the
+           per-quiz board this is not gated. Each tab/week combination is a
+           genuinely different ranking, so — per the no-JS-behaviour rule —
+           every combination shown here is its own labelled static state,
+           not one control with hidden panels. ==============================
+      -->
+      <div class="boardhead">
+        <div class="phdr">
+          <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+          <div class="phdr__row">
+            <div>
+              <h1 class="phdr__title">Weekly leaderboards</h1>
+              <p class="phdr__sub">Average score per quiz, this week. No minimum number of quizzes to appear. Visible to everyone, whether or not you played.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — Overall · current week</b> <span>Week 37, 8–14 Sep 2026 — "next week" disabled because it hasn't happened yet</span></div>
+
+      <div class="switcher">
+        <div class="seg" role="group" aria-label="Section" style="width:100%">
+          <button type="button" class="on" style="flex:1">Overall</button>
+          <button type="button" style="flex:1">Verbal</button>
+          <button type="button" style="flex:1">Quant</button>
+          <button type="button" style="flex:1">LR</button>
+        </div>
+        <div class="weekpick">
+          <button type="button" aria-label="Previous week">←</button>
+          <span class="num">Week 37 · 8–14 Sep</span>
+          <button type="button" aria-label="Next week" disabled>→</button>
+        </div>
+      </div>
+
+      <div class="boardlist">
+        <div class="rankrow rankrow--list r1">
+          <span class="rankrow__pos num r1">1</span>
+          <span class="av sm" aria-hidden="true">SV</span>
+          <span class="namerow__name grow truncate">Sanjay Verma</span>
+          <span class="rankrow__sec chip-sec b-quant">Quant</span>
+          <span class="rankrow__count num">4 quizzes</span>
+          <span class="rankrow__tb num">6:04</span>
+          <span class="rankrow__score num">41.2</span>
+        </div>
+        <div class="rankrow rankrow--list r2">
+          <span class="rankrow__pos num r2">2</span>
+          <span class="av sm" aria-hidden="true">DN</span>
+          <span class="namerow__name grow truncate">Divya Nair</span>
+          <span class="rankrow__sec chip-sec b-verbal">Verbal</span>
+          <span class="rankrow__count num">3 quizzes</span>
+          <span class="rankrow__tb num">6:41</span>
+          <span class="rankrow__score num">39.8</span>
+        </div>
+        <div class="rankrow rankrow--list r3">
+          <span class="rankrow__pos num r3">3</span>
+          <span class="av sm" aria-hidden="true">MP</span>
+          <span class="namerow__name grow truncate">Meera Pillai</span>
+          <span class="rankrow__sec chip-sec b-quant">Quant</span>
+          <span class="rankrow__count num">2 quizzes</span>
+          <span class="rankrow__tb num">7:02</span>
+          <span class="rankrow__score num">38.0</span>
+        </div>
+
+        <div class="boardgap"><span class="tiny">⋯ <span class="num">14</span> more ⋯</span></div>
+
+        <div class="rankrow rankrow--list you" id="you-row-overall">
+          <span class="rankrow__pos num">18</span>
+          <span class="av sm" aria-hidden="true">AK</span>
+          <span class="namerow__name grow truncate" style="font-weight:var(--fw-semibold)">You</span>
+          <span class="badge b-you">You</span>
+          <span class="rankrow__sec chip-sec b-quant">Quant</span>
+          <span class="rankrow__count num">2 quizzes</span>
+          <span class="rankrow__tb num">7:12</span>
+          <span class="rankrow__score num">26.5</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">19</span>
+          <span class="av sm" aria-hidden="true">NJ</span>
+          <span class="namerow__name grow truncate">Nikhil Joshi</span>
+          <span class="rankrow__sec chip-sec b-lr">LR</span>
+          <span class="rankrow__count num">1 quiz</span>
+          <span class="rankrow__tb num">8:20</span>
+          <span class="rankrow__score num">26.0</span>
+        </div>
+        <p class="tiny">Rank <span class="num">19</span> took only one quiz this week and still counts — there is no minimum.</p>
+
+        <div class="boardgap"><span class="tiny">⋯ <span class="num">98</span> more ⋯</span></div>
+
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">120</span>
+          <span class="av sm" aria-hidden="true">KS</span>
+          <span class="namerow__name grow truncate">Karthik Subramaniam</span>
+          <span class="rankrow__sec chip-sec b-quant">Quant</span>
+          <span class="rankrow__count num">1 quiz</span>
+          <span class="rankrow__tb num">12:30</span>
+          <span class="rankrow__score num">−2.5</span>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — Quant · current week</b> <span>same week, a different tab — a genuinely different ranking, since it only counts each student's Quant attempts</span></div>
+
+      <div class="switcher">
+        <div class="seg" role="group" aria-label="Section" style="width:100%">
+          <button type="button" style="flex:1">Overall</button>
+          <button type="button" style="flex:1">Verbal</button>
+          <button type="button" class="on" style="flex:1">Quant</button>
+          <button type="button" style="flex:1">LR</button>
+        </div>
+        <div class="weekpick">
+          <button type="button" aria-label="Previous week">←</button>
+          <span class="num">Week 37 · 8–14 Sep</span>
+          <button type="button" aria-label="Next week" disabled>→</button>
+        </div>
+      </div>
+
+      <div class="boardlist">
+        <div class="rankrow rankrow--list r1">
+          <span class="rankrow__pos num r1">1</span>
+          <span class="av sm" aria-hidden="true">SV</span>
+          <span class="namerow__name grow truncate">Sanjay Verma</span>
+          <span class="rankrow__count num">4 quizzes</span>
+          <span class="rankrow__tb num">6:04</span>
+          <span class="rankrow__score num">41.2</span>
+        </div>
+        <div class="rankrow rankrow--list r2">
+          <span class="rankrow__pos num r2">2</span>
+          <span class="av sm" aria-hidden="true">MP</span>
+          <span class="namerow__name grow truncate">Meera Pillai</span>
+          <span class="rankrow__count num">2 quizzes</span>
+          <span class="rankrow__tb num">7:02</span>
+          <span class="rankrow__score num">38.0</span>
+        </div>
+        <div class="rankrow rankrow--list r3">
+          <span class="rankrow__pos num r3">3</span>
+          <span class="av sm" aria-hidden="true">AK</span>
+          <span class="namerow__name grow truncate" style="font-weight:var(--fw-semibold)">You</span>
+          <span class="badge b-you">You</span>
+          <span class="rankrow__count num">2 quizzes</span>
+          <span class="rankrow__tb num">7:12</span>
+          <span class="rankrow__score num">31.5</span>
+        </div>
+        <p class="tiny">You rank higher inside Quant alone (3rd) than on the Overall board (18th) — the two boards are computed independently, not derived from each other.</p>
+      </div>
+
+      <div class="mock-state"><b>State — Overall · previous week</b> <span>the week stepper's "previous" arrow — Week 36 has already closed, so both arrows are enabled</span></div>
+
+      <div class="switcher">
+        <div class="seg" role="group" aria-label="Section" style="width:100%">
+          <button type="button" class="on" style="flex:1">Overall</button>
+          <button type="button" style="flex:1">Verbal</button>
+          <button type="button" style="flex:1">Quant</button>
+          <button type="button" style="flex:1">LR</button>
+        </div>
+        <div class="weekpick">
+          <button type="button" aria-label="Previous week">←</button>
+          <span class="num">Week 36 · 1–7 Sep</span>
+          <button type="button" aria-label="Next week">→</button>
+        </div>
+      </div>
+
+      <div class="boardlist">
+        <div class="rankrow rankrow--list r1">
+          <span class="rankrow__pos num r1">1</span>
+          <span class="av sm" aria-hidden="true">DN</span>
+          <span class="namerow__name grow truncate">Divya Nair</span>
+          <span class="rankrow__sec chip-sec b-verbal">Verbal</span>
+          <span class="rankrow__count num">5 quizzes</span>
+          <span class="rankrow__tb num">6:20</span>
+          <span class="rankrow__score num">40.5</span>
+        </div>
+        <div class="rankrow rankrow--list">
+          <span class="rankrow__pos num">7</span>
+          <span class="av sm" aria-hidden="true">AK</span>
+          <span class="namerow__name grow truncate" style="font-weight:var(--fw-semibold)">You</span>
+          <span class="badge b-you">You</span>
+          <span class="rankrow__sec chip-sec b-quant">Quant</span>
+          <span class="rankrow__count num">1 quiz</span>
+          <span class="rankrow__tb num">6:58</span>
+          <span class="rankrow__score num">33.0</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

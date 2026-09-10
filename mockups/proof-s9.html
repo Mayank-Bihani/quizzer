@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S9 responsive proof — Quizzer mockups</title>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/components.css">
+<style>
+  /* proof harness only — not app CSS, and not part of the component layer */
+  .proof{padding:var(--sp-9) var(--gutter-desktop);display:grid;gap:var(--sp-12)}
+  .proof__head{display:grid;gap:var(--sp-3)}
+  .proof section{display:grid;gap:var(--sp-5)}
+  .proof h2{font:var(--type-h2)}
+  .row{display:flex;gap:var(--sp-7);align-items:flex-start;overflow-x:auto;padding-bottom:var(--sp-5)}
+  .fr{display:grid;gap:var(--sp-3);flex:0 0 auto}
+  .fr figcaption{font:var(--type-caption);color:var(--text-3)}
+  .fr .shell{background:var(--n-0);border:1px solid var(--border-2);border-radius:var(--r-lg);box-shadow:var(--elev-3);overflow:hidden}
+  .fr iframe{display:block;border:0;height:1400px}
+  .w390 iframe{width:390px}
+  .w820 iframe{width:820px}
+  .w1440 iframe{width:1440px}
+</style>
+</head>
+<body>
+
+<main class="proof">
+
+  <div class="proof__head">
+    <h1 class="phdr__title">Sprint S9 — responsive proof</h1>
+    <p class="tiny">Every S9 screen at <span class="num">390</span>, <span class="num">820</span> and <span class="num">1440</span>. Frames are real iframes at exact CSS widths. Picks built: quiz-builder-wizard A (horizontal stepper) · difficulty-mix-control A (three steppers + running total) · composition-report A (sentence + breakdown table) · draw-preview A (list, per-row swap) · scoring-parameter-panel A (field list + live decay curve) · schedule-picker A (date + time + duration) · recurrence-editor A (weekday chips + end rule) · destructive-confirm B on modal-sheet A (type-to-confirm, dialog &ge;640px / bottom sheet below).</p>
+    <p class="tiny">One flagship quiz carries the whole wizard: <b>Weekly Quant Sprint #28</b> — 20 standalone Quant questions, 6/10/4 easy/medium/hard, 45s/question, +3/&minus;1/+0.5, seat cap 120, opens 9 Sep 2026 9:30 PM IST, closes 9:55 PM IST, room code <code class="tiny">QNT-9103</code> assigned at lock. It reconciles with console-home.html's (S7) needs-attention note about the recurring template's cumulative Medium demand, and with bank.html's "41 unused Medium" filtered count.</p>
+    <p class="tiny">Bonus states cover what the flagship quiz can't: a passage-set composition (a Verbal quiz, since Quant carries none), and pool exhaustion resolved as reuse-with-a-warning (PRD open question 1) rather than a silent fallback or a hard failure.</p>
+  </div>
+
+  <section>
+    <h2>Define</h2>
+    <p class="tiny">difficulty-mix-control A: valid mix (6/10/4 = 20, Continue enabled) · invalid mix (21 &ne; 20, Continue blocked — consequence 3).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/builder-define.html" title="Builder define at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/builder-define.html" title="Builder define at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/builder-define.html" title="Builder define at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Draw &amp; composition</h2>
+    <p class="tiny">draw-preview A + composition-report A · the sprint's one genuine relayout (stacked on phone, form-left/live-preview-right from 900px — resize to see the drawn list move beside the composition card, not below it) · plus a passage-set composition example and a pool-exhaustion / reuse-with-warning example.</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/builder-draw.html" title="Builder draw at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/builder-draw.html" title="Builder draw at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/builder-draw.html" title="Builder draw at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Scoring</h2>
+    <p class="tiny">scoring-parameter-panel A: six fields + a live bonus-decay curve (grace 10s of 45s = 22%, matching the design system's own warning threshold) · seat cap clamped to the platform maximum of 120 (QUIZ-9).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/builder-scoring.html" title="Builder scoring at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/builder-scoring.html" title="Builder scoring at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/builder-scoring.html" title="Builder scoring at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Schedule</h2>
+    <p class="tiny">schedule-picker A (derived close time stated in copy) · recurrence-editor A (weekday chips + end rule, reconciling with the "62 Medium across 6 occurrences" needs-attention note) · a window-length validation this build added directly from QUIZ-10, since no guideline variant models it. No room code appears here — it does not exist until lock (QUIZ-8).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone</figcaption><div class="shell"><iframe src="admin/builder-schedule.html" title="Builder schedule at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet</figcaption><div class="shell"><iframe src="admin/builder-schedule.html" title="Builder schedule at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop</figcaption><div class="shell"><iframe src="admin/builder-schedule.html" title="Builder schedule at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Lock confirmation</h2>
+    <p class="tiny">destructive-confirm B on modal-sheet A — the first sprint to build either. The dialog (&ge;640px) and bottom sheet (&lt;640px) are the same real markup, toggled purely by width: compare the 390 frame (sheet) against the 820/1440 frames (dialog) below. States: nothing typed (Lock quiz disabled) · "LOCK" typed (enabled) · locked (irreversible, room code assigned and still withheld).</p>
+    <div class="row">
+      <figure class="fr w390"><figcaption>390 · phone — bottom sheet</figcaption><div class="shell"><iframe src="admin/builder-lock.html" title="Builder lock at 390"></iframe></div></figure>
+      <figure class="fr w820"><figcaption>820 · tablet — dialog</figcaption><div class="shell"><iframe src="admin/builder-lock.html" title="Builder lock at 820"></iframe></div></figure>
+      <figure class="fr w1440"><figcaption>1440 · laptop — dialog</figcaption><div class="shell"><iframe src="admin/builder-lock.html" title="Builder lock at 1440"></iframe></div></figure>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

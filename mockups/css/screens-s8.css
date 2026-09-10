@@ -1,0 +1,25 @@
+/* ============================================================================
+   Sprint S8 — admin: import. Layout only; every component lives in
+   components.css. Follows the S0–S7 convention that each sprint's screen CSS
+   is self-contained rather than importing another sprint's wrapper.
+   ========================================================================= */
+
+/* upload: dropzone sits in a capped column so a 1440px admin screen doesn't
+   stretch a drag target across the full width — the one place in this sprint
+   a measure cap is justified, because the dropzone is chrome, not quiz
+   content (same reasoning S1 used for .auth-col / .join). */
+.dzwrap{max-width:640px}
+
+/* preview: the error-summary panels and the collapsed valid-rows table share
+   one column; the chip row sits above both. Grid/flex items default their
+   min-width to their own content — the same blowout class SYSTEM-GAPS #34
+   already logged for S7's .tablewrap/.pgroup__head — so every level here is
+   given min-width:0 explicitly, the same fix applied there. */
+.errgroup{display:grid;gap:var(--sp-3);min-width:0}
+.errgroup .panel{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap;min-width:0}
+.errgroup .panel>*{min-width:0}
+
+/* commit: the write-summary facts grid and the commit bar stack in one
+   column, capped the same way as the dropzone — this is a confirmation
+   dialog's worth of content, not a table. */
+.commitwrap{max-width:640px;display:grid;gap:var(--sp-6)}

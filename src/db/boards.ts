@@ -1,0 +1,1 @@
+// weekly_boards table; computeWeeklyBoards — avg score per type + overall, KV board cache warm; week_start is the Monday of the IST week just ended, not UTC — QUIZZING.md §7, §9; SCHEDULER.md §3, §4.3, §6; CONTRACTS.md §5

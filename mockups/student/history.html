@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>History — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s6.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html">Home</a>
+      <a href="history.html" class="on" aria-current="page">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <h1 class="phdr__title">Your history</h1>
+            <p class="phdr__sub">Every quiz you've been sent, kept indefinitely. <span class="num">14</span> attempts.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mock-state"><b>State — populated</b> <span>attempted · held · not attempted, in one list — continues home.html's timeline (today is Wed 2 Sep 2026) and reuses finish.html / rank-reveal.html / review.html's exact attempt (Weekly Quant Sprint #27, rank 4 of 83, 38.5) plus home.html's own "recent" rows (#26, Para Jumbles Set 9) unchanged</span></div>
+
+      <div class="hlist">
+        <a class="hrow" href="review.html">
+          <span class="chip-sec b-quant" aria-hidden="true">QA</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Weekly Quant Sprint #27</span>
+            <span class="hrow__meta num">2 Sep, 9:00 PM · rank 4 of 83</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">38.5</span>
+            <span class="tiny">Review →</span>
+          </span>
+        </a>
+
+        <div class="hrow hrow--held">
+          <span class="chip-sec b-quant" aria-hidden="true">QA</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Speed Drill 9</span>
+            <span class="hrow__meta num">2 Sep, 9:00 PM · results unlock <span class="num">11:00 PM</span> IST</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">19.5</span>
+            <span class="tiny">Held</span>
+          </span>
+        </div>
+
+        <a class="hrow" href="review.html">
+          <span class="chip-sec b-quant" aria-hidden="true">QA</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Weekly Quant Sprint #26</span>
+            <span class="hrow__meta num">31 Aug, 9:00 PM · rank 7 of 87</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">54.4</span>
+            <span class="tiny">Review →</span>
+          </span>
+        </a>
+
+        <a class="hrow" href="review.html">
+          <span class="chip-sec b-verbal" aria-hidden="true">VA</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Para Jumbles &amp; Summary — Set 9</span>
+            <span class="hrow__meta num">29 Aug, 9:00 PM · rank 23 of 74</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">38.0</span>
+            <span class="tiny">Review →</span>
+          </span>
+        </a>
+
+        <div class="hrow hrow--muted">
+          <span class="chip-sec b-lr" aria-hidden="true">LR</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Seating Arrangements — Circular Set 6</span>
+            <span class="hrow__meta">27 Aug, 9:00 PM · not attempted</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="tiny">—</span>
+            <a class="tiny" href="did-not-take.html">Details →</a>
+          </span>
+        </div>
+
+        <a class="hrow" href="review.html">
+          <span class="chip-sec b-lr" aria-hidden="true">LR</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Arrangements &amp; Puzzles — Set 5</span>
+            <span class="hrow__meta num">25 Aug, 9:00 PM · rank 41 of 96</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">24.0</span>
+            <span class="tiny">Review →</span>
+          </span>
+        </a>
+
+        <a class="hrow" href="review.html">
+          <span class="chip-sec b-verbal" aria-hidden="true">VA</span>
+          <span class="grow" style="min-width:0">
+            <span class="hrow__name truncate">Reading Comprehension — Long Passage Set 4</span>
+            <span class="hrow__meta num">22 Aug, 9:00 PM · rank 61 of 90</span>
+          </span>
+          <span class="hrow__aside">
+            <span class="hrow__score num">17.5</span>
+            <span class="tiny">Review →</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="rowflex">
+        <button class="btn sec">Load earlier attempts</button>
+      </div>
+
+      <div class="mock-state"><b>State — empty</b> <span>a new student, before their first quiz — same illustration and copy shape as home.html's empty state</span></div>
+      <div class="state">
+        <img src="../assets/illustrations/shade-empty.svg" alt="">
+        <h5>No quizzes yet</h5>
+        <p>Once you take your first quiz it will show up here, with your score and a link to review every question — kept for as long as your account exists.</p>
+        <a class="btn" href="home.html">Find a quiz</a>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

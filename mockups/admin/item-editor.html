@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Question editor — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s7.css">
+</head>
+<body>
+
+<div class="adm">
+
+  <header class="adm__bar">
+    <a class="brandmark" href="console-home.html">Quizzer</a>
+    <details class="admdrawer">
+      <summary aria-label="Open admin menu">☰</summary>
+      <nav class="menu" aria-label="Admin sections">
+        <a href="console-home.html">Console home</a>
+        <a class="on" href="bank.html">Bank</a>
+        <a href="builder-define.html">Quizzes</a>
+        <a href="schedule.html">Schedule</a>
+        <a href="report.html">Reports</a>
+        <a href="manage-admins.html">Admins</a>
+      </nav>
+    </details>
+    <span class="grow"></span>
+    <span class="tiny">Admin</span>
+    <div class="av sm" aria-hidden="true">RS</div>
+    <span class="tiny truncate">Rohan Sethi</span>
+  </header>
+
+  <nav class="adm__side" aria-label="Admin sections">
+    <a href="console-home.html">Console home</a>
+    <a class="on" href="bank.html">Bank</a>
+    <a href="builder-define.html">Quizzes</a>
+    <a href="schedule.html">Schedule</a>
+    <a href="report.html">Reports</a>
+    <a href="manage-admins.html">Admins</a>
+  </nav>
+
+  <main class="adm__main">
+    <div class="stack-lg">
+
+      <div class="phdr">
+        <div class="phdr__row">
+          <div>
+            <a class="phdr__back" href="bank.html"><span aria-hidden="true">&larr;</span> Question bank</a>
+            <h1 class="phdr__title">Edit question</h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 1 — MCQ, two-pane, ready to save. The exact Q7 of Weekly
+           Quant Sprint #27 that S5's review.html already shows wrong and
+           S0's editor-guideline sample shows with a broken worked answer
+           (21, not 19) — corrected here to match S5's fix, so the bank
+           record, the run and the review all agree.
+           =================================================================== -->
+      <div class="mock-state" id="mcq"><b>State — MCQ</b> <span>question-editor A &middot; two-pane, edit left / preview right &middot; live LaTeX preview passes</span></div>
+
+      <div class="editorhead">
+        <div class="rowflex"><span class="chip on">MCQ</span><span class="chip">TITA</span></div>
+        <div class="rowflex">
+          <button class="btn sec sm" type="button">Cancel</button>
+          <button class="btn sm" type="button">Save question</button>
+        </div>
+      </div>
+
+      <div class="editor">
+        <form class="editor__form">
+          <div class="field">
+            <label class="lbl" for="mcq-stem">Stem</label>
+            <textarea class="inp" id="mcq-stem">If &#36;x^2-5x+6=0&#36; and &#36;x&gt;2&#36;, find &#36;x^3-8&#36;.</textarea>
+          </div>
+          <div class="rowflex">
+            <div class="field grow">
+              <label class="lbl" for="mcq-sec">Section</label>
+              <select class="inp" id="mcq-sec">
+                <option selected>Quant</option>
+                <option>Verbal</option>
+                <option>Logical Reasoning</option>
+              </select>
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="mcq-topic">Topic</label>
+              <input class="inp" id="mcq-topic" value="Quadratics">
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="mcq-diff">Difficulty</label>
+              <select class="inp" id="mcq-diff">
+                <option>Easy</option>
+                <option selected>Medium</option>
+                <option>Hard</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl" id="mcq-opts-lbl">Options &middot; pick the correct one</span>
+            <div class="stack" role="group" aria-labelledby="mcq-opts-lbl">
+              <div class="optedit">
+                <input type="radio" name="mcq-correct" id="mcq-a" aria-label="Option A is correct">
+                <label class="ln" for="mcq-a">A</label>
+                <input class="inp" aria-label="Option A text" value="17">
+              </div>
+              <div class="optedit">
+                <input type="radio" name="mcq-correct" id="mcq-b" checked aria-label="Option B is correct">
+                <label class="ln" for="mcq-b">B</label>
+                <input class="inp" aria-label="Option B text" value="19">
+              </div>
+              <div class="optedit">
+                <input type="radio" name="mcq-correct" id="mcq-c" aria-label="Option C is correct">
+                <label class="ln" for="mcq-c">C</label>
+                <input class="inp" aria-label="Option C text" value="21">
+              </div>
+              <div class="optedit">
+                <input type="radio" name="mcq-correct" id="mcq-d" aria-label="Option D is correct">
+                <label class="ln" for="mcq-d">D</label>
+                <input class="inp" aria-label="Option D text" value="23">
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="mcq-exp">Explanation</label>
+            <textarea class="inp" id="mcq-exp">Factorising gives &#36;(x-2)(x-3)=0&#36;, so &#36;x=2&#36; or &#36;x=3&#36;; since &#36;x&gt;2&#36;, &#36;x=3&#36;. &#36;x^3-8=27-8=19&#36;.</textarea>
+          </div>
+          <div class="field">
+            <label class="lbl" for="mcq-src">Source</label>
+            <input class="inp" id="mcq-src" value="CAT 2021 slot 2 (adapted)">
+          </div>
+          <div class="rowflex">
+            <button class="btn sec sm" type="button">Attach image</button>
+            <span class="tiny">1 max &middot; &le; 2 MB</span>
+          </div>
+        </form>
+        <div class="editor__preview">
+          <span class="wlabel">Student preview</span>
+          <div class="panel">
+            <p class="stem">If <span class="math">x<sup>2</sup> &minus; 5x + 6 = 0</span> and <span class="math">x &gt; 2</span>, find <span class="math">x<sup>3</sup> &minus; 8</span>.</p>
+            <div class="rowflex">
+              <span class="chip">A 17</span>
+              <span class="chip on">B 19 <span aria-hidden="true">✓</span></span>
+              <span class="chip">C 21</span>
+              <span class="chip">D 23</span>
+            </div>
+            <p class="tiny">Explanation: Factorising gives <span class="math">(x &minus; 2)(x &minus; 3) = 0</span>, so <span class="math">x = 3</span>; <span class="math">x<sup>3</sup> &minus; 8 = 27 &minus; 8 = 19</span>.</p>
+          </div>
+          <div class="alert a-ok">
+            <span aria-hidden="true">✓</span>
+            <span>LaTeX parses. 4 options, one correct.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 2 — TITA, two-pane, ready to save. The same milk-mixture
+           question S2's run-tita.html already shows locked in at 25.6.
+           =================================================================== -->
+      <div class="mock-state" id="tita"><b>State — TITA</b> <span>question-editor A &middot; numeric answer + tolerance instead of options &middot; live preview passes</span></div>
+
+      <div class="editorhead">
+        <div class="rowflex"><span class="chip">MCQ</span><span class="chip on">TITA</span></div>
+        <div class="rowflex">
+          <button class="btn sec sm" type="button">Cancel</button>
+          <button class="btn sm" type="button">Save question</button>
+        </div>
+      </div>
+
+      <div class="editor">
+        <form class="editor__form">
+          <div class="field">
+            <label class="lbl" for="tita-stem">Stem</label>
+            <textarea class="inp" id="tita-stem">A vessel holds 40 litres of milk. 8 litres are drawn off and replaced with water; the same is then done a second time. How many litres of milk remain in the vessel?</textarea>
+          </div>
+          <div class="rowflex">
+            <div class="field grow">
+              <label class="lbl" for="tita-sec">Section</label>
+              <select class="inp" id="tita-sec">
+                <option selected>Quant</option>
+                <option>Verbal</option>
+                <option>Logical Reasoning</option>
+              </select>
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="tita-topic">Topic</label>
+              <input class="inp" id="tita-topic" value="Mixtures &amp; Alligation">
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="tita-diff">Difficulty</label>
+              <select class="inp" id="tita-diff">
+                <option>Easy</option>
+                <option selected>Medium</option>
+                <option>Hard</option>
+              </select>
+            </div>
+          </div>
+          <div class="rowflex">
+            <div class="field grow">
+              <label class="lbl" for="tita-ans">Numeric answer</label>
+              <input class="inp num" id="tita-ans" inputmode="decimal" value="25.6">
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="tita-tol">Tolerance &plusmn;</label>
+              <input class="inp num" id="tita-tol" inputmode="decimal" value="0.1">
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="tita-exp">Explanation</label>
+            <textarea class="inp" id="tita-exp">Each removal-and-replace cycle multiplies the remaining milk fraction by 32/40 = 0.8. After two cycles: 40 &times; 0.8&sup2; = 25.6 litres remain.</textarea>
+          </div>
+          <div class="field">
+            <label class="lbl" for="tita-src">Source</label>
+            <input class="inp" id="tita-src" value="Standard mixture-replacement formula">
+          </div>
+          <div class="rowflex">
+            <button class="btn sec sm" type="button">Attach image</button>
+            <span class="tiny">1 max &middot; &le; 2 MB</span>
+          </div>
+        </form>
+        <div class="editor__preview">
+          <span class="wlabel">Student preview</span>
+          <div class="panel">
+            <p class="stem">A vessel holds <span class="num">40</span> litres of milk. <span class="num">8</span> litres are drawn off and replaced with water; the same is then done a second time. How many litres of milk remain in the vessel?</p>
+            <div class="rowflex"><span class="tiny">Answer accepted within</span><span class="badge">25.5 &ndash; 25.7</span></div>
+            <p class="tiny">Explanation: Each removal-and-replace cycle multiplies the remaining milk fraction by <span class="math">32/40 = 0.8</span>. After two cycles: <span class="math">40 &times; 0.8<sup>2</sup> = 25.6</span> litres remain.</p>
+          </div>
+          <div class="alert a-ok">
+            <span aria-hidden="true">✓</span>
+            <span>LaTeX parses. Numeric answer and tolerance both set.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================
+           State 3 — validation error (bonus edge case). A second TITA item
+           with an unclosed math delimiter in the explanation — Save stays
+           disabled until it is fixed, and the error names the exact line.
+           =================================================================== -->
+      <div class="mock-state"><b>State — validation error</b> <span>unclosed math delimiter in the explanation &middot; Save disabled until fixed</span></div>
+
+      <div class="editorhead">
+        <div class="rowflex"><span class="chip">MCQ</span><span class="chip on">TITA</span></div>
+        <div class="rowflex">
+          <button class="btn sec sm" type="button">Cancel</button>
+          <button class="btn sm" type="button" disabled>Save question</button>
+        </div>
+      </div>
+
+      <div class="editor">
+        <form class="editor__form">
+          <div class="field">
+            <label class="lbl" for="tita2-stem">Stem</label>
+            <textarea class="inp" id="tita2-stem">Remainder when &#36;7^{103}&#36; is divided by 5?</textarea>
+          </div>
+          <div class="rowflex">
+            <div class="field grow">
+              <label class="lbl" for="tita2-ans">Numeric answer</label>
+              <input class="inp num" id="tita2-ans" inputmode="decimal" value="3">
+            </div>
+            <div class="field grow">
+              <label class="lbl" for="tita2-tol">Tolerance &plusmn;</label>
+              <input class="inp num" id="tita2-tol" inputmode="decimal" value="0">
+            </div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="tita2-exp">Explanation</label>
+            <textarea class="inp err" id="tita2-exp">Powers of 7 cycle mod 5 with period 4: 7, 4, 3, 1. &#36;103 = 4&times;25+3, so the remainder is the 3rd term in the cycle, which is 3.</textarea>
+            <span class="help err">Line 2: unclosed math delimiter after &ldquo;&#36;103&rdquo; &mdash; add the closing one.</span>
+          </div>
+          <div class="rowflex">
+            <button class="btn sec sm" type="button">Preview as student</button>
+            <button class="btn sec sm" type="button">Attach image</button>
+          </div>
+        </form>
+        <div class="editor__preview">
+          <span class="wlabel">Student preview</span>
+          <div class="alert a-dgr">
+            <span aria-hidden="true">✕</span>
+            <span><b>Explanation has an unclosed math delimiter</b> &mdash; the rest of the explanation would render as raw source. Fix line 2 before saving.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

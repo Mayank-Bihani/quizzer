@@ -1,0 +1,1 @@
+// GET /api/images/:key — serves an R2 object by key, owned end to end by BANK; NOT in BANK's admin-only route group — requireAuth() only, no per-question scoping (illustrative images, not answers; scoping would need BANK to read QUIZZING's tables for no real benefit) — BANK.md §5; AUTH.md §3.3; MODULES.md §5

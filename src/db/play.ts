@@ -1,0 +1,1 @@
+// QUIZZING runtime: quiz_seats, participants, participant_units, answers. Prepare/open, idempotent join/current unit, atomic final unit batch (validate/grade/store/close/totals/advance), strict deadlines and retries — QUIZZING.md §5.

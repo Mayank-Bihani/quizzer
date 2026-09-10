@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz detail — Quizzer mockups</title>
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/components.css">
+<link rel="stylesheet" href="../css/screens-s1.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app__top">
+    <a class="brandmark" href="../index.html">Quizzer</a>
+    <nav class="topnav grow" aria-label="Main">
+      <a href="home.html" class="on" aria-current="page">Home</a>
+      <a href="history.html">History</a>
+      <a href="leaderboard-weekly.html">Leaderboards</a>
+    </nav>
+    <div class="av" aria-hidden="true">AK</div>
+    <span class="tiny truncate">Ananya Krishnamurthy</span>
+  </header>
+
+  <main class="app__main">
+    <div class="stack-lg">
+
+      <!-- ============ default: upcoming, room code withheld until T−5m ==== -->
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <div class="detail__head">
+              <span class="chip-sec b-verbal">Verbal</span>
+              <span class="badge b-sched">◇ Scheduled</span>
+            </div>
+            <h1 class="phdr__title">Reading Comprehension Set 12</h1>
+            <p class="phdr__sub">Thu <span class="num">3 Sep 2026</span>, <span class="num">9:00 PM</span> IST · in <span class="num">21</span> hours</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail">
+        <div class="detail__body">
+          <div class="card stack">
+            <h2 class="h2">What you are sitting</h2>
+            <dl class="facts">
+              <div class="fact"><dt>Questions</dt><dd>16</dd></div>
+              <div class="fact"><dt>Per question</dt><dd>90<small>s</small></dd></div>
+              <div class="fact"><dt>Window</dt><dd>30<small> min</small></dd></div>
+              <div class="fact"><dt>Seats</dt><dd>120</dd></div>
+            </dl>
+            <p class="tiny">Four passages, four questions each. The passage stays on screen while you work through its set.</p>
+          </div>
+
+          <div class="card stack">
+            <h2 class="h2">Scoring on this quiz</h2>
+            <dl class="deflist">
+              <div><dt>Correct answer</dt><dd class="num">+2</dd></div>
+              <div><dt>Wrong answer</dt><dd class="num">0 <span class="tiny">— no negative marking</span></dd></div>
+              <div><dt>Skipped or not reached</dt><dd class="num">0</dd></div>
+              <div><dt>Speed bonus</dt><dd>up to <span class="num">+0.4</span> a question, full inside the first <span class="num">20</span>s</dd></div>
+              <div><dt>Maximum score</dt><dd class="num">38.4</dd></div>
+            </dl>
+            <!-- SELECTIONS consequence 10: with marks_wrong = 0 the absence of a
+                 penalty is itself worth stating, so the strip is not hidden. -->
+            <div class="alert a-info">
+              <span aria-hidden="true">●</span>
+              <span>No negative marking on this quiz. A wrong answer scores the same as leaving it blank, so there is nothing to lose by attempting one.</span>
+            </div>
+            <div class="alert a-warn">
+              <span aria-hidden="true">▲</span>
+              <span>Answers lock the moment you submit. There is no back button and no editing — you cannot return to a question.</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="detail__aside">
+          <!-- room-code-display A, pending. TG-6: the code is withheld until T−5m,
+               so this block shows the release time, never a placeholder code. -->
+          <div class="codebox codebox--pending">
+            <span class="tiny">Room code releases in</span>
+            <span class="code num">20:55:14</span>
+            <span class="tiny">From <span class="num">8:55 PM</span> IST, here and in the Telegram group</span>
+          </div>
+          <div class="card stack">
+            <div class="detail__when">
+              <span class="tiny">Opens</span>
+              <span class="badge b-sched">◇ Thu <span class="num">9:00 PM</span></span>
+            </div>
+            <div class="detail__when">
+              <span class="tiny">Closes for everyone</span>
+              <span class="pill-clock"><span aria-hidden="true">◷</span> 9:30 PM</span>
+            </div>
+            <div class="detail__actions">
+              <button class="btn block" type="button" disabled>Opens Thu at 9:00 PM</button>
+            </div>
+            <span class="tiny">You can join any time in the 30-minute window. The window closes for everyone at once, finished or not.</span>
+          </div>
+        </aside>
+      </div>
+
+      <!-- ============ state: open now ==================================== -->
+      <div class="mock-state"><b>State — room open</b> <span>T−5m has passed, code released, seats still free</span></div>
+
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <div class="detail__head">
+              <span class="chip-sec b-quant">Quant</span>
+              <span class="badge b-live">● Live</span>
+            </div>
+            <h1 class="phdr__title">Weekly Quant Sprint #27</h1>
+            <p class="phdr__sub">Opens <span class="num">9:30 PM</span> IST · closes <span class="num">9:55 PM</span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail">
+        <div class="detail__body">
+          <div class="card stack">
+            <h2 class="h2">What you are sitting</h2>
+            <dl class="facts">
+              <div class="fact"><dt>Questions</dt><dd>20</dd></div>
+              <div class="fact"><dt>Per question</dt><dd>45<small>s</small></dd></div>
+              <div class="fact"><dt>Window</dt><dd>25<small> min</small></dd></div>
+              <div class="fact"><dt>Seats left</dt><dd>89<small> of 120</small></dd></div>
+            </dl>
+            <p class="tiny">Mixed arithmetic, algebra and modern maths. Two questions carry a diagram.</p>
+          </div>
+
+          <div class="card stack">
+            <h2 class="h2">Scoring on this quiz</h2>
+            <dl class="deflist">
+              <div><dt>Correct answer</dt><dd class="num">+3</dd></div>
+              <div><dt>Wrong answer</dt><dd class="num">−1</dd></div>
+              <div><dt>Skipped or timed out</dt><dd class="num">0</dd></div>
+              <div><dt>Speed bonus</dt><dd>up to <span class="num">+0.5</span> a question, full inside the first <span class="num">12</span>s</dd></div>
+              <div><dt>Maximum score</dt><dd class="num">70.0</dd></div>
+            </dl>
+            <div class="alert a-warn">
+              <span aria-hidden="true">▲</span>
+              <span>A wrong answer costs you <span class="num">1</span> mark. Skipping costs nothing — on a question you cannot crack, skipping is the better play.</span>
+            </div>
+            <div class="alert a-warn">
+              <span aria-hidden="true">▲</span>
+              <span>Answers lock the moment you submit. There is no back button and no editing — you cannot return to a question.</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="detail__aside">
+          <!-- room-code-display A, released -->
+          <div class="codebox">
+            <span class="tiny">Room code</span>
+            <span class="code">QNT-8417</span>
+            <div class="rowflex">
+              <button class="btn sec" type="button">Copy code</button>
+              <button class="btn sec" type="button">Share</button>
+            </div>
+          </div>
+          <div class="card stack">
+            <div class="detail__when">
+              <span class="tiny">Opens in</span>
+              <span class="pill-clock"><span aria-hidden="true">◷</span> 00:04:12</span>
+            </div>
+            <div class="detail__when">
+              <span class="tiny">Window closes</span>
+              <span class="badge b-closed"><span class="num">9:55 PM</span> IST</span>
+            </div>
+            <div class="detail__actions">
+              <a class="btn block" href="lobby.html">Join quiz</a>
+            </div>
+            <span class="tiny">Joining takes a seat. Seats are not released once a quiz opens.</span>
+          </div>
+        </aside>
+      </div>
+
+      <!-- ============ state: window closed ============================== -->
+      <div class="mock-state"><b>State — window closed</b> <span>reached from Telegram or a bookmark after the deadline</span></div>
+
+      <div class="phdr">
+        <a class="phdr__back" href="home.html"><span aria-hidden="true">←</span> Home</a>
+        <div class="phdr__row">
+          <div>
+            <div class="detail__head">
+              <span class="chip-sec b-lr">Logical Reasoning</span>
+              <span class="badge b-closed">Closed</span>
+            </div>
+            <h1 class="phdr__title">Arrangements &amp; Puzzles — Friday Drill</h1>
+            <p class="phdr__sub">Closed <span class="num">28 Aug 2026</span> at <span class="num">9:25 PM</span> IST · <span class="num">64</span> took it</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <div class="alert a-info">
+          <span aria-hidden="true">●</span>
+          <span>This quiz has finished. You did not take it, so its review and its leaderboard are not available to you — both are for participants only.</span>
+        </div>
+        <div class="detail__actions">
+          <a class="btn sec" href="home.html">Weekly leaderboards</a>
+          <a class="btn ghost" href="home.html">Back to Home</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <nav class="navbar" aria-label="Main">
+    <a href="home.html" class="on" aria-current="page"><span class="gl" aria-hidden="true">◧</span>Home</a>
+    <a href="history.html"><span class="gl" aria-hidden="true">◔</span>History</a>
+    <a href="leaderboard-weekly.html"><span class="gl" aria-hidden="true">▲</span>Boards</a>
+    <a href="profile.html"><span class="gl" aria-hidden="true">◍</span>Profile</a>
+  </nav>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+:root{
+/* ---- elevation: restrained, two-part (contact + ambient) ---- */
+--elev-0:none;
+--elev-1:0 1px 2px rgba(16,24,40,.05);
+--elev-2:0 1px 2px rgba(16,24,40,.05),0 4px 12px rgba(16,24,40,.06);
+--elev-3:0 2px 4px rgba(16,24,40,.05),0 12px 28px rgba(16,24,40,.09);
+--elev-4:0 4px 8px rgba(16,24,40,.06),0 24px 56px rgba(16,24,40,.13);
+--elev-inset:inset 0 1px 0 rgba(255,255,255,.7);
+
+/* ---- glass recipes (A default / B / C) ---- */
+--glass-a-bg:rgba(255,255,255,.62);
+--glass-a-blur:18px; /* @kind other */
+--glass-a-sat:180%; /* @kind other */
+--glass-a-border:1px solid rgba(255,255,255,.75); /* @kind other */
+--glass-a-ring:inset 0 0 0 1px rgba(16,24,40,.05); /* @kind shadow */
+--glass-a-shadow:var(--elev-2); /* @kind shadow */
+--glass-b-bg:rgba(255,255,255,.86);
+--glass-b-blur:8px; /* @kind other */
+--glass-b-sat:120%; /* @kind other */
+--glass-b-border:1px solid var(--n-200); /* @kind other */
+--glass-b-ring:none; /* @kind shadow */
+--glass-b-shadow:var(--elev-1); /* @kind shadow */
+--glass-c-bg:rgba(255,255,255,.44);
+--glass-c-blur:28px; /* @kind other */
+--glass-c-sat:200%; /* @kind other */
+--glass-c-border:1px solid rgba(255,255,255,.55); /* @kind other */
+--glass-c-ring:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(16,24,40,.04); /* @kind shadow */
+--glass-c-shadow:var(--elev-3); /* @kind shadow */
+/* active glass aliases */
+--glass-bg:var(--glass-a-bg);
+--glass-blur:var(--glass-a-blur); /* @kind other */
+--glass-sat:var(--glass-a-sat); /* @kind other */
+--glass-border:var(--glass-a-border); /* @kind other */
+--glass-ring:var(--glass-a-ring); /* @kind shadow */
+--glass-shadow:var(--glass-a-shadow); /* @kind shadow */
+--glass-bg-strong:rgba(255,255,255,.9); /* sheets, dialogs, anything holding long text */
+--hairline:1px solid rgba(16,24,40,.08); /* @kind other */
+
+/* ---- ambient background system (A default / B / C) ---- */
+--amb-base:#F7F5F1;
+--amb-a:radial-gradient(60% 50% at 12% 0%,rgba(169,119,44,.16),transparent 60%),radial-gradient(50% 45% at 92% 8%,rgba(44,110,99,.14),transparent 62%),radial-gradient(70% 60% at 50% 108%,rgba(138,59,52,.12),transparent 60%),linear-gradient(180deg,#FAF8F4,#F2EFE9); /* @kind other */
+--amb-b:linear-gradient(180deg,#FBF9F6 0%,#F1EEE8 100%); /* @kind other */
+--amb-c:radial-gradient(38% 30% at 20% 18%,rgba(169,119,44,.24),transparent 70%),radial-gradient(34% 28% at 82% 30%,rgba(138,59,52,.18),transparent 70%),radial-gradient(40% 34% at 55% 88%,rgba(44,110,99,.20),transparent 70%),#F8F5F0; /* @kind other */
+--amb-noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='120' height='120' filter='url(%23n)' opacity='.5'/></svg>"); /* @kind other */
+--amb-noise-opacity:.035; /* @kind other */
+--ambient:var(--amb-a); /* @kind other */
+
+/* ---- focus ---- */
+--focus-ring:0 0 0 2px var(--n-0),0 0 0 4px var(--accent-500);
+--focus-ring-on-glass:0 0 0 2px rgba(255,255,255,.95),0 0 0 4px var(--accent-600);
+--focus-ring-danger:0 0 0 2px var(--n-0),0 0 0 4px var(--danger-600);
+--scrim:rgba(14,17,22,.36);
+--scrim-blur:6px; /* @kind other */
+}
