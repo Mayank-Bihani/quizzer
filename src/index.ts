@@ -6,6 +6,8 @@ import { Hono } from "hono"
 import type { Bindings, Variables } from "./core/config"
 import auth from "./routes/auth"
 import { adminRoleMutation, adminRoster } from "./routes/admins"
+import bank from "./routes/bank"
+import images from "./routes/images"
 
 const app = new Hono<{ Bindings: Bindings; Variables: Variables }>()
 
@@ -17,5 +19,7 @@ app.onError((err, c) => {
 app.route("/api/auth", auth)
 app.route("/api/admin/users", adminRoster)
 app.route("/api/admin/users", adminRoleMutation)
+app.route("/api/bank", bank)
+app.route("/api/images", images)
 
 export default app

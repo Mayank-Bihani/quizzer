@@ -14,12 +14,15 @@
     "db:seed:remote": "wrangler d1 execute quizzer-db --remote --file=migrations/seed.sql"
   },
   "dependencies": {
+    "fflate": "^0.8.3",
     "hono": "^4.6.0",
-    "jose": "^6.2.12"
+    "jose": "^6.2.12",
+    "papaparse": "^5.7.0"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.22.0",
     "@cloudflare/workers-types": "^5.20260908.1",
+    "@types/papaparse": "^5.5.2",
     "typescript": "^5.6.0",
     "vitest": "^4.1.0",
     "wrangler": "^4.130.0"

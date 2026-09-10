@@ -9,6 +9,7 @@ import type { CurrentUser } from "./contracts"
 export type Bindings = {
   DB: D1Database
   CACHE: KVNamespace
+  IMAGES: R2Bucket
   GOOGLE_CLIENT_ID: string
   SESSION_SIGNING_KEY: string
   SUPERADMIN_EMAIL: string
@@ -37,3 +38,22 @@ export const JWT_CLOCK_TOLERANCE_SEC = 60
 
 // A Google ID token is a few KB at most; this bounds the parsed request body defensively.
 export const MAX_GOOGLE_SIGNIN_BODY_BYTES = 8192
+
+// ============================================================================
+// BANK — upload policy resolved 2026-09-10 (BANK.md §7); pagination is the global
+// convention shared by every list route that can grow without bound (API.md).
+// ============================================================================
+
+export const MAX_CSV_BYTES = 5 * 1024 * 1024
+export const MAX_ZIP_BYTES = 20 * 1024 * 1024 // as uploaded
+export const MAX_ZIP_INFLATED_BYTES = 50 * 1024 * 1024 // after unzip
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024 // per image
+export const ALLOWED_IMAGE_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const
+
+export const DEFAULT_PAGE_LIMIT = 50
+export const MAX_PAGE_LIMIT = 100
+
+// D1 batch() has undocumented statement/size limits; this keeps each chunk comfortably bounded.
+export const IMPORT_BATCH_ROWS = 50
+
+export const IMAGES_ROUTE_PREFIX = "/api/images"
