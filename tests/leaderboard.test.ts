@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { assignDenseRanks, selectTopAndOwn, type RankableParticipant } from "../src/core/leaderboard"
+import { assignDenseRanks, assignWeeklyDenseRanks, selectTopAndOwn, type RankableParticipant, type WeeklyRankable } from "../src/core/leaderboard"
 
 function participant(userId: string, totalScore: number, totalTimeMs: number, name = `Name-${userId}`): RankableParticipant {
   return { userId, name, totalScore, totalTimeMs }
@@ -100,5 +100,49 @@ describe("selectTopAndOwn", () => {
     const { rows } = selectTopAndOwn(ranked, "unknown-user")
     expect(rows.every((r) => !r.isOwnRow)).toBe(true)
     expect(rows).toHaveLength(3)
+  })
+})
+
+function weeklyRow(userId: string, totalScore: number, quizzesTaken: number, name = `Name-${userId}`): WeeklyRankable {
+  return { userId, name, totalScore, quizzesTaken }
+}
+
+describe("assignWeeklyDenseRanks — single-key, score DESC only", () => {
+  it("returns an empty array for an empty board", () => {
+    expect(assignWeeklyDenseRanks([])).toEqual([])
+  })
+
+  it("orders strictly by totalScore descending", () => {
+    const ranked = assignWeeklyDenseRanks([weeklyRow("u1", 5, 1), weeklyRow("u2", 10, 3), weeklyRow("u3", 7, 2)])
+    expect(ranked.map((r) => [r.userId, r.rank])).toEqual([
+      ["u2", 1],
+      ["u3", 2],
+      ["u1", 3],
+    ])
+  })
+
+  it("gives an exact score tie the same dense rank regardless of quizzesTaken, leaving no gap", () => {
+    const ranked = assignWeeklyDenseRanks([weeklyRow("u1", 10, 5), weeklyRow("u2", 10, 1), weeklyRow("u3", 8, 9)])
+    const byId = Object.fromEntries(ranked.map((r) => [r.userId, r.rank]))
+    expect(byId.u1).toBe(byId.u2)
+    expect(byId.u1).toBe(1)
+    expect(byId.u3).toBe(2)
+  })
+
+  it("never lets quizzesTaken break a tie or influence ordering", () => {
+    const ranked = assignWeeklyDenseRanks([weeklyRow("u1", 10, 1), weeklyRow("u2", 10, 100)])
+    expect(ranked.every((r) => r.rank === 1)).toBe(true)
+  })
+
+  it("preserves quizzesTaken as display context only, unchanged by ranking", () => {
+    const ranked = assignWeeklyDenseRanks([weeklyRow("u1", 10, 4)])
+    expect(ranked[0]?.quizzesTaken).toBe(4)
+  })
+
+  it("stabilizes serialization among exact ties without changing the rank value", () => {
+    const a = assignWeeklyDenseRanks([weeklyRow("zeta", 10, 1), weeklyRow("alpha", 10, 1)])
+    const b = assignWeeklyDenseRanks([weeklyRow("alpha", 10, 1), weeklyRow("zeta", 10, 1)])
+    expect(a.map((r) => r.userId)).toEqual(b.map((r) => r.userId))
+    expect(a.every((r) => r.rank === 1)).toBe(true)
   })
 })

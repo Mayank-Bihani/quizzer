@@ -8,6 +8,7 @@ import type { Bindings, Variables } from "./core/config"
 import auth from "./routes/auth"
 import { adminRoleMutation, adminRoster } from "./routes/admins"
 import bank from "./routes/bank"
+import { boards } from "./routes/boards"
 import images from "./routes/images"
 import quizzes from "./routes/quizzes"
 import { play, quizzesPublic } from "./routes/play"
@@ -18,13 +19,19 @@ import { createTelegramContract, listFailedPosts } from "./db/telegram"
 import { createEmailSender, createTelegramSender } from "./services/observability"
 import { listDueCloseQuizzes, listDuePrepareIds, openRoom, type RunDeps } from "./services/quiz-run"
 import { createCloseQuiz } from "./services/quiz-results"
+import { materializeTemplates } from "./services/quiz-materializer"
+import { computeWeeklyBoards } from "./services/quiz-boards"
+import { mostRecentlyElapsedWeekStart } from "./core/schedule"
 import {
   createOnQuizClosed,
   runAnnouncePass,
   runCancelledNotifyPass,
   runClosePass,
   runFailureAlertsPass,
+  runMaterializePass,
   runPreparePass,
+  runWeeklyPass,
+  runWeeklyRetrySweep,
   type SchedulerDeps,
 } from "./services/scheduler"
 import { createNoOpBotClient, createTelegramBotClient } from "./services/telegram"
@@ -71,6 +78,7 @@ app.route("/api/quizzes", quizzesPublic)
 app.route("/api/quizzes", resultsQuizRoutes)
 app.route("/api/play", play)
 app.route("/api/students", studentsRoutes)
+app.route("/api/boards", boards)
 
 async function sha256Hex(input: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input))
@@ -78,18 +86,38 @@ async function sha256Hex(input: string): Promise<string> {
 }
 
 const MINUTE_TICK_CRON = "* * * * *"
+const HOURLY_CRON = "0 * * * *"
+const WEEKLY_CRON = "0 19 * * SUN"
 
 async function scheduled(controller: ScheduledController, env: Bindings): Promise<void> {
-  // Hourly materialization and weekly board publication are Sprint 7; only the minute tick's
-  // prepare/close/alerts/announce portion is implemented here. The weekly cron trigger
-  // (0 19 * * SUN) intentionally has no handler branch yet — it falls through and no-ops.
+  const bot = env.TELEGRAM_ENABLED === "true" && env.TELEGRAM_BOT_TOKEN ? createTelegramBotClient(env.TELEGRAM_BOT_TOKEN) : createNoOpBotClient()
+  const telegram = createTelegramContract(env.DB, bot, env.TELEGRAM_CHAT_ID ?? "")
+
+  if (controller.cron === HOURLY_CRON) {
+    const now = Date.now()
+    await runMaterializePass({
+      materializeTemplates: (days, materializeNow) =>
+        materializeTemplates({ db: env.DB, bank: createBankContract(env.DB), random: () => Math.random() }, days, materializeNow),
+      now: () => now,
+      telegram: env.TELEGRAM_BOT_TOKEN ? createTelegramSender(env.TELEGRAM_BOT_TOKEN) : null,
+      email: env.ALERT_EMAIL && env.EMAIL_ALERT_ADDRESS ? createEmailSender(env.ALERT_EMAIL, env.EMAIL_ALERT_ADDRESS) : null,
+      alertChatId: env.TELEGRAM_ALERT_CHAT_ID ?? null,
+      alertEmailAddress: env.EMAIL_ALERT_ADDRESS ?? null,
+    })
+    await runWeeklyRetrySweep((weekStart) => computeWeeklyBoards({ db: env.DB, kv: env.CACHE }, weekStart), mostRecentlyElapsedWeekStart(now), telegram)
+    return
+  }
+
+  if (controller.cron === WEEKLY_CRON) {
+    const now = Date.now()
+    await runWeeklyPass((weekStart) => computeWeeklyBoards({ db: env.DB, kv: env.CACHE }, weekStart), mostRecentlyElapsedWeekStart(now), telegram)
+    return
+  }
+
   if (controller.cron !== MINUTE_TICK_CRON) return
 
   const runDeps: RunDeps = { db: env.DB, kv: env.CACHE, bank: createBankContract(env.DB), now: () => Date.now(), hash: sha256Hex }
   const fixedNow = (now: number): RunDeps => ({ ...runDeps, now: () => now })
-
-  const bot = env.TELEGRAM_ENABLED === "true" && env.TELEGRAM_BOT_TOKEN ? createTelegramBotClient(env.TELEGRAM_BOT_TOKEN) : createNoOpBotClient()
-  const telegram = createTelegramContract(env.DB, bot, env.TELEGRAM_CHAT_ID ?? "")
 
   const schedulerDeps: SchedulerDeps = {
     listDuePrepare: (now, limit) => listDuePrepareIds(fixedNow(now), now, limit),
@@ -108,8 +136,6 @@ async function scheduled(controller: ScheduledController, env: Bindings): Promis
   await runClosePass(schedulerDeps, createCloseQuiz(env.DB, env.CACHE, createOnQuizClosed(telegram)))
   await runAnnouncePass({ listDueAnnounce: (now, limit) => listDueAnnounce(env.DB, now, limit), now: () => Date.now() }, telegram)
   await runCancelledNotifyPass({ listDueCancelledNotifications: (limit) => listDueCancelledNotifications(env.DB, limit) }, telegram)
-  // runWeeklyPass is deliberately not called here — Sprint 7 supplies the real
-  // computeWeeklyBoards and binds this into the 0 19 * * SUN cron trigger.
 }
 
 export default Object.assign(app, { scheduled })

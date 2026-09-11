@@ -42,14 +42,15 @@ describe("runWeeklyPass — typed but never production-wired in Sprint 6", () =>
   })
 })
 
-describe("production wiring — the weekly cron stays a no-op in Sprint 6", () => {
-  it("the weekly cron trigger fires with no observable Telegram/D1 side effect", async () => {
-    for (const table of ["telegram_posts"]) {
+describe("production wiring — Sprint 7 binds the weekly cron to the real pass", () => {
+  it("the weekly cron trigger fires with no observable throw against an empty (not-ready) DB", async () => {
+    for (const table of ["telegram_posts", "quizzes", "users"]) {
       await env.DB.prepare(`DELETE FROM ${table}`).run()
     }
     const controller = { cron: "0 19 * * SUN", scheduledTime: Date.now(), noRetry: () => undefined }
     await expect(app.scheduled(controller, env)).resolves.not.toThrow()
-    const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM telegram_posts").first<{ n: number }>()
-    expect(count?.n).toBe(0)
+    // No quizzes exist at all, so every candidate week is vacuously "ready" but has no rows to
+    // aggregate — nothing to claim/send; this only proves the cron branch is now dispatched safely,
+    // not the full publish pipeline (tests/scheduler-materialize-weekly.test.ts covers that).
   })
 })

@@ -2,8 +2,21 @@
 // alerts. Issues no SQL/KV itself — every read/write goes through the injected QUIZZING/TELEGRAM
 // seams — SCHEDULER.md §4.1; CONTRACTS.md §5; src/core/contracts.ts:125-181.
 
-import type { BoardSummary, CancelledPayload, CloseResult, DueAnnounceQuiz, DueCloseQuiz, FailedTelegramPostRef, OpenResult, QuizAnnouncePayload, TelegramContract } from "../core/contracts"
-import { CLOSE_ALERT_DELAY_MS, SCHEDULER_DISCOVERY_LIMIT } from "../core/config"
+import type {
+  BoardSummary,
+  CancelledPayload,
+  CloseResult,
+  DueAnnounceQuiz,
+  DueCloseQuiz,
+  FailedTelegramPostRef,
+  MaterializationFailure,
+  MaterializeResult,
+  OpenResult,
+  QuizAnnouncePayload,
+  TelegramContract,
+} from "../core/contracts"
+import { CLOSE_ALERT_DELAY_MS, MATERIALIZE_LOOKAHEAD_DAYS, SCHEDULER_DISCOVERY_LIMIT, WEEKLY_RETRY_LOOKBACK_WEEKS } from "../core/config"
+import { weekStartOffsetBy } from "../core/schedule"
 import { sendFailureAlert, type EmailSender, type TelegramSender } from "./observability"
 
 export type SchedulerDeps = {
@@ -170,4 +183,83 @@ export async function runWeeklyPass(
   if (boards.length === 0) return { sent: false } // week not ready yet — SCHEDULER.md §"weekly"
   await telegram.claimAndSend("weekly", { weekStart }, boards)
   return { sent: true }
+}
+
+// AC-14's bounded weekly-retry sweep: the current (most recently elapsed) week plus
+// WEEKLY_RETRY_LOOKBACK_WEEKS-1 prior weeks, each attempted through the same runWeeklyPass this
+// file already built for the Monday trigger — never a second claimAndSend loop. Every candidate
+// week is isolated: one failing week never blocks another, mirroring listDueClose's per-item
+// isolation from Sprint 4.
+export async function runWeeklyRetrySweep(
+  computeWeeklyBoards: (weekStart: string) => Promise<BoardSummary[]>,
+  currentWeekStart: string,
+  telegram: TelegramContract
+): Promise<{ attempted: number; sent: number }> {
+  let sent = 0
+  for (let weeksBack = 0; weeksBack < WEEKLY_RETRY_LOOKBACK_WEEKS; weeksBack++) {
+    const weekStart = weekStartOffsetBy(currentWeekStart, weeksBack)
+    try {
+      const outcome = await runWeeklyPass(computeWeeklyBoards, weekStart, telegram)
+      if (outcome.sent) sent++
+    } catch (err) {
+      logPassFailure("weekly-retry", weekStart, err)
+    }
+  }
+  return { attempted: WEEKLY_RETRY_LOOKBACK_WEEKS, sent }
+}
+
+// Sprint 4's sendFailureAlert/AlertMessage (src/services/observability.ts) is a frozen file for
+// this packet (AC-16) and its AlertMessage union has no materialization-failure variant to add
+// one without editing it. This mirrors that helper's exact independent-per-channel dispatch
+// shape locally, using only the already-exported TelegramSender/EmailSender adapters — never a
+// second alert-transport implementation, only a second call site for a message shape the frozen
+// union can't express.
+function renderMaterializationAlertText(failure: MaterializationFailure): string {
+  return `[Quizzer alert] materialization failed for template ${failure.templateId} at ${failure.scheduledAt} (${failure.code})`
+}
+
+async function sendMaterializationAlert(
+  deps: { telegram: TelegramSender | null; email: EmailSender | null; alertChatId: string | null; alertEmailAddress: string | null },
+  failure: MaterializationFailure
+): Promise<void> {
+  const text = renderMaterializationAlertText(failure)
+  if (deps.telegram && deps.alertChatId) {
+    try {
+      await deps.telegram.send(deps.alertChatId, text)
+    } catch {
+      // independent failure — the email attempt below must still be tried
+    }
+  }
+  if (deps.email && deps.alertEmailAddress) {
+    try {
+      await deps.email.send(deps.alertEmailAddress, "Quizzer alert", text)
+    } catch {
+      // independent failure — never suppressed by (or suppressing) the Telegram attempt
+    }
+  }
+}
+
+// AC-14's hourly materialize pass: draws/publishes every due occurrence, then independently
+// alerts both private channels for every returned failure. One occurrence/failure/channel
+// attempt never blocks another.
+export async function runMaterializePass(
+  deps: {
+    materializeTemplates: (days: number, now: number) => Promise<MaterializeResult>
+    now: () => number
+    telegram: TelegramSender | null
+    email: EmailSender | null
+    alertChatId: string | null
+    alertEmailAddress: string | null
+  }
+): Promise<{ created: number; failed: number }> {
+  const now = deps.now()
+  const result = await deps.materializeTemplates(MATERIALIZE_LOOKAHEAD_DAYS, now)
+  for (const failure of result.failures) {
+    try {
+      await sendMaterializationAlert(deps, failure)
+    } catch (err) {
+      logPassFailure("materialize-alert", failure.templateId, err)
+    }
+  }
+  return { created: result.quizIds.length, failed: result.failures.length }
 }

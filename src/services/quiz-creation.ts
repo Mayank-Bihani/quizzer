@@ -264,6 +264,47 @@ function validateLockSnapshot(snapshot: Awaited<ReturnType<typeof getLockSnapsho
   return true
 }
 
+// Shared by admin lock (this file) and Sprint 7's unattended materializer: reserve-next-quiz-
+// number -> BankContract.claimUnused -> assign-room-code -> status='scheduled', with the same
+// same-owner-confirmed-claim retry safety. Never duplicate this sequence a second time — reuse it.
+export type ReserveClaimPublishOutcome =
+  | { kind: "locked"; roomCode: string; quizNumber: number }
+  | { kind: "short_claim"; requestedCount: number; claimedCount: number }
+  | { kind: "conflict" }
+
+export async function reserveClaimAndPublish(
+  deps: Pick<CreationDeps, "db" | "bank" | "random">,
+  id: string,
+  type: QuizType,
+  questionIds: string[]
+): Promise<ReserveClaimPublishOutcome> {
+  const reserved = await reserveQuizNumber(deps.db, id)
+  if (reserved === "not_draft") return { kind: "conflict" }
+  const quizNumber = reserved
+
+  const confirmed = new Set(await deps.bank.claimUnused(questionIds, id, quizNumber))
+  const allConfirmed = questionIds.every((qid) => confirmed.has(qid))
+  if (!allConfirmed) {
+    return { kind: "short_claim", requestedCount: questionIds.length, claimedCount: confirmed.size }
+  }
+
+  for (let attempt = 0; attempt < ROOM_CODE_MAX_COLLISION_RETRIES; attempt++) {
+    const roomCode = generateRoomCode(type, deps.random)
+    try {
+      const published = await publishSchedule(deps.db, id, quizNumber, roomCode)
+      if (published) return { kind: "locked", roomCode, quizNumber }
+    } catch {
+      continue // room_code UNIQUE collision — try another code
+    }
+    const recheck = await getQuizAdminSummary(deps.db, id)
+    if (recheck?.status === "scheduled" && recheck.roomCode && recheck.quizNumber) {
+      return { kind: "locked", roomCode: recheck.roomCode, quizNumber: recheck.quizNumber }
+    }
+    return { kind: "conflict" }
+  }
+  throw new Error("room code allocation exhausted retries")
+}
+
 export async function lockQuiz(deps: CreationDeps, id: string): Promise<LockOutcome> {
   const snapshot = await getLockSnapshot(deps.db, id)
   if (!snapshot) return { kind: "not_found" }
@@ -285,34 +326,12 @@ export async function lockQuiz(deps: CreationDeps, id: string): Promise<LockOutc
     }
   }
 
-  const reserved = await reserveQuizNumber(deps.db, id)
-  if (reserved === "not_draft") return { kind: "conflict" }
-  const quizNumber = reserved
-
-  const confirmed = new Set(await deps.bank.claimUnused(snapshot.questionIds, id, quizNumber))
-  const allConfirmed = snapshot.questionIds.every((qid) => confirmed.has(qid))
-  if (!allConfirmed) {
-    return {
-      kind: "ok",
-      response: { locked: false, requestedCount: snapshot.questionIds.length, claimedCount: confirmed.size },
-    }
+  const outcome = await reserveClaimAndPublish(deps, id, snapshot.type, snapshot.questionIds)
+  if (outcome.kind === "conflict") return { kind: "conflict" }
+  if (outcome.kind === "short_claim") {
+    return { kind: "ok", response: { locked: false, requestedCount: outcome.requestedCount, claimedCount: outcome.claimedCount } }
   }
-
-  for (let attempt = 0; attempt < ROOM_CODE_MAX_COLLISION_RETRIES; attempt++) {
-    const roomCode = generateRoomCode(snapshot.type, deps.random)
-    try {
-      const published = await publishSchedule(deps.db, id, quizNumber, roomCode)
-      if (published) return { kind: "ok", response: { locked: true, roomCode, quizNumber } }
-    } catch {
-      continue // room_code UNIQUE collision — try another code
-    }
-    const recheck = await getQuizAdminSummary(deps.db, id)
-    if (recheck?.status === "scheduled" && recheck.roomCode && recheck.quizNumber) {
-      return { kind: "ok", response: { locked: true, roomCode: recheck.roomCode, quizNumber: recheck.quizNumber } }
-    }
-    return { kind: "conflict" }
-  }
-  throw new Error("room code allocation exhausted retries")
+  return { kind: "ok", response: { locked: true, roomCode: outcome.roomCode, quizNumber: outcome.quizNumber } }
 }
 
 // ============================================================================

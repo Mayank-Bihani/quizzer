@@ -120,6 +120,8 @@ export type DraftInsert = {
   createdAt: number
   units: QuizUnitDefinition[]
   questionIds: string[] // caller-ordered, matching units' questionPositions
+  templateId?: string // Sprint 7 materialization only; admin-created drafts never set this
+  seatCap?: number // defaults to 120, matching the admin-draft path's prior fixed value exactly
 }
 
 export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<void> {
@@ -127,11 +129,12 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
   const statements = [
     db
       .prepare(
-        `INSERT INTO quizzes (id, title, type, question_count, unit_count, difficulty_mix, scheduled_at, lobby_opens_at, seat_cap, created_by, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 120, ?, ?)`
+        `INSERT INTO quizzes (id, template_id, title, type, question_count, unit_count, difficulty_mix, scheduled_at, lobby_opens_at, seat_cap, created_by, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         draft.id,
+        draft.templateId ?? null,
         draft.title,
         draft.type,
         draft.questionCount,
@@ -139,6 +142,7 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
         JSON.stringify(draft.difficultyMix),
         draft.scheduledAt,
         lobbyOpensAt,
+        draft.seatCap ?? 120,
         draft.createdBy,
         draft.createdAt
       ),
@@ -567,4 +571,81 @@ export async function listDueAnnounce(db: D1Database, now: number, limit: number
     if (payload) due.push({ quizId, kind: "open", ...payload })
   }
   return due.slice(0, limit)
+}
+
+// ============================================================================
+// materializeTemplates support — Sprint 7; QUIZZING.md §7; SCHEDULER.md §4.2
+// ============================================================================
+
+export type TemplateRow = {
+  id: string
+  name: string
+  type: QuizType
+  questionCount: number
+  difficultyMix: Partial<Record<Difficulty, number>>
+  timingPolicy: TimingPolicy
+  slackSec: number
+  joinWindowSec: number
+  marksCorrect: number
+  marksWrong: number
+  seatCap: number
+  rrule: string
+  createdBy: string
+}
+
+export async function getActiveTemplates(db: D1Database): Promise<TemplateRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT id, name, type, question_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, created_by
+       FROM quiz_templates WHERE active = 1`
+    )
+    .all<{
+      id: string
+      name: string
+      type: QuizType
+      question_count: number
+      difficulty_mix: string
+      timing_policy: string
+      slack_sec: number
+      join_window_sec: number
+      marks_correct: number
+      marks_wrong: number
+      seat_cap: number
+      rrule: string
+      created_by: string
+    }>()
+  return results.map((r) => ({
+    id: r.id,
+    name: r.name,
+    type: r.type,
+    questionCount: r.question_count,
+    difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(r.difficulty_mix) ?? {},
+    timingPolicy: parseJsonColumn<TimingPolicy>(r.timing_policy) ?? {},
+    slackSec: r.slack_sec,
+    joinWindowSec: r.join_window_sec,
+    marksCorrect: r.marks_correct,
+    marksWrong: r.marks_wrong,
+    seatCap: r.seat_cap,
+    rrule: r.rrule,
+    createdBy: r.created_by,
+  }))
+}
+
+// Cheap existence check backed by idx_quizzes_template_scheduled — the authoritative retry-safety
+// backstop; this is only an optimization to skip work, never the sole correctness guarantee.
+export async function occurrenceExists(db: D1Database, templateId: string, scheduledAt: number): Promise<boolean> {
+  const row = await db.prepare("SELECT 1 FROM quizzes WHERE template_id = ? AND scheduled_at = ?").bind(templateId, scheduledAt).first()
+  return row !== null
+}
+
+// Only ever called for a draft this same materialize attempt just inserted, when the immediately
+// following claim comes up short (an essentially-impossible single-admin-deployment race —
+// BANK.md never designs for concurrent-admin claim contention) — AC-6 requires a failed occurrence
+// to leave no draft, no partial quiz_units/quiz_questions, and no BANK claim behind.
+export async function deleteUnpublishedDraft(db: D1Database, quizId: string): Promise<void> {
+  await db.batch([
+    db.prepare("DELETE FROM quiz_questions WHERE quiz_id = ?").bind(quizId),
+    db.prepare("DELETE FROM quiz_units WHERE quiz_id = ?").bind(quizId),
+    db.prepare("DELETE FROM quizzes WHERE id = ? AND status = 'draft'").bind(quizId),
+  ])
 }

@@ -1,6 +1,6 @@
 // KV: jwks:*, role:<uid>, unit:<quizId>:<unitPosition> as redacted UnitContent only, board:<quizId|weekStart>. Personal clocks/drafts never in shared content; use fresh values directly on cache miss — MODULES.md.
 
-import type { UnitContent } from "../core/contracts"
+import type { BoardSummary, UnitContent } from "../core/contracts"
 import type { FullRankedBoard } from "../db/results"
 
 function unitCacheKey(quizId: string, unitPosition: number): string {
@@ -116,5 +116,50 @@ export async function putCachedBoard(kv: KVNamespace, quizId: string, board: Ful
     await kv.put(boardCacheKey(quizId), JSON.stringify(safe))
   } catch {
     // write failure is not fatal — the committed D1 write already succeeded independently
+  }
+}
+
+function weeklyBoardCacheKey(weekStart: string): string {
+  return `board:${weekStart}`
+}
+
+function isBoardSummaryArrayShape(value: unknown): value is BoardSummary[] {
+  if (!Array.isArray(value)) return false
+  return value.every((entry) => {
+    if (typeof entry !== "object" || entry === null) return false
+    const v = entry as Record<string, unknown>
+    return typeof v.type === "string" && typeof v.weekStart === "string" && Array.isArray(v.top10)
+  })
+}
+
+// A warm-only projection of an already-committed weekly publish — never consulted by the paginated
+// read path (which needs an authoritative row count top10 alone cannot provide), only written here
+// so the key exists for other/future consumers without risking a stale or truncated total.
+export async function getCachedWeeklyBoard(kv: KVNamespace, weekStart: string): Promise<BoardSummary[] | null> {
+  let raw: string | null
+  try {
+    raw = await kv.get(weeklyBoardCacheKey(weekStart))
+  } catch {
+    return null
+  }
+  if (raw === null) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return isBoardSummaryArrayShape(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export async function putCachedWeeklyBoard(kv: KVNamespace, weekStart: string, boards: BoardSummary[]): Promise<void> {
+  const safe: BoardSummary[] = boards.map((b) => ({
+    type: b.type,
+    weekStart: b.weekStart,
+    top10: b.top10.map((r) => ({ rank: r.rank, userId: r.userId, name: r.name, totalScore: r.totalScore, quizzesTaken: r.quizzesTaken })),
+  }))
+  try {
+    await kv.put(weeklyBoardCacheKey(weekStart), JSON.stringify(safe))
+  } catch {
+    // write failure is not fatal — the committed D1 publish already succeeded independently
   }
 }

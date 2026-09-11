@@ -101,3 +101,13 @@ export const SEAT_PREP_CHUNK_SIZE = 50
 
 export const SCHEDULER_DISCOVERY_LIMIT = 100
 export const CLOSE_ALERT_DELAY_MS = 180_000 // three minutes after safeCloseAt — SCHEDULER.md §4.1
+
+// ============================================================================
+// Weekly boards + recurring materialization — SCHEDULER.md §4.2-4.3
+// ============================================================================
+
+export const MATERIALIZE_LOOKAHEAD_DAYS = 7
+// Accepted V1 operational limit — the quiz season ends in the third week of November; a week
+// that ages out of this window is not automatically recovered. Implementation bound, not a
+// product setting.
+export const WEEKLY_RETRY_LOOKBACK_WEEKS = 8

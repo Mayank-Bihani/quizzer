@@ -48,3 +48,26 @@ export function selectTopAndOwn(ranked: RankedParticipant[], viewerId: string): 
 
   return { rows, truncated: ranked.length > 10 }
 }
+
+// Weekly boards — single-key dense rank (score DESC only). Deliberately separate from
+// assignDenseRanks above: there is no secondary tie-break at the weekly level, and quizzesTaken
+// never breaks a tie or divides the score — it is display context only.
+export type WeeklyRankable = { userId: string; name: string; totalScore: number; quizzesTaken: number }
+export type WeeklyRanked = WeeklyRankable & { rank: number }
+
+export function assignWeeklyDenseRanks(rows: WeeklyRankable[]): WeeklyRanked[] {
+  const sorted = [...rows].sort((a, b) => {
+    if (a.totalScore !== b.totalScore) return b.totalScore - a.totalScore
+    return a.userId < b.userId ? -1 : a.userId > b.userId ? 1 : 0
+  })
+
+  const ranked: WeeklyRanked[] = []
+  let rank = 0
+  let previousScore: number | null = null
+  for (const row of sorted) {
+    if (previousScore === null || previousScore !== row.totalScore) rank++
+    ranked.push({ ...row, rank })
+    previousScore = row.totalScore
+  }
+  return ranked
+}
