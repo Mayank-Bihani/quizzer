@@ -15,6 +15,7 @@
 import { env } from "cloudflare:test"
 import { describe, expect, it, vi } from "vitest"
 import app from "../../src/index"
+import { closeQuizTransaction } from "../../src/db/results"
 import { jwksResponse, makeGoogleKeyPair, signGoogleIdToken } from "../helpers/google"
 
 const SEAT_CAP = 120
@@ -64,6 +65,29 @@ async function insertAdmin(): Promise<string> {
     .bind(id, crypto.randomUUID(), `${id}@example.com`, "Load Admin", Date.now())
     .run()
   return id
+}
+
+// A signed-in admin session for the finished-system report read (AC-12) — separate from the
+// 120 timed student clients and outside the measured submission sample (AC-13).
+async function signInAdmin(): Promise<string> {
+  const kid = crypto.randomUUID()
+  const { privateKey, jwk } = await makeGoogleKeyPair(kid)
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => jwksResponse([jwk]))
+  )
+  const sub = crypto.randomUUID()
+  const idToken = await signGoogleIdToken(privateKey, kid, env.GOOGLE_CLIENT_ID, { sub, email: `${sub}@example.com` })
+  const res = await app.request(
+    "/api/auth/google",
+    { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken }) },
+    env
+  )
+  const body = await res.json<{ id: string }>()
+  vi.unstubAllGlobals()
+  await env.DB.prepare("UPDATE users SET role = 'admin' WHERE id = ?").bind(body.id).run()
+  await env.CACHE.delete(`role:${body.id}`)
+  return extractCookie(res)
 }
 
 async function insertMcqQuestion(creatorId: string, seq: number): Promise<string> {
@@ -152,6 +176,11 @@ describe("120-client capacity and latency", () => {
         })
       )
 
+      // No partial board visibility while the run is still active — AC-12.
+      const preCloseLeaderboard = await authed(`/api/quizzes/${quizId}/leaderboard`, clientCookies[0] as string)
+      requestCount++
+      expect(preCloseLeaderboard.status).toBe(423)
+
       const submitDurationsMs: number[] = []
       let failedAcceptedClientRequests = 0
 
@@ -187,29 +216,82 @@ describe("120-client capacity and latency", () => {
         .bind(quizId)
         .first<{ n: number }>()
       const answerCount = await env.DB.prepare("SELECT COUNT(*) AS n FROM answers WHERE quiz_id = ?").bind(quizId).first<{ n: number }>()
+      const participantUnitCount = await env.DB.prepare("SELECT COUNT(*) AS n FROM participant_units WHERE quiz_id = ?").bind(quizId).first<{ n: number }>()
+
+      // Cross safe close — AC-12. The close call itself is scheduler-only (no HTTP route) in
+      // production, so it's invoked directly here too, with an injected `now` past safeCloseAt
+      // (every client already finished well before the real admission window would even end);
+      // it is not part of the timed submit sample.
+      const closeOutcome = await closeQuizTransaction(env.DB, quizId, Date.now() + 2_000_000)
+      expect(closeOutcome.kind).toBe("ok")
+
+      const adminCookie = await signInAdmin()
+      const leaderboardRes = await authed(`/api/quizzes/${quizId}/leaderboard`, clientCookies[0] as string)
+      requestCount++
+      const reviewRes = await authed(`/api/quizzes/${quizId}/review`, clientCookies[0] as string)
+      requestCount++
+      // The report's exact total is independent of page size (AC-1) — default pagination is enough.
+      const reportRes = await authed(`/api/admin/quizzes/${quizId}/report`, adminCookie)
+      requestCount++
+      const reportBody = await reportRes.json<{ participants: { total: number; items: { rank: number | null }[] } }>()
+
+      // Every participant answered identically here, so dense ranking may legitimately collapse
+      // them to shared ranks (Sprint 5's exact-tie rule) — the invariant that must hold is that
+      // every participant WAS ranked (rank IS NOT NULL), never that ranks are pairwise distinct.
+      const rankedRow = await env.DB.prepare("SELECT COUNT(*) AS n FROM participants WHERE quiz_id = ? AND rank IS NOT NULL").bind(quizId).first<{ n: number }>()
 
       const summary = {
+        environment: "local-vitest-pool-workers",
+        commitSha: "recorded-by-ci-not-available-in-this-local-harness",
         distinctClients: SEAT_CAP,
         rejectedExtraClient: rejected.status === 409,
         requestCount,
         failedAcceptedClientRequests,
         p50SubmitMs: p50,
-        seatCount: seatCount?.n ?? 0,
-        participantCount: participantCount?.n ?? 0,
+        d1Observations: { seatCount: seatCount?.n ?? 0, participantCount: participantCount?.n ?? 0, answerCount: answerCount?.n ?? 0, participantUnitCount: participantUnitCount?.n ?? 0 },
         finishedCount: finishedCount?.n ?? 0,
-        answerCount: answerCount?.n ?? 0,
+        preCloseLeaderboardStatus: preCloseLeaderboard.status,
+        postCloseLeaderboardStatus: leaderboardRes.status,
+        postCloseReviewStatus: reviewRes.status,
+        reportStatus: reportRes.status,
+        reportParticipantTotal: reportBody.participants.total,
+        rankedParticipantCount: rankedRow?.n ?? 0,
+        thresholds: {
+          localP50PassMs: LOCAL_P50_THRESHOLD_MS,
+          stagingP50TargetMs: STAGING_P50_THRESHOLD_MS,
+          localP50Pass: p50 < LOCAL_P50_THRESHOLD_MS,
+          stagingP50Pass: p50 < STAGING_P50_THRESHOLD_MS,
+        },
       }
-      console.log("[load] quiz-run 120-client summary:", JSON.stringify(summary))
+      console.log("[load] quiz-run finished-system summary:", JSON.stringify(summary))
+      // toMatchFileSnapshot compares against previously-written content on every later run (the
+      // only way to persist a file from inside this sandboxed Workers test pool — raw fs access
+      // is blocked). p50 and its threshold verdicts are real wall-clock timing and legitimately
+      // vary run to run, so only the snapshotted copy normalizes them to fixed placeholders; every
+      // assertion below still checks the real, unnormalized `summary` values.
+      const redactedForSnapshot = {
+        ...summary,
+        p50SubmitMs: "<normalized>",
+        thresholds: { ...summary.thresholds, localP50Pass: "<normalized>", stagingP50Pass: "<normalized>" },
+      }
+      await expect(JSON.stringify(redactedForSnapshot, null, 2)).toMatchFileSnapshot("../artifacts/finished-system-load.json")
 
-      expect(summary.seatCount).toBe(SEAT_CAP)
-      expect(summary.participantCount).toBe(SEAT_CAP)
+      expect(summary.d1Observations.seatCount).toBe(SEAT_CAP)
+      expect(summary.d1Observations.participantCount).toBe(SEAT_CAP)
       expect(summary.finishedCount).toBe(SEAT_CAP)
-      expect(summary.answerCount).toBe(SEAT_CAP * 2) // one row per client per unit, never duplicated
+      expect(summary.d1Observations.answerCount).toBe(SEAT_CAP * 2) // one row per client per unit, never duplicated
+      expect(summary.d1Observations.participantUnitCount).toBe(SEAT_CAP * 2) // one receipt per client per unit, never duplicated
       expect(summary.failedAcceptedClientRequests).toBe(0)
+      expect(summary.preCloseLeaderboardStatus).toBe(423) // no partial board visibility before close
+      expect(summary.postCloseLeaderboardStatus).toBe(200)
+      expect(summary.postCloseReviewStatus).toBe(200)
+      expect(summary.reportStatus).toBe(200)
+      expect(summary.reportParticipantTotal).toBe(SEAT_CAP)
+      expect(summary.rankedParticipantCount).toBe(SEAT_CAP) // every participant was ranked (ties may share a rank)
       // See the header comment: this bound is calibrated for local single-process D1 contention.
       // The real AC-19 target (STAGING_P50_THRESHOLD_MS = 500) is proven against staging in OP-3.
-      expect(summary.p50SubmitMs).toBeLessThan(LOCAL_P50_THRESHOLD_MS)
-      if (summary.p50SubmitMs >= STAGING_P50_THRESHOLD_MS) {
+      expect(summary.thresholds.localP50Pass).toBe(true)
+      if (!summary.thresholds.stagingP50Pass) {
         console.warn(
           `[load] p50 ${summary.p50SubmitMs}ms exceeds the staging AC-19 target of ${STAGING_P50_THRESHOLD_MS}ms — expected locally; verify against real staging via OP-3 before launch.`
         )

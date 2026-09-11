@@ -111,3 +111,38 @@ export const MATERIALIZE_LOOKAHEAD_DAYS = 7
 // that ages out of this window is not automatically recovered. Implementation bound, not a
 // product setting.
 export const WEEKLY_RETRY_LOOKBACK_WEEKS = 8
+
+// ============================================================================
+// Production configuration gate — Sprint 8 AC-9. Names only the missing binding/var; never its
+// value. Telegram/email pieces are conditionally required only when TELEGRAM_ENABLED === "true",
+// so local/test runs (which always leave it "false") are never blocked by this check.
+// ============================================================================
+
+export class ProductionConfigError extends Error {
+  readonly bindingName: string
+  constructor(bindingName: string) {
+    super(`Missing required configuration: ${bindingName}`)
+    this.name = "ProductionConfigError"
+    this.bindingName = bindingName
+  }
+}
+
+const ALWAYS_REQUIRED_STRING_VARS: (keyof Bindings)[] = ["GOOGLE_CLIENT_ID", "SESSION_SIGNING_KEY", "SUPERADMIN_EMAIL"]
+const TELEGRAM_ENABLED_REQUIRED_STRING_VARS: (keyof Bindings)[] = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_ALERT_CHAT_ID", "EMAIL_ALERT_ADDRESS"]
+
+function assertNonEmptyString(env: Bindings, name: keyof Bindings): void {
+  const value = env[name]
+  if (typeof value !== "string" || value.length === 0) throw new ProductionConfigError(name)
+}
+
+export function assertProductionConfig(env: Bindings): void {
+  if (!env.DB) throw new ProductionConfigError("DB")
+  if (!env.CACHE) throw new ProductionConfigError("CACHE")
+  if (!env.IMAGES) throw new ProductionConfigError("IMAGES")
+  for (const name of ALWAYS_REQUIRED_STRING_VARS) assertNonEmptyString(env, name)
+
+  if (env.TELEGRAM_ENABLED === "true") {
+    for (const name of TELEGRAM_ENABLED_REQUIRED_STRING_VARS) assertNonEmptyString(env, name)
+    if (!env.ALERT_EMAIL) throw new ProductionConfigError("ALERT_EMAIL")
+  }
+}

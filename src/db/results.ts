@@ -347,3 +347,138 @@ export async function getHistoryPage(db: D1Database, userId: string, limit: numb
   }))
   return { items, total: totalRow?.n ?? 0 }
 }
+
+// ============================================================================
+// Admin report — QUIZZING.md §7; gated the same way as leaderboard/review (board_computed_at)
+// ============================================================================
+
+export type AdminReportParticipantRow = {
+  userId: string
+  name: string
+  seatNo: number
+  totalScore: number
+  correctCount: number
+  wrongCount: number
+  skippedCount: number
+  unansweredCount: number
+  totalTimeMs: number
+  rank: number | null
+}
+
+// Reads the already-finalized participant totals directly — never re-derives counts from answers.
+export async function getAdminReportParticipantsPage(
+  db: D1Database,
+  quizId: string,
+  limit: number,
+  offset: number
+): Promise<{ items: AdminReportParticipantRow[]; total: number }> {
+  const totalRow = await db.prepare("SELECT COUNT(*) AS n FROM participants WHERE quiz_id = ?").bind(quizId).first<{ n: number }>()
+  const { results } = await db
+    .prepare(
+      `SELECT p.user_id, u.name, p.seat_no, p.total_score, p.correct_count, p.wrong_count, p.skipped_count, p.unanswered_count, p.total_time_ms, p.rank
+       FROM participants p
+       JOIN users u ON u.id = p.user_id
+       WHERE p.quiz_id = ?
+       ORDER BY (CASE WHEN p.rank IS NULL THEN 1 ELSE 0 END) ASC, p.rank ASC, p.seat_no ASC, p.user_id ASC
+       LIMIT ? OFFSET ?`
+    )
+    .bind(quizId, limit, offset)
+    .all<{
+      user_id: string
+      name: string
+      seat_no: number
+      total_score: number
+      correct_count: number
+      wrong_count: number
+      skipped_count: number
+      unanswered_count: number
+      total_time_ms: number
+      rank: number | null
+    }>()
+  return {
+    items: results.map((r) => ({
+      userId: r.user_id,
+      name: r.name,
+      seatNo: r.seat_no,
+      totalScore: r.total_score,
+      correctCount: r.correct_count,
+      wrongCount: r.wrong_count,
+      skippedCount: r.skipped_count,
+      unansweredCount: r.unanswered_count,
+      totalTimeMs: r.total_time_ms,
+      rank: r.rank,
+    })),
+    total: totalRow?.n ?? 0,
+  }
+}
+
+export type AdminReportQuestionRow = {
+  position: number
+  unitPosition: number
+  subPosition: number
+  questionId: string
+  correctCount: number
+  wrongCount: number
+  skippedCount: number
+  unansweredCount: number
+}
+
+// Every quiz question always appears, even with zero participants: counts come from a LEFT JOIN
+// rooted at quiz_questions (never a participants cross-join), and unansweredCount is the
+// participant-count remainder — so it correctly covers both an explicit 'unanswered' answer row
+// and a totally absent row (a never-reached question) without double-counting either.
+export async function getAdminReportQuestions(db: D1Database, quizId: string): Promise<AdminReportQuestionRow[]> {
+  const participantCount = await getParticipantCount(db, quizId)
+  const { results } = await db
+    .prepare(
+      `SELECT qq.position, qq.unit_position, qq.sub_position, qq.question_id,
+              SUM(CASE WHEN a.status = 'answered' AND a.is_correct = 1 THEN 1 ELSE 0 END) AS correct_count,
+              SUM(CASE WHEN a.status = 'answered' AND a.is_correct = 0 THEN 1 ELSE 0 END) AS wrong_count,
+              SUM(CASE WHEN a.status = 'skipped' THEN 1 ELSE 0 END) AS skipped_count
+       FROM quiz_questions qq
+       LEFT JOIN answers a ON a.quiz_id = qq.quiz_id AND a.position = qq.position
+       WHERE qq.quiz_id = ?
+       GROUP BY qq.position, qq.unit_position, qq.sub_position, qq.question_id
+       ORDER BY qq.position ASC`
+    )
+    .bind(quizId)
+    .all<{ position: number; unit_position: number; sub_position: number; question_id: string; correct_count: number; wrong_count: number; skipped_count: number }>()
+  return results.map((r) => ({
+    position: r.position,
+    unitPosition: r.unit_position,
+    subPosition: r.sub_position,
+    questionId: r.question_id,
+    correctCount: r.correct_count,
+    wrongCount: r.wrong_count,
+    skippedCount: r.skipped_count,
+    unansweredCount: participantCount - r.correct_count - r.wrong_count - r.skipped_count,
+  }))
+}
+
+export type AdminReportUnitRow = { unitPosition: number; completedCount: number; timedOutCount: number; avgElapsedMs: number | null }
+
+// Every quiz unit always appears (LEFT JOIN rooted at quiz_units); counts/average include only
+// reached, finalized participant_units rows — AVG() over an all-NULL group is NULL, matching the
+// "no reached rows" case exactly.
+export async function getAdminReportUnits(db: D1Database, quizId: string): Promise<AdminReportUnitRow[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT qu.unit_position,
+              SUM(CASE WHEN pu.close_reason = 'completed' THEN 1 ELSE 0 END) AS completed_count,
+              SUM(CASE WHEN pu.close_reason = 'timed_out' THEN 1 ELSE 0 END) AS timed_out_count,
+              AVG(pu.elapsed_ms) AS avg_elapsed_ms
+       FROM quiz_units qu
+       LEFT JOIN participant_units pu ON pu.quiz_id = qu.quiz_id AND pu.unit_position = qu.unit_position AND pu.closed_at IS NOT NULL
+       WHERE qu.quiz_id = ?
+       GROUP BY qu.unit_position
+       ORDER BY qu.unit_position ASC`
+    )
+    .bind(quizId)
+    .all<{ unit_position: number; completed_count: number; timed_out_count: number; avg_elapsed_ms: number | null }>()
+  return results.map((r) => ({
+    unitPosition: r.unit_position,
+    completedCount: r.completed_count,
+    timedOutCount: r.timed_out_count,
+    avgElapsedMs: r.avg_elapsed_ms,
+  }))
+}

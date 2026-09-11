@@ -93,6 +93,34 @@ describe("runMaterializePass", () => {
     await runMaterializePass({ materializeTemplates, now: () => 5000, ...alertDeps() })
     expect(materializeTemplates).toHaveBeenCalledWith(7, 5000)
   })
+
+  // AC-10 (Sprint 8 hardening): a failure that remains eligible must go on alerting every hourly
+  // pass — no dedup/suppression state is ever persisted for a materialization alert.
+  it("allows the same still-failing occurrence to alert again on a later hourly pass", async () => {
+    const materializeTemplates = vi.fn(
+      async () => ({ quizIds: [], failures: [{ templateId: "t1", scheduledAt: 111, code: "pool_exhausted" }] }) satisfies MaterializeResult
+    )
+    const deps = alertDeps()
+    await runMaterializePass({ materializeTemplates, now: () => 1000, ...deps })
+    await runMaterializePass({ materializeTemplates, now: () => 1000 + 60 * 60 * 1000, ...deps })
+    expect(deps.telegram.send).toHaveBeenCalledTimes(2)
+    expect(deps.email.send).toHaveBeenCalledTimes(2)
+  })
+
+  // AC-10: the alert payload allowlists exactly templateId/scheduledAt/code — never a broader
+  // exception/provider-error string that a thrown error might otherwise carry.
+  it("never leaks unsafe detail into the alert text beyond templateId/scheduledAt/code", async () => {
+    const materializeTemplates = vi.fn(
+      async () => ({ quizIds: [], failures: [{ templateId: "t1", scheduledAt: 111, code: "missing_timing_configuration" }] }) satisfies MaterializeResult
+    )
+    const deps = alertDeps()
+    await runMaterializePass({ materializeTemplates, now: () => 1000, ...deps })
+    const text = deps.telegram.send.mock.calls[0]?.[1] as string
+    expect(text).toContain("t1")
+    expect(text).toContain("111")
+    expect(text).toContain("missing_timing_configuration")
+    for (const unsafe of ["Error", "stack", "SQLITE", "undefined"]) expect(text).not.toContain(unsafe)
+  })
 })
 
 describe("runWeeklyRetrySweep", () => {

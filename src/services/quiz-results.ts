@@ -4,6 +4,7 @@
 
 import type { BankContract, CloseResult } from "../core/contracts"
 import type {
+  AdminReportResponse,
   HistoryEntry,
   HistoryResponse,
   LeaderboardResponse,
@@ -15,6 +16,9 @@ import type {
 import { selectTopAndOwn } from "../core/leaderboard"
 import {
   closeQuizTransaction,
+  getAdminReportParticipantsPage,
+  getAdminReportQuestions,
+  getAdminReportUnits,
   getFullRankedBoard,
   getHistoryPage,
   getMcqTallies,
@@ -220,4 +224,35 @@ export async function getHistory(deps: ResultsDeps, userId: string, limit: numbe
     participantCount: r.boardComputedAt === null ? null : r.participantCount,
   }))
   return { items: entries, total, limit, offset }
+}
+
+// ============================================================================
+// Admin report — Sprint 8 AC-1/2/3/5; gated identically to leaderboard/review
+// ============================================================================
+
+export type ReportOutcome = { kind: "ok"; response: AdminReportResponse } | { kind: "not_found" } | { kind: "locked" }
+
+export async function getReport(deps: ResultsDeps, quizId: string, limit: number, offset: number): Promise<ReportOutcome> {
+  const now = deps.now()
+  const initial = await getQuizLifecycle(deps.db, quizId)
+  if (!initial) return { kind: "not_found" }
+
+  const lifecycle = await ensurePublished(deps, quizId, initial, now)
+  if (lifecycle.boardComputedAt === null) return { kind: "locked" }
+
+  const [participants, questions, units] = await Promise.all([
+    getAdminReportParticipantsPage(deps.db, quizId, limit, offset),
+    getAdminReportQuestions(deps.db, quizId),
+    getAdminReportUnits(deps.db, quizId),
+  ])
+
+  return {
+    kind: "ok",
+    response: {
+      quizId,
+      participants: { items: participants.items, total: participants.total, limit, offset },
+      questions,
+      units,
+    },
+  }
 }

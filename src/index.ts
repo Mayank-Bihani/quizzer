@@ -12,7 +12,10 @@ import { boards } from "./routes/boards"
 import images from "./routes/images"
 import quizzes from "./routes/quizzes"
 import { play, quizzesPublic } from "./routes/play"
+import { reports } from "./routes/reports"
 import { resultsQuizRoutes, studentsRoutes } from "./routes/results"
+import { apiHardeningHeaders, redactedErrorBody } from "./middleware/security"
+import { assertProductionConfig, ProductionConfigError } from "./core/config"
 import { createBankContract } from "./db/bank"
 import { listDueAnnounce, listDueCancelledNotifications } from "./db/quizzes"
 import { createTelegramContract, listFailedPosts } from "./db/telegram"
@@ -41,9 +44,20 @@ type Env = { Bindings: Bindings; Variables: Variables }
 const app = new Hono<Env>()
 
 app.onError((err, c) => {
-  console.error("unhandled error", err instanceof Error ? err.name : typeof err)
-  return c.json({ message: "Internal error" }, 500)
+  // ProductionConfigError's own message names only the missing binding key, never a secret value
+  // (AC-9) — safe to log in full; every other error is logged by class name only (AC-8), never
+  // its message, since an arbitrary caught exception's message is not vetted for secret-safety.
+  console.error("unhandled error", err instanceof ProductionConfigError ? err.message : err instanceof Error ? err.name : typeof err)
+  return c.json(redactedErrorBody(), 500)
 })
+
+app.use("/api/*", apiHardeningHeaders)
+
+const withProductionConfigGate: MiddlewareHandler<Env> = async (c, next) => {
+  assertProductionConfig(c.env)
+  await next()
+}
+app.use("/api/*", withProductionConfigGate)
 
 app.route("/api/auth", auth)
 app.route("/api/admin/users", adminRoster)
@@ -74,6 +88,7 @@ const withTelegramCloseHook: MiddlewareHandler<Env> = async (c, next) => {
 app.use("/api/quizzes/*", withTelegramCloseHook)
 
 app.route("/api/admin/quizzes", quizzes)
+app.route("/api/admin/quizzes", reports)
 app.route("/api/quizzes", quizzesPublic)
 app.route("/api/quizzes", resultsQuizRoutes)
 app.route("/api/play", play)
@@ -90,6 +105,15 @@ const HOURLY_CRON = "0 * * * *"
 const WEEKLY_CRON = "0 19 * * SUN"
 
 async function scheduled(controller: ScheduledController, env: Bindings): Promise<void> {
+  try {
+    assertProductionConfig(env)
+  } catch (err) {
+    // Fail closed: no pass below runs (no write, no send) until configuration is fixed. Name only
+    // the missing binding, exactly like the HTTP path's onError — never a value.
+    console.error("scheduled tick aborted", err instanceof ProductionConfigError ? err.message : err instanceof Error ? err.name : typeof err)
+    return
+  }
+
   const bot = env.TELEGRAM_ENABLED === "true" && env.TELEGRAM_BOT_TOKEN ? createTelegramBotClient(env.TELEGRAM_BOT_TOKEN) : createNoOpBotClient()
   const telegram = createTelegramContract(env.DB, bot, env.TELEGRAM_CHAT_ID ?? "")
 
