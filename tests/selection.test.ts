@@ -84,6 +84,48 @@ describe("selectExactDraw — standalones", () => {
   })
 })
 
+describe("selectExactDraw — unspecified difficulty draws from any pool", () => {
+  it("fills the shortfall from whichever difficulty has supply when a difficulty is omitted", () => {
+    const candidates = [standalone("quant", "easy"), standalone("quant", "medium"), standalone("quant", "hard")]
+    // Only easy is constrained; the other slot is left to any difficulty.
+    const result = selectExactDraw(candidates, { easy: 1 }, 2, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(2)
+    expect(result.questions.filter((q) => q.difficulty === "easy")).toHaveLength(1)
+  })
+
+  it("draws entirely from any difficulty when difficultyMix is completely empty", () => {
+    const candidates = [standalone("quant", "easy"), standalone("quant", "medium"), standalone("quant", "hard")]
+    const result = selectExactDraw(candidates, {}, 3, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(3)
+  })
+
+  it("still respects a whole group's atomicity when part of its vector is absorbed by the any pool", () => {
+    const g = group("verbal", ["easy", "easy", "medium", "medium"])
+    // Nothing constrained beyond easy: 2 — the 2 medium members must come from the any pool.
+    const result = selectExactDraw(g, { easy: 2 }, 4, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.units).toHaveLength(1)
+    expect(result.questions).toHaveLength(4)
+  })
+
+  it("reports impossible when even the any pool can't be satisfied", () => {
+    const candidates = [standalone("quant", "easy")]
+    const result = selectExactDraw(candidates, { easy: 1 }, 3, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+
+  it("rejects an over-specified mix (sum greater than count) up front", () => {
+    const candidates = [standalone("quant", "easy"), standalone("quant", "easy")]
+    const result = selectExactDraw(candidates, { easy: 3 }, 2, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+})
+
 describe("selectExactDraw — whole-group atomicity", () => {
   it("selects an entire matching group as one unit, never splitting it", () => {
     const g = group("verbal", ["medium", "medium", "medium", "medium"])

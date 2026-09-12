@@ -156,7 +156,7 @@ describe("POST /api/admin/quizzes — input validation", () => {
     }
   })
 
-  it("rejects a difficultyMix that does not sum to count", async () => {
+  it("rejects a difficultyMix that sums to more than count", async () => {
     const { cookie, id } = await signInAs("admin")
     await seedStandalones(id, 5)
     const res = await authed("/api/admin/quizzes", cookie, {
@@ -165,6 +165,18 @@ describe("POST /api/admin/quizzes — input validation", () => {
       body: JSON.stringify({ ...CREATE_BODY, difficultyMix: { easy: 5 }, count: 2 }),
     })
     expect(res.status).toBe(400)
+  })
+
+  it("fills the shortfall from any difficulty when difficultyMix sums to less than count", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "quant", "easy")
+    await seedStandalones(id, 1, "quant", "medium")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...CREATE_BODY, difficultyMix: { easy: 1 }, count: 2 }),
+    })
+    expect(res.status).toBe(200)
   })
 
   it("rejects an unknown difficulty key", async () => {

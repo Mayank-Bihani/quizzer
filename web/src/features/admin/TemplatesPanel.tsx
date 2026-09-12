@@ -69,15 +69,19 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const difficultyMix: Partial<Record<Difficulty, number>> = {
-      easy: Number(form.get("easy")),
-      medium: Number(form.get("medium")),
-      hard: Number(form.get("hard")),
-    };
+    const difficultyMix: Partial<Record<Difficulty, number>> = {};
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      const raw = form.get(difficulty);
+      // A blank field means "any difficulty" for that slice, not zero — only a difficulty the
+      // admin actually typed a value for becomes an explicit constraint.
+      if (raw !== null && String(raw).trim() !== "") {
+        difficultyMix[difficulty] = Number(raw);
+      }
+    }
     const questionCount = Number(form.get("questionCount"));
-    if (mixTotal(difficultyMix) !== questionCount) {
+    if (mixTotal(difficultyMix) > questionCount) {
       setValidationError(
-        "Difficulty counts must add up to the question count.",
+        "Difficulty counts can't add up to more than the question count.",
       );
       return;
     }
@@ -155,13 +159,13 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
       </label>
       {(["easy", "medium", "hard"] as const).map((difficulty) => (
         <label className="field" key={difficulty}>
-          <span>{difficulty} (optional, defaults to 0)</span>
+          <span>{difficulty} (optional — leave blank to draw from any difficulty)</span>
           <input
             className="inp"
             name={difficulty}
             type="number"
             min="0"
-            defaultValue={initial ? (initial.difficultyMix[difficulty] ?? 0) : undefined}
+            defaultValue={initial?.difficultyMix[difficulty]}
           />
         </label>
       ))}

@@ -500,6 +500,22 @@ describe("BankContract via src/db/bank.ts", () => {
     expect(byIds.map((q) => q.id)).toEqual([...ids].reverse())
   })
 
+  it("listUnused spans every difficulty when difficultyMix leaves a shortfall for the any pool", async () => {
+    const { createBankContract } = await import("../src/db/bank")
+    const cookie = await signInAs("admin")
+    await authed(
+      "/api/bank/import/commit",
+      cookie,
+      { method: "POST", body: multipartBody({ csv: csvWith('quant,Arithmetic,,medium,mcq,,"What is 3 + 3?",,3,4,5,6,B,,,"3+3=6",') }) }
+    )
+
+    const contract = createBankContract(env.DB)
+    // Only easy:1 is constrained; the remaining slot is left to any difficulty, so the medium
+    // candidate must still show up in the pool even though its difficulty was never named.
+    const pool = await contract.listUnused({ type: "quant", difficultyMix: { easy: 1 }, count: 2 })
+    expect(pool.some((q) => q.difficulty === "medium")).toBe(true)
+  })
+
   it("claimUnused stamps the passage only once every member is claimed for that quiz", async () => {
     const { createBankContract } = await import("../src/db/bank")
     const cookie = await signInAs("admin")

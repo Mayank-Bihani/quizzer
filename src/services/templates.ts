@@ -43,7 +43,9 @@ function isValidCoreFields(input: {
     if (typeof value !== "number" || !Number.isInteger(value) || value < 0) return false
     sum += value
   }
-  return sum === input.questionCount
+  // An omitted difficulty is filled from any difficulty at draw time (src/core/selection.ts's
+  // `any` bucket) rather than excluded, so only an over-specified mix is rejected.
+  return sum <= input.questionCount
 }
 
 function isValidScalarFields(input: {

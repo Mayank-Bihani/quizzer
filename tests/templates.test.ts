@@ -63,8 +63,13 @@ describe("createTemplate", () => {
     expect(result.summary.timingPolicy).toEqual({ standalone: 60, lrdi: 180 })
   })
 
-  it("rejects a difficultyMix that does not sum to questionCount", async () => {
+  it("accepts a difficultyMix that sums to less than questionCount, leaving the rest as any difficulty", async () => {
     const result = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, difficultyMix: { easy: 1 } })
+    expect(result.kind).toBe("ok")
+  })
+
+  it("rejects a difficultyMix that sums to more than questionCount", async () => {
+    const result = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, difficultyMix: { easy: 3 } })
     expect(result.kind).toBe("invalid")
   })
 

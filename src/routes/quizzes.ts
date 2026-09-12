@@ -120,7 +120,9 @@ quizzes.post("/", async (c) => {
       difficultyMix[key as Difficulty] = value
       mixSum += value
     }
-    if (mixSum !== b.count) return c.json({ message: "difficultyMix must sum to count" }, 400)
+    // A difficulty omitted from difficultyMix isn't excluded — the shortfall is drawn from any
+    // difficulty (src/core/selection.ts). Only an over-specified mix (sum > count) is invalid.
+    if (mixSum > b.count) return c.json({ message: "difficultyMix must not exceed count" }, 400)
     input = {
       mode: "auto",
       title: b.title.trim(),

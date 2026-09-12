@@ -5,7 +5,9 @@ import type { Difficulty, QuestionFull, QuizType, QuizUnitDefinition, UnitKind }
 const DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"]
 
 type DifficultyVector = Partial<Record<Difficulty, number>>
-type RemainingVector = Record<Difficulty, number>
+// `any` holds slots the caller left unassigned to a specific difficulty — QUIZZING.md §4's
+// auto-draw contract: an omitted difficulty is not excluded, it's fillable by any leftover unit.
+type RemainingVector = Record<Difficulty, number> & { any: number }
 
 type UnitCandidate = {
   passageId: string | null
@@ -61,18 +63,29 @@ function shuffled<T>(items: T[], random: () => number): T[] {
   return copy
 }
 
+// A unit's per-difficulty counts beyond what's still owed for that exact difficulty must be
+// absorbed from the `any` pool — this is what lets an unspecified difficulty draw from wherever
+// supply exists instead of being excluded.
 function fitsWithin(vector: DifficultyVector, remaining: RemainingVector): boolean {
-  return DIFFICULTIES.every((d) => (vector[d] ?? 0) <= remaining[d])
+  const overflow = DIFFICULTIES.reduce((sum, d) => sum + Math.max(0, (vector[d] ?? 0) - remaining[d]), 0)
+  return overflow <= remaining.any
 }
 
 function subtract(remaining: RemainingVector, vector: DifficultyVector): RemainingVector {
   const next = { ...remaining }
-  for (const d of DIFFICULTIES) next[d] -= vector[d] ?? 0
+  let overflow = 0
+  for (const d of DIFFICULTIES) {
+    const need = vector[d] ?? 0
+    const used = Math.min(need, next[d])
+    next[d] -= used
+    overflow += need - used
+  }
+  next.any -= overflow
   return next
 }
 
 function isExhausted(remaining: RemainingVector): boolean {
-  return DIFFICULTIES.every((d) => remaining[d] === 0)
+  return DIFFICULTIES.every((d) => remaining[d] === 0) && remaining.any === 0
 }
 
 /**
@@ -91,7 +104,7 @@ function search(
   if (isExhausted(remaining)) return []
   if (index >= unitCandidates.length) return null
 
-  const key = `${index}|${remaining.easy}|${remaining.medium}|${remaining.hard}`
+  const key = `${index}|${remaining.easy}|${remaining.medium}|${remaining.hard}|${remaining.any}`
   if (impossible.has(key)) return null
 
   const candidate = unitCandidates[index]!
@@ -169,13 +182,18 @@ export function selectExactDraw(
   count: number,
   randomSource: () => number
 ): SelectionOutcome {
-  const target: RemainingVector = {
+  const explicit = {
     easy: difficultyMix.easy ?? 0,
     medium: difficultyMix.medium ?? 0,
     hard: difficultyMix.hard ?? 0,
   }
-  const totalRequested = DIFFICULTIES.reduce((sum, d) => sum + target[d], 0)
-  if (count <= 0 || totalRequested !== count) return { ok: false }
+  const totalRequested = DIFFICULTIES.reduce((sum, d) => sum + explicit[d], 0)
+  if (count <= 0 || totalRequested > count) return { ok: false }
+  // A difficulty absent from difficultyMix is not requested as zero — the shortfall between what
+  // was explicitly requested and `count` is left as `any`, fillable from whichever difficulty has
+  // supply left. When every difficulty is explicit and sums to count, `any` is 0 and this behaves
+  // exactly as an exact per-difficulty draw always has.
+  const target: RemainingVector = { ...explicit, any: count - totalRequested }
 
   const unitCandidates = shuffled(buildUnitCandidates(candidates), randomSource)
   const selected = search(unitCandidates, 0, target, randomSource, new Map())

@@ -146,7 +146,7 @@ describe("TemplatesPanel", () => {
     );
   });
 
-  it("rejects a difficulty mix that does not sum to the question count, without calling the API", async () => {
+  it("rejects a difficulty mix that adds up to more than the question count, without calling the API", async () => {
     const user = userEvent.setup();
     render(<TemplatesPanel />);
 
@@ -154,9 +154,7 @@ describe("TemplatesPanel", () => {
     await user.type(screen.getByLabelText(/name/i), "Bad Mix");
     await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
     await user.type(screen.getByLabelText(/question count/i), "2");
-    await user.type(screen.getByLabelText(/^easy/i), "1");
-    await user.type(screen.getByLabelText(/^medium/i), "0");
-    await user.type(screen.getByLabelText(/^hard/i), "0");
+    await user.type(screen.getByLabelText(/^easy/i), "5");
     await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
     await user.type(screen.getByLabelText(/lrdi unit seconds/i), "180");
     await user.type(screen.getByLabelText(/buffer time between units/i), "30");
@@ -171,9 +169,38 @@ describe("TemplatesPanel", () => {
     await user.click(screen.getByRole("button", { name: /create template/i }));
 
     expect(
-      await screen.findByText(/must add up to the question count/i),
+      await screen.findByText(/can't add up to more than the question count/i),
     ).toBeInTheDocument();
     expect(createTemplate).not.toHaveBeenCalled();
+  });
+
+  it("leaves unspecified difficulties out of the mix so they draw from any difficulty", async () => {
+    const user = userEvent.setup();
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.type(screen.getByLabelText(/name/i), "Partial Mix");
+    await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
+    await user.type(screen.getByLabelText(/question count/i), "2");
+    await user.type(screen.getByLabelText(/^easy/i), "1");
+    // medium and hard are left blank on purpose — the remaining slot should draw from any difficulty.
+    await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
+    await user.type(screen.getByLabelText(/lrdi unit seconds/i), "180");
+    await user.type(screen.getByLabelText(/buffer time between units/i), "30");
+    await user.type(screen.getByLabelText(/admission window seconds/i), "600");
+    await user.type(screen.getByLabelText(/marks for correct/i), "4");
+    await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
+    await user.type(screen.getByLabelText(/seat cap/i), "120");
+    await user.click(screen.getByLabelText(/^tue$/i));
+    await user.type(screen.getByLabelText(/hour \(ist\)/i), "18");
+    await user.type(screen.getByLabelText(/minute/i), "0");
+
+    await user.click(screen.getByRole("button", { name: /create template/i }));
+
+    await waitFor(() => expect(createTemplate).toHaveBeenCalledTimes(1));
+    expect(createTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ difficultyMix: { easy: 1 } }),
+    );
   });
 
   it("opens the edit form pre-filled with the template's stored values", async () => {

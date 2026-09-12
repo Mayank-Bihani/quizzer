@@ -2,7 +2,7 @@
 // listUnused/getByIds are read-only; claimUnused is BANK's one write path from outside the
 // module, and it is the only place `used_in_quiz_id`/`used_in_quiz_number` are ever set.
 
-import type { BankContract, QuestionFull, SelectionFilters } from "../core/contracts"
+import type { BankContract, Difficulty, QuestionFull, SelectionFilters } from "../core/contracts"
 import {
   QUESTION_JOIN_PASSAGE_FROM,
   QUESTION_JOIN_PASSAGE_SELECT,
@@ -11,6 +11,7 @@ import {
 } from "./bank-rows"
 
 const ID_CHUNK_SIZE = 50 // stays comfortably under D1's bound SQL variable count
+const ALL_DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"]
 
 function placeholders(count: number): string {
   return Array.from({ length: count }, () => "?").join(", ")
@@ -23,7 +24,12 @@ function chunk<T>(items: T[], size: number): T[][] {
 }
 
 export async function listUnused(db: D1Database, filters: SelectionFilters): Promise<QuestionFull[]> {
-  const difficulties = Object.keys(filters.difficultyMix)
+  // A difficultyMix that doesn't cover the full count leaves a shortfall the selector fills from
+  // any difficulty (src/core/selection.ts's `any` bucket) — so the candidate pool must span every
+  // difficulty in that case, not just the ones explicitly named.
+  const specifiedTotal = Object.values(filters.difficultyMix).reduce((sum: number, v) => sum + (v ?? 0), 0)
+  const needsAnyDifficulty = specifiedTotal < filters.count
+  const difficulties = needsAnyDifficulty ? ALL_DIFFICULTIES : Object.keys(filters.difficultyMix)
   if (difficulties.length === 0) return []
 
   const standaloneRows = await db

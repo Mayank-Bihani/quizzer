@@ -564,6 +564,14 @@ export function QuestionEditorPage() {
   );
 }
 
+// A datetime-local input's value must be in local (not UTC) YYYY-MM-DDTHH:mm — Date's
+// toISOString() would silently shift the prefilled time to a different clock hour.
+function toDatetimeLocalValue(ms: number): string {
+  const d = new Date(ms);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 function nullable(value: FormDataEntryValue | null): string | null {
   const text = String(value ?? "").trim();
   return text || null;
@@ -884,15 +892,19 @@ export function QuizBuilderPage() {
       return;
     }
 
-    const difficultyMix = {
-      easy: Number(form.get("easy")),
-      medium: Number(form.get("medium")),
-      hard: Number(form.get("hard")),
-    };
+    const difficultyMix: Partial<Record<Difficulty, number>> = {};
+    for (const difficulty of ["easy", "medium", "hard"] as const) {
+      const raw = form.get(difficulty);
+      // A blank field means "any difficulty" for that slice, not zero — only a difficulty the
+      // admin actually typed a value for becomes an explicit constraint.
+      if (raw !== null && String(raw).trim() !== "") {
+        difficultyMix[difficulty] = Number(raw);
+      }
+    }
     const count = Number(form.get("count"));
-    if (mixTotal(difficultyMix) !== count) {
+    if (mixTotal(difficultyMix) > count) {
       setError(
-        new Error("Difficulty counts must add up to the question count."),
+        new Error("Difficulty counts can't add up to more than the question count."),
       );
       return;
     }
@@ -1144,7 +1156,7 @@ export function QuizBuilderPage() {
               </label>
               {(["easy", "medium", "hard"] as const).map((difficulty) => (
                 <label className="field" key={difficulty}>
-                  <span>{difficulty} (optional, defaults to 0)</span>
+                  <span>{difficulty} (optional — leave blank to draw from any difficulty)</span>
                   <input
                     className="inp"
                     name={difficulty}
@@ -1156,7 +1168,10 @@ export function QuizBuilderPage() {
             </>
           )}
           <label className="field">
-            <span>Provisional scheduled time</span>
+            <span>
+              Provisional scheduled time (you'll confirm the final time later,
+              in the Schedule step)
+            </span>
             <input
               className="inp"
               name="scheduledAt"
@@ -1315,6 +1330,7 @@ export function QuizBuilderPage() {
               className="inp"
               name="scheduledAt"
               type="datetime-local"
+              defaultValue={toDatetimeLocalValue(builder.scheduledAt)}
               required
             />
           </label>
@@ -1410,6 +1426,65 @@ function BuilderSteps({
         </li>
       ))}
     </ol>
+  );
+}
+
+function UnitPreview({ unit }: { unit: PickUnit }) {
+  const representative = unit.members[0]!;
+  return (
+    <div className="panel stack">
+      {representative.passage && (
+        <div className="stack">
+          <p className="tiny">
+            <MathText text={representative.passage.bodyMd} />
+          </p>
+          {representative.passage.imageUrl && (
+            <img
+              className="qfig"
+              src={representative.passage.imageUrl}
+              alt="Passage illustration"
+            />
+          )}
+        </div>
+      )}
+      {unit.members.map((question) => (
+        <div className="stack" key={question.id}>
+          <p>
+            <MathText text={question.bodyMd} />
+          </p>
+          {question.imageUrl && (
+            <img
+              className="qfig"
+              src={question.imageUrl}
+              alt="Question illustration"
+            />
+          )}
+          {question.format === "mcq" ? (
+            <ul className="tiny">
+              {(["A", "B", "C", "D"] as const).map((letter) => {
+                const value = {
+                  A: question.optionA,
+                  B: question.optionB,
+                  C: question.optionC,
+                  D: question.optionD,
+                }[letter];
+                return (
+                  <li key={letter}>
+                    {letter}. {value}
+                    {question.correctOption === letter ? " · correct" : ""}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="tiny">
+              Correct answer: {question.numericAnswer} ±{" "}
+              {question.numericTolerance}
+            </p>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1545,66 +1620,7 @@ function QuizPickStep({
                       {expanded && (
                         <tr>
                           <td colSpan={5}>
-                            <div className="panel stack">
-                              {representative.passage && (
-                                <div className="stack">
-                                  <p className="tiny">
-                                    <MathText
-                                      text={representative.passage.bodyMd}
-                                    />
-                                  </p>
-                                  {representative.passage.imageUrl && (
-                                    <img
-                                      className="qfig"
-                                      src={representative.passage.imageUrl}
-                                      alt="Passage illustration"
-                                    />
-                                  )}
-                                </div>
-                              )}
-                              {unit.members.map((question) => (
-                                <div className="stack" key={question.id}>
-                                  <p>
-                                    <MathText text={question.bodyMd} />
-                                  </p>
-                                  {question.imageUrl && (
-                                    <img
-                                      className="qfig"
-                                      src={question.imageUrl}
-                                      alt="Question illustration"
-                                    />
-                                  )}
-                                  {question.format === "mcq" ? (
-                                    <ul className="tiny">
-                                      {(["A", "B", "C", "D"] as const).map(
-                                        (letter) => {
-                                          const value = {
-                                            A: question.optionA,
-                                            B: question.optionB,
-                                            C: question.optionC,
-                                            D: question.optionD,
-                                          }[letter];
-                                          return (
-                                            <li key={letter}>
-                                              {letter}. {value}
-                                              {question.correctOption ===
-                                              letter
-                                                ? " · correct"
-                                                : ""}
-                                            </li>
-                                          );
-                                        },
-                                      )}
-                                    </ul>
-                                  ) : (
-                                    <p className="tiny">
-                                      Correct answer: {question.numericAnswer}{" "}
-                                      ± {question.numericTolerance}
-                                    </p>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
+                            <UnitPreview unit={unit} />
                           </td>
                         </tr>
                       )}
@@ -1613,6 +1629,65 @@ function QuizPickStep({
                 })}
               </tbody>
             </table>
+          </div>
+          <div className="bankcards">
+            {units.map((unit) => {
+              const representative = unit.members[0]!;
+              const label =
+                representative.passage?.title ?? representative.topic;
+              const diffTally = tallyByDifficulty(unit.members);
+              const checked = unit.members.every((question) =>
+                selectedIds.has(question.id),
+              );
+              const expanded = expandedKey === unit.key;
+              return (
+                <article className="bankcard" key={unit.key}>
+                  <div className="rowflex-between">
+                    <label className="bankcard__check">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => void toggleUnit(unit)}
+                        aria-label={`Select ${label}`}
+                      />
+                    </label>
+                    <span className="tiny">
+                      {unit.passageId === null
+                        ? "Standalone"
+                        : `${unitKindLabel} · ${unit.members.length}Q`}
+                    </span>
+                  </div>
+                  <span className="bankcard__stem">{label}</span>
+                  <div className="rowflex">
+                    {(["easy", "medium", "hard"] as const)
+                      .filter((difficulty) => diffTally[difficulty])
+                      .map((difficulty) => (
+                        <span
+                          key={difficulty}
+                          className={`badge sq ${difficultyBadgeClass[difficulty]}`}
+                        >
+                          {difficulty[0].toUpperCase()}
+                          {diffTally[difficulty]! > 1
+                            ? `×${diffTally[difficulty]}`
+                            : ""}
+                        </span>
+                      ))}
+                  </div>
+                  <button
+                    className="btn sm ghost"
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-label={
+                      expanded ? `Hide preview of ${label}` : `Preview ${label}`
+                    }
+                    onClick={() => setExpandedKey(expanded ? null : unit.key)}
+                  >
+                    {expanded ? "Hide preview ▾" : "Preview ▸"}
+                  </button>
+                  {expanded && <UnitPreview unit={unit} />}
+                </article>
+              );
+            })}
           </div>
           <Pagination page={resource.data} onOffset={setOffset} />
         </>
@@ -1956,6 +2031,50 @@ export function ReportPage() {
             </tbody>
           </table>
         </div>
+        <div className="bankcards">
+          {report.participants.items.map((row) => (
+            <article className="bankcard" key={row.userId}>
+              <div className="rowflex-between">
+                <span className="bankcard__stem">{row.name}</span>
+                <span className="tiny">Seat {row.seatNo}</span>
+              </div>
+              <div className="ledger">
+                <div className="ledger__row">
+                  <span>Score</span>
+                  <b className="ledger__val">{row.totalScore}</b>
+                </div>
+                <div className="ledger__row">
+                  <span>Correct</span>
+                  <b className="ledger__val ledger__ok">
+                    {row.correctCount}
+                  </b>
+                </div>
+                <div className="ledger__row">
+                  <span>Wrong</span>
+                  <b className="ledger__val ledger__no">{row.wrongCount}</b>
+                </div>
+                <div className="ledger__row">
+                  <span>Skipped</span>
+                  <b className="ledger__val">{row.skippedCount}</b>
+                </div>
+                <div className="ledger__row">
+                  <span>Unanswered</span>
+                  <b className="ledger__val">{row.unansweredCount}</b>
+                </div>
+                <div className="ledger__row">
+                  <span>Time</span>
+                  <b className="ledger__val">
+                    {formatDuration(row.totalTimeMs)}
+                  </b>
+                </div>
+                <div className="ledger__row">
+                  <span>Rank</span>
+                  <b className="ledger__val">{row.rank ?? "—"}</b>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
         <Pagination page={report.participants} onOffset={setOffset} />
       </section>
       <section className="card">
@@ -1995,6 +2114,42 @@ export function ReportPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="bankcards">
+          {report.questions.map((question) => (
+            <article className="bankcard" key={question.questionId}>
+              <div className="rowflex-between">
+                <span className="bankcard__stem">
+                  Q{question.position}
+                </span>
+                <span className="tiny">
+                  Unit {question.unitPosition}.{question.subPosition}
+                </span>
+              </div>
+              <div className="ledger">
+                <div className="ledger__row">
+                  <span>Correct</span>
+                  <b className="ledger__val ledger__ok">
+                    {question.correctCount}
+                  </b>
+                </div>
+                <div className="ledger__row">
+                  <span>Wrong</span>
+                  <b className="ledger__val ledger__no">
+                    {question.wrongCount}
+                  </b>
+                </div>
+                <div className="ledger__row">
+                  <span>Skipped</span>
+                  <b className="ledger__val">{question.skippedCount}</b>
+                </div>
+                <div className="ledger__row">
+                  <span>Unanswered</span>
+                  <b className="ledger__val">{question.unansweredCount}</b>
+                </div>
+              </div>
+            </article>
+          ))}
         </div>
       </section>
       <section className="card">

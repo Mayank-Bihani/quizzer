@@ -136,7 +136,7 @@ button{font-family:inherit}
 /* ---------- 8. form controls (form-field A) --------------------------- */
 .field{display:grid;gap:var(--sp-3)}
 .lbl{font:var(--type-label);color:var(--text-1)}
-.inp{width:100%;min-height:var(--tap-min);padding:0 var(--sp-5);border-radius:var(--r-md);border:1px solid var(--border-2);background:var(--glass-b-bg);font:var(--type-body);color:var(--text-1);transition:var(--t-hover)}
+.inp{width:100%;min-height:var(--tap-min);padding:0 var(--sp-5);border-radius:var(--r-md);border:1px solid var(--border-2);background:var(--glass-b-bg);font:var(--type-body);font-size:var(--fs-16);color:var(--text-1);transition:var(--t-hover)}
 .inp::placeholder{color:var(--text-3)}
 .inp:hover{border-color:var(--border-strong-c)}
 .inp:focus{outline:0;border-color:var(--accent-500);box-shadow:var(--focus-ring)}
@@ -966,7 +966,7 @@ a.hrow:hover{border-color:var(--border-2);box-shadow:var(--elev-1);color:inherit
 .admdrawer>summary::marker{content:""}
 .admdrawer:hover>summary,.admdrawer[open]>summary{background:var(--surface-subtle)}
 .admdrawer>summary:focus-visible{outline:0;box-shadow:var(--focus-ring)}
-.admdrawer .menu{position:absolute;top:calc(100% + var(--sp-2));left:0;z-index:30;min-width:200px}
+.admdrawer .menu{position:absolute;top:calc(100% + var(--sp-2));left:0;z-index:30;min-width:200px;background:var(--surface-raised)}
 @media (min-width:900px){
   .admdrawer{display:none}
 }
@@ -1071,7 +1071,7 @@ table.dt th.chk{width:var(--sp-8)}
 .optedit{display:flex;gap:var(--sp-3);align-items:center;min-width:0}
 .optedit .ln{flex:0 0 var(--sp-7);text-align:center}
 .optedit .inp{flex:1;min-width:0}
-textarea.inp{min-height:88px;padding:var(--sp-4) var(--sp-5);line-height:var(--lh-normal);font-family:var(--font-num);font-size:var(--fs-13);resize:vertical}
+textarea.inp{min-height:88px;padding:var(--sp-4) var(--sp-5);line-height:var(--lh-normal);font-family:var(--font-num);font-size:var(--fs-16);resize:vertical}
 @media (min-width:1280px){
   .editor{grid-template-columns:minmax(0,1fr) minmax(320px,380px)}
 }
