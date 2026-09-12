@@ -6,11 +6,13 @@ import {
   current,
   join,
   listOpen,
+  listUpcoming,
   openRoom,
   status,
   submit,
   type RunDeps,
 } from "../src/services/quiz-run"
+import { UPCOMING_QUIZ_WINDOW_MS } from "../src/core/config"
 
 let creatorId: string
 let questionSeq = 0
@@ -291,6 +293,44 @@ describe("listOpen", () => {
     })
     const response = await listOpen(stableDeps([q], T0 + 1000))
     expect(response.quizzes.map((x) => x.id)).toEqual([openId])
+  })
+})
+
+describe("listUpcoming", () => {
+  it("lists only status='scheduled' quizzes within the lookahead window, excluding open/past-window ones", async () => {
+    const q = await makeQuestion("quant", { format: "mcq", correctOption: "A" })
+    const { quizId: withinWindowId } = await createScheduledQuiz({
+      type: "quant",
+      seatCap: 5,
+      scheduledAt: T0 + UPCOMING_QUIZ_WINDOW_MS - 1000,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      units: [{ kind: "standalone", timeLimitSec: 60, questions: [q] }],
+      status: "scheduled",
+    })
+    await createScheduledQuiz({
+      type: "quant",
+      seatCap: 5,
+      scheduledAt: T0 + UPCOMING_QUIZ_WINDOW_MS + 60_000,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      units: [{ kind: "standalone", timeLimitSec: 60, questions: [q] }],
+      status: "scheduled",
+    })
+    await createScheduledQuiz({
+      type: "quant",
+      seatCap: 5,
+      scheduledAt: T0,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      units: [{ kind: "standalone", timeLimitSec: 60, questions: [q] }],
+      status: "open",
+    })
+    const response = await listUpcoming(stableDeps([q], T0))
+    expect(response.quizzes.map((x) => x.id)).toEqual([withinWindowId])
   })
 })
 

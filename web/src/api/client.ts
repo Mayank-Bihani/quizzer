@@ -45,6 +45,7 @@ import type {
   WeeklyBoardRequest,
   WeeklyBoardResponse,
   ListOpenQuizzesResponse,
+  ListUpcomingQuizzesResponse,
 } from "../../../src/core/api";
 
 export class ApiRequestError extends Error {
@@ -216,6 +217,8 @@ export function createApiClient(fetcher: typeof fetch = fetch) {
         `/api/admin/templates/${encodeSegment(id)}/deactivate`,
       ),
     openQuizzes: () => get<ListOpenQuizzesResponse>("/api/quizzes/open"),
+    upcomingQuizzes: () =>
+      get<ListUpcomingQuizzesResponse>("/api/quizzes/upcoming"),
     joinQuiz: (code: string) =>
       post<JoinQuizResponse>(`/api/quizzes/${encodeSegment(code)}/join`),
     currentUnit: (quizId: string) =>

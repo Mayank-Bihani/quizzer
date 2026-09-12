@@ -102,6 +102,10 @@ export const SEAT_PREP_CHUNK_SIZE = 50
 export const SCHEDULER_DISCOVERY_LIMIT = 100
 export const CLOSE_ALERT_DELAY_MS = 180_000 // three minutes after safeCloseAt — SCHEDULER.md §4.1
 
+// A scheduled quiz becomes visible in GET /api/quizzes/upcoming this long before scheduledAt —
+// a fallback for students who miss the Telegram announcement, not a reveal-timing mechanism.
+export const UPCOMING_QUIZ_WINDOW_MS = 86_400_000 // T-24h
+
 // ============================================================================
 // Weekly boards + recurring materialization — SCHEDULER.md §4.2-4.3
 // ============================================================================

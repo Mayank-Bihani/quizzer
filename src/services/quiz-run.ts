@@ -7,11 +7,12 @@ import type {
   CurrentUnitResponse,
   JoinQuizResponse,
   ListOpenQuizzesResponse,
+  ListUpcomingQuizzesResponse,
   PlayStatusResponse,
   QuizMeta,
   SubmitUnitResponse,
 } from "../core/api"
-import { UNIT_SUBMISSION_TRANSPORT_MS } from "../core/config"
+import { UNIT_SUBMISSION_TRANSPORT_MS, UPCOMING_QUIZ_WINDOW_MS } from "../core/config"
 import { gradeAnswer } from "../core/grading"
 import { computeUnitDelta, marksForOutcome, type AnswerOutcome } from "../core/scoring"
 import { canonicalizeSubmission, parseSubmitUnitRequest, type UnitManifestEntry } from "../core/unit-submission"
@@ -25,6 +26,7 @@ import {
   listDuePrepare,
   listDueClose,
   listOpenQuizzes,
+  listUpcomingQuizzes,
   type ParticipantUnitRow,
   type RuntimeQuizMeta,
 } from "../db/play"
@@ -220,6 +222,10 @@ function toQuizMeta(meta: RuntimeQuizMeta, participantStartedAt: number): QuizMe
 
 export async function listOpen(deps: RunDeps): Promise<ListOpenQuizzesResponse> {
   return { quizzes: await listOpenQuizzes(deps.db, deps.now()) }
+}
+
+export async function listUpcoming(deps: RunDeps): Promise<ListUpcomingQuizzesResponse> {
+  return { quizzes: await listUpcomingQuizzes(deps.db, deps.now(), UPCOMING_QUIZ_WINDOW_MS) }
 }
 
 // ============================================================================

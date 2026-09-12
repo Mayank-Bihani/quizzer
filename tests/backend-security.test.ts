@@ -157,13 +157,13 @@ describe("AC-9: assertProductionConfig", () => {
 })
 
 // ============================================================================
-// AC-6 — the complete 33-route inventory, guarded exactly as documented (API.md's route table)
+// AC-6 — the complete 34-route inventory, guarded exactly as documented (API.md's route table)
 // ============================================================================
 
 type RouteCase = { method: string; path: string; guard: "none" | "auth" | "admin" | "superadmin" }
 
-// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 20 (creation 6,
-// templates 4, run 5, results 4, report 1) = 33. Path params use a placeholder id — this proves
+// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 21 (creation 6,
+// templates 4, run 6, results 4, report 1) = 34. Path params use a placeholder id — this proves
 // guard behavior only, which runs before any per-resource lookup.
 const ROUTE_INVENTORY: RouteCase[] = [
   { method: "POST", path: "/api/auth/google", guard: "none" },
@@ -190,6 +190,7 @@ const ROUTE_INVENTORY: RouteCase[] = [
   { method: "PATCH", path: "/api/admin/templates/placeholder-id", guard: "admin" },
   { method: "POST", path: "/api/admin/templates/placeholder-id/deactivate", guard: "admin" },
   { method: "GET", path: "/api/quizzes/open", guard: "auth" },
+  { method: "GET", path: "/api/quizzes/upcoming", guard: "auth" },
   { method: "POST", path: "/api/quizzes/ABCDEF/join", guard: "auth" },
   { method: "GET", path: "/api/play/placeholder-id/current", guard: "auth" },
   { method: "POST", path: "/api/play/placeholder-id/units/1/submit", guard: "auth" },
@@ -202,11 +203,11 @@ const ROUTE_INVENTORY: RouteCase[] = [
 ]
 
 describe("AC-6: route-guard inventory", () => {
-  it("declares exactly 33 documented routes", () => {
-    expect(ROUTE_INVENTORY).toHaveLength(33)
+  it("declares exactly 34 documented routes", () => {
+    expect(ROUTE_INVENTORY).toHaveLength(34)
   })
 
-  it("has no unguarded alias or debug/test endpoint mounted beyond the documented 29", () => {
+  it("has no unguarded alias or debug/test endpoint mounted beyond the documented routes", () => {
     // Hono's own route table is the ground truth for what's actually reachable — not just what
     // this file declares. Dedup: an inline per-route middleware arg (e.g. `.get("/me", requireAuth,
     // handler)`) registers two internal entries for the same method+path; router-level `.use("*", …)`

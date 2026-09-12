@@ -346,6 +346,19 @@ export type OpenQuizSummary = {
 // GET /api/quizzes/open — no body; bounded by how many quizzes are open at once, not paginated
 export type ListOpenQuizzesResponse = { quizzes: OpenQuizSummary[] }
 
+// A scheduled quiz within UPCOMING_QUIZ_WINDOW_MS of scheduledAt — no roomCode, since joining is
+// impossible before scheduledAt regardless (QUIZZING.md §5). Fallback discovery, not a teaser reveal.
+export type UpcomingQuizSummary = {
+  id: string
+  quizNumber: number
+  title: string
+  type: QuizType
+  questionCount: number
+  scheduledAt: number
+}
+// GET /api/quizzes/upcoming — no body; bounded by the lookahead window, not paginated
+export type ListUpcomingQuizzesResponse = { quizzes: UpcomingQuizSummary[] }
+
 export type QuizMeta = {
   quizId: string
   quizNumber: number

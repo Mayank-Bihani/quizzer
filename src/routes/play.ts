@@ -4,7 +4,7 @@ import { Hono } from "hono"
 import type { Context } from "hono"
 import type { Bindings, Variables } from "../core/config"
 import { currentUser, requireAuth } from "../middleware/auth"
-import { current, join, listOpen, status, submit, type RunDeps } from "../services/quiz-run"
+import { current, join, listOpen, listUpcoming, status, submit, type RunDeps } from "../services/quiz-run"
 
 type Env = { Bindings: Bindings; Variables: Variables }
 
@@ -29,6 +29,11 @@ quizzesPublic.use("*", requireAuth)
 
 quizzesPublic.get("/open", async (c) => {
   const response = await listOpen(runDeps(c))
+  return c.json(response, 200)
+})
+
+quizzesPublic.get("/upcoming", async (c) => {
+  const response = await listUpcoming(runDeps(c))
   return c.json(response, 200)
 })
 

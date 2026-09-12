@@ -3,7 +3,7 @@
 // authored content and format always come through BankContract — QUIZZING.md §5.
 
 import type { DueCloseQuiz, QuizStatus, QuizType, UnitKind } from "../core/contracts"
-import type { OpenQuizSummary } from "../core/api"
+import type { OpenQuizSummary, UpcomingQuizSummary } from "../core/api"
 import { SCHEDULER_DISCOVERY_LIMIT } from "../core/config"
 
 export type RuntimeUnitDef = {
@@ -176,6 +176,34 @@ export async function listOpenQuizzes(db: D1Database, now: number): Promise<Open
     roomCode: row.room_code,
     scheduledAt: row.scheduled_at,
     endsAt: row.ends_at,
+  }))
+}
+
+export async function listUpcomingQuizzes(db: D1Database, now: number, windowMs: number): Promise<UpcomingQuizSummary[]> {
+  const { results } = await db
+    .prepare(
+      `SELECT id, quiz_number, title, type, question_count, scheduled_at
+       FROM quizzes
+       WHERE status = 'scheduled' AND scheduled_at > ? AND scheduled_at <= ?
+       ORDER BY scheduled_at ASC, id ASC`
+    )
+    .bind(now, now + windowMs)
+    .all<{
+      id: string
+      quiz_number: number
+      title: string
+      type: QuizType
+      question_count: number
+      scheduled_at: number
+    }>()
+
+  return results.map((row) => ({
+    id: row.id,
+    quizNumber: row.quiz_number,
+    title: row.title,
+    type: row.type,
+    questionCount: row.question_count,
+    scheduledAt: row.scheduled_at,
   }))
 }
 

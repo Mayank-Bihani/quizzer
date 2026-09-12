@@ -207,6 +207,7 @@ excludes from materialization; `quizzes.template_id` continues to reference the 
 | Method | Path | Request | Response | Extra status codes |
 |---|---|---|---|---|
 | GET | `/api/quizzes/open` | — | `ListOpenQuizzesResponse` | 401 |
+| GET | `/api/quizzes/upcoming` | — | `ListUpcomingQuizzesResponse` | 401 |
 | POST | `/api/quizzes/:code/join` | — | `JoinQuizResponse` | 401, 404, 409 (admission not open/full/cancelled) |
 | GET | `/api/play/:quizId/current` | — | `CurrentUnitResponse` | 401, 403 (not a participant), 404, 409 (cancelled) |
 | POST | `/api/play/:quizId/units/:unitPosition/submit` | `SubmitUnitRequest` | `SubmitUnitResponse` | 400 (invalid batch), 401, 403, 404, 409 (wrong/closed unit or changed retry), 410 (new batch past receipt cutoff) |
@@ -216,6 +217,12 @@ All play routes enforce authentication and ownership. New joins require
 `scheduledAt <= serverNow < endsAt`; existing participants resume after admission closes.
 Preparation at T−5m does not start a clock or reveal a room code. Join creates the participant
 and first runtime unit before serving content; replaying a join never restarts either clock.
+
+`GET /api/quizzes/upcoming` lists `status = 'scheduled'` quizzes whose `scheduledAt` falls within
+`UPCOMING_QUIZ_WINDOW_MS` (T-24h) of now — a fallback for students who miss the Telegram
+announcement, not a staggered reveal. It never includes `roomCode` (joining is impossible before
+`scheduledAt` regardless) and stops listing a quiz once it flips to `open`, at which point it
+appears in `GET /api/quizzes/open` instead.
 
 `QuizMeta` includes questionCount, unitCount, admission cutoff, full individual duration,
 student startedAt and overall deadlineAt. `PlayState` is discriminated:
@@ -327,11 +334,13 @@ aggregates the schema can already produce.
 
 ## Route inventory and revision
 
-33 routes: AUTH 5, BANK 8, QUIZZING 20 (creation 6, templates 4, run 5, results 4, report 1).
+34 routes: AUTH 5, BANK 8, QUIZZING 21 (creation 6, templates 4, run 6, results 4, report 1).
 This revision removes per-question answer/skip/timeout routes and adds one unit-submit route.
 The source of exact type bodies is `src/core/api.ts`; module types are `src/core/contracts.ts`.
 Existing sprint packet route/type references are stale and intentionally not edited yet.
 Template CRUD (QUIZZING.md §4.4) was resolved and added to this inventory on 2026-09-12.
+`GET /api/quizzes/upcoming` was added to the run group on 2026-09-12 (see QUIZZING run section
+above) — a fallback discovery route for students who miss the Telegram announcement.
 
 Admin report unit aggregates provide completedCount, timedOutCount and avgElapsedMs per unit.
 Participant rows include unansweredCount and server-measured total unit time.

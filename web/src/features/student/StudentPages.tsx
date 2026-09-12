@@ -30,13 +30,18 @@ import { FinishCard, HoldingCard } from "./DisclosureCards";
 export function HomePage() {
   const { user } = useAuth();
   const resource = useResource(
-    () => Promise.all([api.openQuizzes(), api.history({ limit: 3 })]),
+    () =>
+      Promise.all([
+        api.openQuizzes(),
+        api.upcomingQuizzes(),
+        api.history({ limit: 3 }),
+      ]),
     [],
   );
   if (resource.loading) return <LoadingCard />;
   if (resource.error || !resource.data)
     return <ErrorState error={resource.error} retry={resource.reload} />;
-  const [open, history] = resource.data;
+  const [open, upcoming, history] = resource.data;
   return (
     <>
       <PageHeader
@@ -103,13 +108,36 @@ export function HomePage() {
         <div className="home-section__head">
           <h2 id="upcoming-heading">Upcoming</h2>
         </div>
-        <div className="alert a-info">
-          <span aria-hidden="true">i</span>
-          <span>
-            Upcoming quiz details are announced in the Telegram group. The API
-            currently exposes a quiz here only when its admission window opens.
-          </span>
-        </div>
+        {upcoming.quizzes.length === 0 ? (
+          <EmptyState title="Nothing scheduled in the next 24 hours">
+            Quizzes appear here once they're scheduled within a day — also
+            announced in the Telegram group.
+          </EmptyState>
+        ) : (
+          <div className="quiz-grid">
+            {upcoming.quizzes.map((quiz) => (
+              <article className="card quiz-card" key={quiz.id}>
+                <div className="quiz-card__head">
+                  <div>
+                    <SectionBadge type={quiz.type} />
+                    <div className="quiz-card__name">{quiz.title}</div>
+                  </div>
+                </div>
+                <div className="quiz-card__facts tiny">
+                  <div>
+                    Quiz <b className="num">#{quiz.quizNumber}</b>
+                  </div>
+                  <div>
+                    {quiz.questionCount} questions
+                  </div>
+                  <div>
+                    Starts <b className="num">{formatDateTime(quiz.scheduledAt)}</b>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
       <section className="home-section" aria-labelledby="recent-heading">
         <div className="home-section__head">
