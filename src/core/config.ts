@@ -111,6 +111,14 @@ export const UPCOMING_QUIZ_WINDOW_MS = 86_400_000 // T-24h
 // ============================================================================
 
 export const MATERIALIZE_LOOKAHEAD_DAYS = 7
+// The hourly HOURLY_CRON tick is the only automatic trigger for materialization (wrangler.toml).
+// An occurrence created after one tick but due before the next (e.g. a template made at 21:55 IST
+// for 22:05 IST, with the next tick not until 22:30 IST) would otherwise have already slipped
+// into the past by the time expandRrule's `fromMs >= now` check runs, and — since a past occurrence
+// never becomes "not past" — would be silently skipped forever. 65 minutes covers one full hourly
+// gap plus jitter; occurrenceExists still dedupes so this never re-creates an already-materialized
+// occurrence, and it never reaches back far enough to mass-revive a long-stale outage.
+export const MATERIALIZE_LOOKBACK_MS = 65 * 60 * 1000
 // Accepted V1 operational limit — the quiz season ends in the third week of November; a week
 // that ages out of this window is not automatically recovered. Implementation bound, not a
 // product setting.

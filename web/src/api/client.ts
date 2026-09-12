@@ -29,6 +29,7 @@ import type {
   ListTemplatesResponse,
   LockQuizResponse,
   LogoutResponse,
+  MaterializeTemplatesNowResponse,
   MonthlyBoardRequest,
   MonthlyBoardResponse,
   PlayStatusResponse,
@@ -217,6 +218,10 @@ export function createApiClient(fetcher: typeof fetch = fetch) {
     deactivateTemplate: (id: string) =>
       post<DeactivateTemplateResponse>(
         `/api/admin/templates/${encodeSegment(id)}/deactivate`,
+      ),
+    materializeTemplatesNow: () =>
+      post<MaterializeTemplatesNowResponse>(
+        "/api/admin/templates/materialize-now",
       ),
     openQuizzes: () => get<ListOpenQuizzesResponse>("/api/quizzes/open"),
     upcomingQuizzes: () =>

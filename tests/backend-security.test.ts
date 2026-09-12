@@ -162,8 +162,8 @@ describe("AC-9: assertProductionConfig", () => {
 
 type RouteCase = { method: string; path: string; guard: "none" | "auth" | "admin" | "superadmin" }
 
-// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 22 (creation 6,
-// templates 4, run 6, results 4, report 1, upcoming 1), BOARDS 2 (weekly, monthly) = 35. Path
+// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 23 (creation 6,
+// templates 5, run 6, results 4, report 1, upcoming 1), BOARDS 2 (weekly, monthly) = 36. Path
 // params use a placeholder id — this proves guard behavior only, which runs before any
 // per-resource lookup.
 const ROUTE_INVENTORY: RouteCase[] = [
@@ -190,6 +190,7 @@ const ROUTE_INVENTORY: RouteCase[] = [
   { method: "POST", path: "/api/admin/templates", guard: "admin" },
   { method: "PATCH", path: "/api/admin/templates/placeholder-id", guard: "admin" },
   { method: "POST", path: "/api/admin/templates/placeholder-id/deactivate", guard: "admin" },
+  { method: "POST", path: "/api/admin/templates/materialize-now", guard: "admin" },
   { method: "GET", path: "/api/quizzes/open", guard: "auth" },
   { method: "GET", path: "/api/quizzes/upcoming", guard: "auth" },
   { method: "POST", path: "/api/quizzes/ABCDEF/join", guard: "auth" },
@@ -205,8 +206,8 @@ const ROUTE_INVENTORY: RouteCase[] = [
 ]
 
 describe("AC-6: route-guard inventory", () => {
-  it("declares exactly 35 documented routes", () => {
-    expect(ROUTE_INVENTORY).toHaveLength(35)
+  it("declares exactly 36 documented routes", () => {
+    expect(ROUTE_INVENTORY).toHaveLength(36)
   })
 
   it("has no unguarded alias or debug/test endpoint mounted beyond the documented routes", () => {
