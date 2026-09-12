@@ -1,7 +1,7 @@
 // telegram_posts table; TelegramContract — claimAndSend: insert status='pending' before the Bot API call (message_id/sent_at unknown until after), then update to 'sent' or 'failed' — TELEGRAM.md §6-7; CONTRACTS.md §6
 
 import type { BoardSummary, CancelledPayload, ClaimAndSendResult, CloseResult, FailedTelegramPostRef, QuizAnnouncePayload, QuizType, TelegramContract, TelegramPayload, TelegramPostKind } from "../core/contracts"
-import { renderCancelled, renderQuizAnnounce, renderQuizResult, renderRoomOpen, renderStartingSoon, renderWeeklyBoards } from "../core/telegram-render"
+import { renderCancelled, renderMonthlyBoards, renderQuizAnnounce, renderQuizResult, renderRoomOpen, renderStartingSoon, renderWeeklyBoards } from "../core/telegram-render"
 import type { BotApiClient } from "../services/telegram"
 import { SCHEDULER_DISCOVERY_LIMIT } from "../core/config"
 
@@ -56,7 +56,7 @@ async function hasOpenPostSent(db: D1Database, quizId: string): Promise<boolean>
   return row !== null
 }
 
-function renderSingle(kind: Exclude<TelegramPostKind, "weekly">, payload: TelegramPayload): string {
+function renderSingle(kind: Exclude<TelegramPostKind, "weekly" | "monthly">, payload: TelegramPayload): string {
   if (kind === "announce") return renderQuizAnnounce(payload as QuizAnnouncePayload)
   if (kind === "soon") return renderStartingSoon(payload as QuizAnnouncePayload)
   if (kind === "open") return renderRoomOpen(payload as QuizAnnouncePayload)
@@ -76,6 +76,22 @@ async function sendWeekly(db: D1Database, bot: BotApiClient, chatId: string, wee
     messageIds[section.type] = result.messageId
   }
   await markSent(db, null, weekStart, "weekly", JSON.stringify(messageIds), now)
+  return { sent: true, skipped: false }
+}
+
+// Mirrors sendWeekly exactly — monthStart is stored in the shared week_start column (AC-2's note).
+async function sendMonthly(db: D1Database, bot: BotApiClient, chatId: string, monthStart: string, boards: BoardSummary[], now: number): Promise<ClaimAndSendResult> {
+  const sections = renderMonthlyBoards(boards)
+  const messageIds: Partial<Record<QuizType | "overall", string>> = {}
+  for (const section of sections) {
+    const result = await bot.sendMessage(chatId, section.text)
+    if (!result.ok) {
+      await markFailed(db, null, monthStart, "monthly", `section '${section.type}' failed: ${result.error}`)
+      return { sent: false, skipped: false }
+    }
+    messageIds[section.type] = result.messageId
+  }
+  await markSent(db, null, monthStart, "monthly", JSON.stringify(messageIds), now)
   return { sent: true, skipped: false }
 }
 
@@ -99,9 +115,11 @@ export async function claimAndSend(
   const claimed = await claimRow(db, quizId, weekStart, kind, now)
   if (!claimed) return { sent: false, skipped: true }
 
-  if (kind === "weekly") {
-    if (weekStart === null) throw new Error("telegram invariant: weekly kind requires a weekStart target")
-    return sendWeekly(db, bot, chatId, weekStart, payload as BoardSummary[], now)
+  if (kind === "weekly" || kind === "monthly") {
+    if (weekStart === null) throw new Error(`telegram invariant: ${kind} kind requires a weekStart target`)
+    return kind === "weekly"
+      ? sendWeekly(db, bot, chatId, weekStart, payload as BoardSummary[], now)
+      : sendMonthly(db, bot, chatId, weekStart, payload as BoardSummary[], now)
   }
 
   const text = renderSingle(kind, payload)

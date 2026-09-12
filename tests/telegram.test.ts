@@ -149,6 +149,60 @@ describe("claimAndSend — weekly single-claim/four-message shape (AC-7)", () =>
   })
 })
 
+describe("claimAndSend — monthly single-claim/four-message shape (mirrors AC-7's weekly shape)", () => {
+  const boards: BoardSummary[] = (["verbal", "quant", "lr", "overall"] as const).map((type) => ({
+    type,
+    weekStart: "2026-09-01",
+    top10: [{ rank: 1, userId: "u1", name: "A", totalScore: 10, quizzesTaken: 1 }],
+  }))
+
+  it("sends all four sections in order under one claim row and stores a keyed message-id JSON object", async () => {
+    const bot = fakeBot()
+    const result = await claimAndSend(env.DB, bot, "-100", "monthly", { weekStart: "2026-09-01" }, boards, Date.now())
+    expect(result).toEqual({ sent: true, skipped: false })
+    expect(bot.calls).toHaveLength(4)
+
+    const row = await postRow(null, "2026-09-01", "monthly")
+    expect(row?.status).toBe("sent")
+    const ids = JSON.parse(row?.message_id ?? "{}")
+    expect(Object.keys(ids)).toEqual(["verbal", "quant", "lr", "overall"])
+  })
+
+  it("aborts on the first failed section, leaves remaining sections unsent, and marks the claim failed", async () => {
+    let call = 0
+    const bot = fakeBot({
+      async sendMessage(): Promise<SendResult> {
+        call++
+        if (call === 3) return { ok: false, permanent: true, error: "server error 500" }
+        return { ok: true, messageId: `m${call}` }
+      },
+    })
+    const result = await claimAndSend(env.DB, bot, "-100", "monthly", { weekStart: "2026-09-01" }, boards, Date.now())
+    expect(result).toEqual({ sent: false, skipped: false })
+    expect(call).toBe(3)
+
+    const row = await postRow(null, "2026-09-01", "monthly")
+    expect(row?.status).toBe("failed")
+    expect(row?.error).toContain("lr")
+  })
+
+  it("does not automatically resend on a repeated call for an already-claimed month, and stays independent of a same-dated weekly claim", async () => {
+    const bot = fakeBot()
+    const weeklyBoards: BoardSummary[] = (["verbal", "quant", "lr", "overall"] as const).map((type) => ({
+      type,
+      weekStart: "2026-09-01",
+      top10: [{ rank: 1, userId: "u1", name: "A", totalScore: 5, quizzesTaken: 1 }],
+    }))
+    // Same week_start-shaped date, different kind — the UNIQUE(week_start, kind) constraint keeps
+    // these independent claims (AC-13's reuse of the shared week_start column).
+    await claimAndSend(env.DB, bot, "-100", "weekly", { weekStart: "2026-09-01" }, weeklyBoards, Date.now())
+    await claimAndSend(env.DB, bot, "-100", "monthly", { weekStart: "2026-09-01" }, boards, Date.now())
+    const again = await claimAndSend(env.DB, bot, "-100", "monthly", { weekStart: "2026-09-01" }, boards, Date.now())
+    expect(again).toEqual({ sent: false, skipped: true })
+    expect(bot.calls).toHaveLength(8) // 4 weekly + 4 monthly, not 12
+  })
+})
+
 describe("claimAndSend — cancelled silent/notify self-check (AC-7)", () => {
   const cancelledPayload: CancelledPayload = { title: "Test Quiz", scheduledAt: 1_700_000_000_000 }
 

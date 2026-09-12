@@ -495,6 +495,15 @@ export type WeeklyBoardResponse = PageResponse<WeeklyBoardRow> & {
   type: QuizType | 'overall'
 }
 
+export type MonthlyBoardRequest = PageRequest & {
+  monthStart?: string
+  type?: QuizType | 'overall'
+}
+export type MonthlyBoardResponse = PageResponse<WeeklyBoardRow> & {
+  monthStart: string
+  type: QuizType | 'overall'
+}
+
 // ============================================================================
 // QUIZZING — admin report export (QUIZZING.md §7)
 // ============================================================================

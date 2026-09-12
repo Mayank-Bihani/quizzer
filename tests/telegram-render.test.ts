@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import type { BoardSummary, CancelledPayload, CloseResult, QuizAnnouncePayload } from "../src/core/contracts"
 import {
   renderCancelled,
+  renderMonthlyBoards,
   renderQuizAnnounce,
   renderQuizResult,
   renderRoomOpen,
@@ -201,6 +202,53 @@ describe("renderWeeklyBoards (TG-5)", () => {
       top10: Array.from({ length: 100 }, (_, i) => ({ rank: i + 1, userId: `u${i}`, name: longName, totalScore: 100 - i, quizzesTaken: 5 })),
     })
     const messages = renderWeeklyBoards([bigBoard("verbal"), bigBoard("quant"), bigBoard("lr"), bigBoard("overall")])
+    for (const m of messages) expect(m.text.length).toBeLessThan(MESSAGE_LIMIT)
+  })
+})
+
+describe("renderMonthlyBoards", () => {
+  function board(type: BoardSummary["type"], rows: number): BoardSummary {
+    return {
+      type,
+      weekStart: "2026-09-01",
+      top10: Array.from({ length: rows }, (_, i) => ({ rank: i + 1, userId: `u${i}`, name: `Student ${i}`, totalScore: 100 - i, quizzesTaken: 3 })),
+    }
+  }
+
+  it("returns exactly four messages in fixed order verbal, quant, lr, overall", () => {
+    const messages = renderMonthlyBoards([board("overall", 5), board("lr", 3), board("verbal", 4), board("quant", 2)])
+    expect(messages.map((m) => m.type)).toEqual(["verbal", "quant", "lr", "overall"])
+    expect(messages).toHaveLength(4)
+  })
+
+  it("shows totalScore and quizzesTaken as context only, never averaged or used to rank", () => {
+    const messages = renderMonthlyBoards([board("verbal", 3), board("quant", 0), board("lr", 0), board("overall", 0)])
+    const verbal = messages.find((m) => m.type === "verbal")
+    expect(verbal?.text).toContain("100") // totalScore
+    expect(verbal?.text).toContain("3 quizzes") // quizzesTaken, plural
+    expect(verbal?.text.toLowerCase()).not.toContain("average")
+  })
+
+  it("renders a valid nobody-ranked message for an empty section instead of erroring", () => {
+    const messages = renderMonthlyBoards([board("verbal", 0), board("quant", 0), board("lr", 0), board("overall", 0)])
+    for (const m of messages) expect(m.text.toLowerCase()).toContain("nobody ranked this section this month")
+  })
+
+  it("renders the month name from the month-start date, not the raw ISO date", () => {
+    const messages = renderMonthlyBoards([board("verbal", 1), board("quant", 0), board("lr", 0), board("overall", 0)])
+    const verbal = messages.find((m) => m.type === "verbal")
+    expect(verbal?.text).toContain("Month of Sep 2026")
+    expect(verbal?.text).not.toContain("2026-09-01")
+  })
+
+  it("keeps every section under 4096 characters for a 100-row board with long names", () => {
+    const longName = "B".repeat(200)
+    const bigBoard = (type: BoardSummary["type"]): BoardSummary => ({
+      type,
+      weekStart: "2026-09-01",
+      top10: Array.from({ length: 100 }, (_, i) => ({ rank: i + 1, userId: `u${i}`, name: longName, totalScore: 100 - i, quizzesTaken: 5 })),
+    })
+    const messages = renderMonthlyBoards([bigBoard("verbal"), bigBoard("quant"), bigBoard("lr"), bigBoard("overall")])
     for (const m of messages) expect(m.text.length).toBeLessThan(MESSAGE_LIMIT)
   })
 })

@@ -46,6 +46,40 @@ export function weekStartOffsetBy(weekStart: string, weeksBack: number): string 
   return formatIstDate(startMs - weeksBack * WEEK_MS)
 }
 
+// Months vary in length (28-31 days), unlike weeks — computed from calendar year/month fields
+// (Date.UTC(year, month, 1)) rather than a fixed-duration offset.
+function istMonthStartMsContaining(ms: number): number {
+  const shifted = new Date(ms + IST_OFFSET_MS)
+  return Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), 1) - IST_OFFSET_MS
+}
+
+// AC-3 — given a "YYYY-MM-01" IST calendar-month start, the inclusive-start/exclusive-end epoch-ms
+// bounds of that month, IST wall-clock. Date.UTC normalizes a month-index of 12 into January of
+// the following year, so the December->January rollover needs no special-casing.
+export function monthBoundsForMonthStart(monthStart: string): { startMs: number; endMs: number } {
+  const [year, month] = monthStart.split("-").map(Number)
+  const startMs = Date.UTC(year as number, (month as number) - 1, 1, 0, 0, 0) - IST_OFFSET_MS
+  const endMs = Date.UTC(year as number, month as number, 1, 0, 0, 0) - IST_OFFSET_MS
+  return { startMs, endMs }
+}
+
+// AC-4 — the month_start of the most recently *fully elapsed* IST calendar month (never the month
+// containing `now`, which hasn't ended yet).
+export function mostRecentlyElapsedMonthStart(nowMs: number): string {
+  const currentMonthStartMs = istMonthStartMsContaining(nowMs)
+  const shifted = new Date(currentMonthStartMs + IST_OFFSET_MS)
+  const previousMonthStartMs = Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth() - 1, 1) - IST_OFFSET_MS
+  return formatIstDate(previousMonthStartMs)
+}
+
+// AC-5's monthly-retry sweep candidate months: the same 1st-of-month IST anchor `monthsBack`
+// whole calendar months earlier.
+export function monthStartOffsetBy(monthStart: string, monthsBack: number): string {
+  const [year, month] = monthStart.split("-").map(Number)
+  const targetMs = Date.UTC(year as number, (month as number) - 1 - monthsBack, 1) - IST_OFFSET_MS
+  return formatIstDate(targetMs)
+}
+
 export type RruleExpansionResult = { ok: true; timestampsMs: number[] } | { ok: false }
 
 // A defensive sanity cap, not a product limit: a pathological window (or a bug passing years

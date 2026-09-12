@@ -8,8 +8,10 @@ import {
 import type {
   HistoryEntry,
   LeaderboardRowView,
+  MonthlyBoardResponse,
   QuestionReviewRow,
   WeeklyBoardRequest,
+  WeeklyBoardResponse,
 } from "../../../../src/core/api";
 import type { QuizType } from "../../../../src/core/contracts";
 import { api, ApiRequestError } from "../../api/client";
@@ -412,25 +414,85 @@ const boardTypes: Array<QuizType | "overall"> = [
   "lr",
 ];
 
+const boardPeriods = ["weekly", "monthly"] as const;
+type BoardPeriod = (typeof boardPeriods)[number];
+
+// Shared by both periods: the same ranked rows, empty state, and pagination — the response
+// wrapper's identifying field (weekStart vs. monthStart) is the only thing that differs, and this
+// component never touches it.
+function BoardRankList({
+  type,
+  data,
+  onOffset,
+}: {
+  type: QuizType | "overall";
+  data: Pick<WeeklyBoardResponse, "items" | "total" | "limit" | "offset">;
+  onOffset: (offset: number) => void;
+}) {
+  if (data.total === 0) {
+    return (
+      <EmptyState title="No published entries">
+        This period and section do not have a published board yet.
+      </EmptyState>
+    );
+  }
+  return (
+    <>
+      <div className="ranklist" aria-label={`${type} board`}>
+        {data.items.map((row) => (
+          <div
+            className={`rankrow rankrow--list r${Math.min(row.rank, 3)}`}
+            key={row.userId}
+          >
+            <span className="rankrow__rank num">{row.rank}</span>
+            <div className="namerow grow min-zero">
+              <div className="av sm" aria-hidden="true">
+                {row.name.slice(0, 2).toUpperCase()}
+              </div>
+              <span className="truncate">{row.name}</span>
+            </div>
+            <span className="rankrow__count tiny">
+              <b className="num">{row.quizzesTaken}</b> quizzes
+            </span>
+            <strong className="num">{row.totalScore} total</strong>
+          </div>
+        ))}
+      </div>
+      <Pagination page={data} onOffset={onOffset} />
+    </>
+  );
+}
+
+function periodDateValue(
+  data: WeeklyBoardResponse | MonthlyBoardResponse | null,
+  fallback: string,
+): string {
+  if (!data) return fallback;
+  return "monthStart" in data ? data.monthStart : data.weekStart;
+}
+
 export function WeeklyBoardPage() {
   const [search, setSearch] = useSearchParams();
+  const period: BoardPeriod = search.get("period") === "monthly" ? "monthly" : "weekly";
   const type = boardTypes.includes(search.get("type") as QuizType | "overall")
     ? (search.get("type") as QuizType | "overall")
     : "overall";
   const weekStart = search.get("weekStart") ?? undefined;
+  const monthStart = search.get("monthStart") ?? undefined;
   const offset = Number(search.get("offset") ?? 0);
-  const query: WeeklyBoardRequest = {
-    type,
-    limit: 50,
-    offset,
-    ...(weekStart ? { weekStart } : {}),
-  };
-  const resource = useResource(
-    () => api.weeklyBoard(query),
-    [type, weekStart, offset],
+
+  const resource = useResource<WeeklyBoardResponse | MonthlyBoardResponse>(
+    () =>
+      period === "monthly"
+        ? api.monthlyBoard({ type, limit: 50, offset, ...(monthStart ? { monthStart } : {}) })
+        : api.weeklyBoard({ type, limit: 50, offset, ...(weekStart ? { weekStart } : {}) } satisfies WeeklyBoardRequest),
+    [period, type, weekStart, monthStart, offset],
   );
+
   const update = (
-    next: Partial<Record<"type" | "weekStart" | "offset", string>>,
+    next: Partial<
+      Record<"period" | "type" | "weekStart" | "monthStart" | "offset", string>
+    >,
   ) => {
     const params = new URLSearchParams(search);
     Object.entries(next).forEach(([key, value]) =>
@@ -438,13 +500,33 @@ export function WeeklyBoardPage() {
     );
     setSearch(params);
   };
+
+  // period is never carried into a weekStart/monthStart param switch — each period keeps its own
+  // independent date field, so switching never leaks one period's value into the other's.
+  const switchPeriod = (next: BoardPeriod) =>
+    update({ period: next === "weekly" ? "" : next, offset: "" });
+
   return (
     <>
       <PageHeader
-        title="Weekly leaderboards"
+        title="Leaderboards"
         subtitle="Ranked by total score across quizzes taken—not by average."
         back={{ to: "/", label: "Home" }}
       />
+      <div className="seg board-tabs" role="tablist" aria-label="Board period">
+        {boardPeriods.map((item) => (
+          <button
+            key={item}
+            className={item === period ? "on" : ""}
+            role="tab"
+            aria-selected={item === period}
+            type="button"
+            onClick={() => switchPeriod(item)}
+          >
+            {item === "weekly" ? "Weekly" : "Monthly"}
+          </button>
+        ))}
+      </div>
       <div className="seg board-tabs" role="tablist" aria-label="Board section">
         {boardTypes.map((item) => (
           <button
@@ -467,45 +549,38 @@ export function WeeklyBoardPage() {
         <>
           <div className="week-control">
             <label className="field">
-              <span>Published week starting</span>
-              <input
-                className="inp"
-                type="date"
-                value={resource.data.weekStart || weekStart || ""}
-                onChange={(event) =>
-                  update({ weekStart: event.target.value, offset: "" })
-                }
-              />
+              <span>
+                {period === "monthly"
+                  ? "Published month starting"
+                  : "Published week starting"}
+              </span>
+              {period === "monthly" ? (
+                <input
+                  className="inp"
+                  type="month"
+                  value={periodDateValue(resource.data, monthStart ?? "").slice(0, 7)}
+                  onChange={(event) =>
+                    update({
+                      monthStart: event.target.value ? `${event.target.value}-01` : "",
+                      offset: "",
+                    })
+                  }
+                />
+              ) : (
+                <input
+                  className="inp"
+                  type="date"
+                  value={periodDateValue(resource.data, weekStart ?? "")}
+                  onChange={(event) =>
+                    update({ weekStart: event.target.value, offset: "" })
+                  }
+                />
+              )}
             </label>
           </div>
-          {resource.data.total === 0 ? (
-            <EmptyState title="No published entries">
-              This week and section do not have a published board yet.
-            </EmptyState>
-          ) : (
-            <div className="ranklist" aria-label={`${type} weekly board`}>
-              {resource.data.items.map((row) => (
-                <div
-                  className={`rankrow rankrow--list r${Math.min(row.rank, 3)}`}
-                  key={row.userId}
-                >
-                  <span className="rankrow__rank num">{row.rank}</span>
-                  <div className="namerow grow min-zero">
-                    <div className="av sm" aria-hidden="true">
-                      {row.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <span className="truncate">{row.name}</span>
-                  </div>
-                  <span className="rankrow__count tiny">
-                    <b className="num">{row.quizzesTaken}</b> quizzes
-                  </span>
-                  <strong className="num">{row.totalScore} total</strong>
-                </div>
-              ))}
-            </div>
-          )}
-          <Pagination
-            page={resource.data}
+          <BoardRankList
+            type={type}
+            data={resource.data}
             onOffset={(next) => update({ offset: String(next) })}
           />
         </>

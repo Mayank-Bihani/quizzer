@@ -116,6 +116,10 @@ export const MATERIALIZE_LOOKAHEAD_DAYS = 7
 // product setting.
 export const WEEKLY_RETRY_LOOKBACK_WEEKS = 8
 
+// Covers a missed month plus buffer without scanning arbitrarily far back. Implementation bound,
+// not a product setting.
+export const MONTHLY_RETRY_LOOKBACK_MONTHS = 3
+
 // ============================================================================
 // Production configuration gate — Sprint 8 AC-9. Names only the missing binding/var; never its
 // value. Telegram pieces are conditionally required only when TELEGRAM_ENABLED === "true", so

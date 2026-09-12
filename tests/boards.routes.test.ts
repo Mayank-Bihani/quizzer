@@ -4,7 +4,7 @@ import app from "../src/index"
 import { jwksResponse, makeGoogleKeyPair, signGoogleIdToken } from "./helpers/google"
 
 beforeEach(async () => {
-  for (const table of ["weekly_boards", "participants", "quiz_seats", "quiz_questions", "quiz_units", "quizzes", "users"]) {
+  for (const table of ["weekly_boards", "monthly_boards", "participants", "quiz_seats", "quiz_questions", "quiz_units", "quizzes", "users"]) {
     await env.DB.prepare(`DELETE FROM ${table}`).run()
   }
 })
@@ -46,6 +46,14 @@ async function seedOneWeek(weekStart: string, userId: string): Promise<void> {
     "INSERT INTO weekly_boards (week_start, type, user_id, quizzes_taken, total_score, rank) VALUES (?, 'overall', ?, 1, 10, 1)"
   )
     .bind(weekStart, userId)
+    .run()
+}
+
+async function seedOneMonth(monthStart: string, userId: string): Promise<void> {
+  await env.DB.prepare(
+    "INSERT INTO monthly_boards (month_start, type, user_id, quizzes_taken, total_score, rank) VALUES (?, 'overall', ?, 1, 10, 1)"
+  )
+    .bind(monthStart, userId)
     .run()
 }
 
@@ -117,5 +125,85 @@ describe("GET /api/boards/weekly", () => {
     expect(res.status).toBe(200)
     const body = await res.json<{ items: { userId: string; totalScore: number; quizzesTaken: number }[] }>()
     expect(body.items).toEqual([{ rank: 1, userId: id, name: expect.any(String), totalScore: 25, quizzesTaken: 2 }])
+  })
+})
+
+describe("GET /api/boards/monthly", () => {
+  it("401s when signed out", async () => {
+    const res = await authed("/api/boards/monthly", null)
+    expect(res.status).toBe(401)
+  })
+
+  it("400s on an invalid type", async () => {
+    const { cookie } = await signInAsStudent()
+    const res = await authed("/api/boards/monthly?type=bogus", cookie)
+    expect(res.status).toBe(400)
+  })
+
+  it("400s on a malformed monthStart", async () => {
+    const { cookie } = await signInAsStudent()
+    const res = await authed("/api/boards/monthly?monthStart=not-a-date", cookie)
+    expect(res.status).toBe(400)
+  })
+
+  it("400s on invalid pagination params without clamping", async () => {
+    const { cookie } = await signInAsStudent()
+    const res = await authed("/api/boards/monthly?limit=0", cookie)
+    expect(res.status).toBe(400)
+    const res2 = await authed("/api/boards/monthly?offset=-1", cookie)
+    expect(res2.status).toBe(400)
+  })
+
+  it("defaults type to overall and monthStart to the most recently published month, with no 404 path", async () => {
+    const { cookie, id } = await signInAsStudent()
+    await seedOneMonth("2026-08-01", id)
+    await seedOneMonth("2026-09-01", id)
+
+    const res = await authed("/api/boards/monthly", cookie)
+    expect(res.status).toBe(200)
+    const body = await res.json<{ monthStart: string; type: string; total: number; items: unknown[] }>()
+    expect(body.monthStart).toBe("2026-09-01")
+    expect(body.type).toBe("overall")
+    expect(body.total).toBe(1)
+  })
+
+  it("returns an empty PageResponse with 200 when no month has ever been published", async () => {
+    const { cookie } = await signInAsStudent()
+    const res = await authed("/api/boards/monthly", cookie)
+    expect(res.status).toBe(200)
+    const body = await res.json<{ total: number; items: unknown[] }>()
+    expect(body.total).toBe(0)
+    expect(body.items).toEqual([])
+  })
+
+  it("returns an empty PageResponse (not 404) for an unpublished monthStart", async () => {
+    const { cookie } = await signInAsStudent()
+    const res = await authed("/api/boards/monthly?monthStart=2099-01-01", cookie)
+    expect(res.status).toBe(200)
+    const body = await res.json<{ total: number }>()
+    expect(body.total).toBe(0)
+  })
+
+  it("serves an explicit monthStart/type combination", async () => {
+    const { cookie, id } = await signInAsStudent()
+    await env.DB.prepare(
+      "INSERT INTO monthly_boards (month_start, type, user_id, quizzes_taken, total_score, rank) VALUES ('2026-09-01', 'quant', ?, 2, 25, 1)"
+    )
+      .bind(id)
+      .run()
+
+    const res = await authed("/api/boards/monthly?monthStart=2026-09-01&type=quant", cookie)
+    expect(res.status).toBe(200)
+    const body = await res.json<{ items: { userId: string; totalScore: number; quizzesTaken: number }[] }>()
+    expect(body.items).toEqual([{ rank: 1, userId: id, name: expect.any(String), totalScore: 25, quizzesTaken: 2 }])
+  })
+
+  it("never returns a weekStart field on the monthly response shape", async () => {
+    const { cookie, id } = await signInAsStudent()
+    await seedOneMonth("2026-09-01", id)
+    const res = await authed("/api/boards/monthly", cookie)
+    const body = await res.json<Record<string, unknown>>()
+    expect(body.weekStart).toBeUndefined()
+    expect(body.monthStart).toBe("2026-09-01")
   })
 })

@@ -269,6 +269,7 @@ committed board marker. History must not expose active scores either.
 | `GET` | `/api/quizzes/:quizId/review` | — (no body; bounded by `question_count`, not paginated) | `ReviewResponse` | **423**, 403, 404 |
 | `GET` | `/api/students/me/history` | `HistoryRequest` | `HistoryResponse` | 400, 401 |
 | `GET` | `/api/boards/weekly` | `WeeklyBoardRequest` | `WeeklyBoardResponse` | 400, 401 |
+| `GET` | `/api/boards/monthly` | `MonthlyBoardRequest` | `MonthlyBoardResponse` | 400, 401 |
 
 **423 is scoped to exactly these two routes**, per QUIZZING.md §6's own wording ("every results
 endpoint... returns 423" refers to the two rows the section actually tables — leaderboard and
@@ -284,6 +285,14 @@ closing the Sprint 7 packet's OQ-2): an omitted `type` defaults to `'overall'`; 
 published yet (SCHEDULER.md §4.3). If no week has ever been published, the response is the same
 empty `PageResponse` (`total: 0`) any other not-yet-published `weekStart` would return; there is
 still no 404 path for this route.
+
+**`GET /api/boards/monthly`** (Sprint 11) mirrors `/weekly` exactly, one calendar-month period
+instead of one ISO week: an omitted `type` defaults to `'overall'`; an omitted `monthStart`
+defaults to `MAX(month_start)` present in `monthly_boards`; no published month yields the same
+empty `PageResponse`, never a 404. Publishing has no dedicated cron trigger — it piggybacks on the
+same hourly tick that already sweeps weekly retries (SCHEDULER.md §4.3), so a month's board can
+land up to an hour after month-end. `MonthlyBoardResponse` reuses `WeeklyBoardRow` for its rows
+unmodified; only the request/response wrapper's field name (`monthStart` vs. `weekStart`) differs.
 
 **`LeaderboardResponse.rows` is `LeaderboardRowView[]`, never the full board.** `isOwnRow` marks
 the viewer's own entry so the client can render it distinctly, and `truncated` is `true` whenever
@@ -334,13 +343,15 @@ aggregates the schema can already produce.
 
 ## Route inventory and revision
 
-34 routes: AUTH 5, BANK 8, QUIZZING 21 (creation 6, templates 4, run 6, results 4, report 1).
+35 routes: AUTH 5, BANK 8, QUIZZING 21 (creation 6, templates 4, run 6, results 5, report 1).
 This revision removes per-question answer/skip/timeout routes and adds one unit-submit route.
 The source of exact type bodies is `src/core/api.ts`; module types are `src/core/contracts.ts`.
 Existing sprint packet route/type references are stale and intentionally not edited yet.
 Template CRUD (QUIZZING.md §4.4) was resolved and added to this inventory on 2026-09-12.
 `GET /api/quizzes/upcoming` was added to the run group on 2026-09-12 (see QUIZZING run section
 above) — a fallback discovery route for students who miss the Telegram announcement.
+`GET /api/boards/monthly` was added to the results group on 2026-09-12 (Sprint 11) — a monthly
+leaderboard alongside the existing weekly one, same guard, same 400/401 shape.
 
 Admin report unit aggregates provide completedCount, timedOutCount and avgElapsedMs per unit.
 Participant rows include unansweredCount and server-measured total unit time.

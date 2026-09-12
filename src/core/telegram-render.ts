@@ -115,6 +115,34 @@ export function renderWeeklyBoards(boards: BoardSummary[]): { type: QuizType | "
   })
 }
 
+// A month-start date is "YYYY-MM-DD" — parsed the same way core/schedule.ts parses one, never a
+// raw Date construction that would be timezone-sensitive.
+function formatMonthName(monthStart: string): string {
+  const [year, month] = monthStart.split("-").map(Number)
+  return `${MONTH_NAMES[(month as number) - 1]} ${year}`
+}
+
+function renderMonthlySection(board: BoardSummary): string {
+  const rows =
+    board.top10.length === 0
+      ? "Nobody ranked this section this month."
+      : board.top10
+          .slice(0, MAX_BOARD_ROWS)
+          .map((row: WeeklyBoardRow) => `${row.rank}. ${escapeHtml(row.name)} — ${row.totalScore} (${pluralize(row.quizzesTaken, "quiz", "quizzes")})`)
+          .join("\n")
+  return [`📊 <b>Monthly Board — ${SECTION_LABEL[board.type]}</b>`, `Month of ${formatMonthName(board.weekStart)}`, "", rows, "", "Full board in the Quizzer app."].join("\n")
+}
+
+// Mirrors TG-5 exactly: exactly four messages, one per section plus overall, in a fixed order —
+// never one combined message, for the same 4096-char reason.
+export function renderMonthlyBoards(boards: BoardSummary[]): { type: QuizType | "overall"; text: string }[] {
+  return WEEKLY_SECTION_ORDER.map((type) => {
+    const board = boards.find((b) => b.type === type)
+    if (!board) throw new Error(`telegram-render invariant: missing monthly board for section ${type}`)
+    return { type, text: renderMonthlySection(board) }
+  })
+}
+
 // Notify-path only — the silent case never calls this function at all (TELEGRAM.md §10).
 export function renderCancelled(payload: CancelledPayload): string {
   const lines = [`❌ <b>${escapeHtml(payload.title)}</b> has been cancelled.`, `Was scheduled: ${formatTimestamp(payload.scheduledAt)}`]

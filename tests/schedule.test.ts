@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest"
-import { expandRrule, mostRecentlyElapsedWeekStart, weekBoundsForWeekStart, weekStartOffsetBy } from "../src/core/schedule"
+import {
+  expandRrule,
+  monthBoundsForMonthStart,
+  monthStartOffsetBy,
+  mostRecentlyElapsedMonthStart,
+  mostRecentlyElapsedWeekStart,
+  weekBoundsForWeekStart,
+  weekStartOffsetBy,
+} from "../src/core/schedule"
 
 describe("weekBoundsForWeekStart", () => {
   it("returns exact Monday-00:00-IST-to-next-Monday-00:00-IST bounds", () => {
@@ -49,6 +57,52 @@ describe("weekStartOffsetBy", () => {
 
   it("crosses a calendar-year boundary with no drift", () => {
     expect(weekStartOffsetBy("2027-01-04", 1)).toBe("2026-12-28")
+  })
+})
+
+describe("monthBoundsForMonthStart", () => {
+  it("returns exact 1st-00:00-IST-to-next-1st-00:00-IST bounds for a 30-day month", () => {
+    const { startMs, endMs } = monthBoundsForMonthStart("2026-09-01")
+    expect(new Date(startMs).toISOString()).toBe("2026-08-31T18:30:00.000Z")
+    expect(new Date(endMs).toISOString()).toBe("2026-09-30T18:30:00.000Z")
+    expect(endMs - startMs).toBe(30 * 24 * 60 * 60 * 1000)
+  })
+
+  it("handles a month crossing a calendar-year boundary with no DST drift", () => {
+    const { startMs, endMs } = monthBoundsForMonthStart("2026-12-01")
+    expect(new Date(startMs).toISOString()).toBe("2026-11-30T18:30:00.000Z")
+    expect(new Date(endMs).toISOString()).toBe("2026-12-31T18:30:00.000Z") // 2027-01-01 00:00 IST
+  })
+
+  it("spans 29 days for a leap-year February", () => {
+    const { startMs, endMs } = monthBoundsForMonthStart("2028-02-01")
+    expect(endMs - startMs).toBe(29 * 24 * 60 * 60 * 1000)
+  })
+})
+
+describe("mostRecentlyElapsedMonthStart", () => {
+  it("returns the prior month's 1st for any instant in September 2026 IST", () => {
+    const anyInstantInSeptemberIst = Date.parse("2026-09-15T12:00:00.000Z")
+    expect(mostRecentlyElapsedMonthStart(anyInstantInSeptemberIst)).toBe("2026-08-01")
+  })
+
+  it("rolls over the calendar year for any instant in January 2027 IST", () => {
+    const anyInstantInJanuaryIst = Date.parse("2027-01-15T12:00:00.000Z")
+    expect(mostRecentlyElapsedMonthStart(anyInstantInJanuaryIst)).toBe("2026-12-01")
+  })
+
+  it("stays consistent with monthBoundsForMonthStart's own boundaries", () => {
+    const now = Date.parse("2026-09-10T12:00:00.000Z")
+    const monthStart = mostRecentlyElapsedMonthStart(now)
+    const { endMs } = monthBoundsForMonthStart(monthStart)
+    expect(endMs).toBeLessThanOrEqual(now)
+  })
+})
+
+describe("monthStartOffsetBy", () => {
+  it("steps back the given number of whole calendar months", () => {
+    expect(monthStartOffsetBy("2026-09-01", 3)).toBe("2026-06-01")
+    expect(monthStartOffsetBy("2026-02-01", 1)).toBe("2026-01-01")
   })
 })
 

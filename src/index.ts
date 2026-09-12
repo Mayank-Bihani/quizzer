@@ -25,7 +25,8 @@ import { listDueCloseQuizzes, listDuePrepareIds, openRoom, type RunDeps } from "
 import { createCloseQuiz } from "./services/quiz-results"
 import { materializeTemplates } from "./services/quiz-materializer"
 import { computeWeeklyBoards } from "./services/quiz-boards"
-import { mostRecentlyElapsedWeekStart } from "./core/schedule"
+import { computeMonthlyBoards } from "./services/monthly-boards"
+import { mostRecentlyElapsedMonthStart, mostRecentlyElapsedWeekStart } from "./core/schedule"
 import {
   createOnQuizClosed,
   runAnnouncePass,
@@ -33,6 +34,7 @@ import {
   runClosePass,
   runFailureAlertsPass,
   runMaterializePass,
+  runMonthlyRetrySweep,
   runPreparePass,
   runWeeklyPass,
   runWeeklyRetrySweep,
@@ -131,6 +133,7 @@ async function scheduled(controller: ScheduledController, env: Bindings): Promis
       alertEmailAddress: env.EMAIL_ALERT_ADDRESS ?? null,
     })
     await runWeeklyRetrySweep((weekStart) => computeWeeklyBoards({ db: env.DB, kv: env.CACHE }, weekStart), mostRecentlyElapsedWeekStart(now), telegram)
+    await runMonthlyRetrySweep((monthStart) => computeMonthlyBoards({ db: env.DB, kv: env.CACHE }, monthStart), mostRecentlyElapsedMonthStart(now), telegram)
     return
   }
 

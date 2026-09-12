@@ -1,4 +1,4 @@
-// KV: jwks:*, role:<uid>, unit:<quizId>:<unitPosition> as redacted UnitContent only, board:<quizId|weekStart>. Personal clocks/drafts never in shared content; use fresh values directly on cache miss — MODULES.md.
+// KV: jwks:*, role:<uid>, unit:<quizId>:<unitPosition> as redacted UnitContent only, board:<quizId|weekStart>, monthboard:<monthStart>. Personal clocks/drafts never in shared content; use fresh values directly on cache miss — MODULES.md.
 
 import type { BoardSummary, UnitContent } from "../core/contracts"
 import type { FullRankedBoard } from "../db/results"
@@ -159,6 +159,42 @@ export async function putCachedWeeklyBoard(kv: KVNamespace, weekStart: string, b
   }))
   try {
     await kv.put(weeklyBoardCacheKey(weekStart), JSON.stringify(safe))
+  } catch {
+    // write failure is not fatal — the committed D1 publish already succeeded independently
+  }
+}
+
+// Deliberately NOT `board:${monthStart}` — a month-start date is exactly as "YYYY-MM-DD"-shaped
+// as a week-start date and would silently collide with weeklyBoardCacheKey's entry for the same
+// calendar date. A distinct prefix is required, not stylistic.
+function monthlyBoardCacheKey(monthStart: string): string {
+  return `monthboard:${monthStart}`
+}
+
+export async function getCachedMonthlyBoard(kv: KVNamespace, monthStart: string): Promise<BoardSummary[] | null> {
+  let raw: string | null
+  try {
+    raw = await kv.get(monthlyBoardCacheKey(monthStart))
+  } catch {
+    return null
+  }
+  if (raw === null) return null
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return isBoardSummaryArrayShape(parsed) ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+export async function putCachedMonthlyBoard(kv: KVNamespace, monthStart: string, boards: BoardSummary[]): Promise<void> {
+  const safe: BoardSummary[] = boards.map((b) => ({
+    type: b.type,
+    weekStart: b.weekStart,
+    top10: b.top10.map((r) => ({ rank: r.rank, userId: r.userId, name: r.name, totalScore: r.totalScore, quizzesTaken: r.quizzesTaken })),
+  }))
+  try {
+    await kv.put(monthlyBoardCacheKey(monthStart), JSON.stringify(safe))
   } catch {
     // write failure is not fatal — the committed D1 publish already succeeded independently
   }

@@ -157,14 +157,15 @@ describe("AC-9: assertProductionConfig", () => {
 })
 
 // ============================================================================
-// AC-6 — the complete 34-route inventory, guarded exactly as documented (API.md's route table)
+// AC-6 — the complete 35-route inventory, guarded exactly as documented (API.md's route table)
 // ============================================================================
 
 type RouteCase = { method: string; path: string; guard: "none" | "auth" | "admin" | "superadmin" }
 
-// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 21 (creation 6,
-// templates 4, run 6, results 4, report 1) = 34. Path params use a placeholder id — this proves
-// guard behavior only, which runs before any per-resource lookup.
+// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 22 (creation 6,
+// templates 4, run 6, results 4, report 1, upcoming 1), BOARDS 2 (weekly, monthly) = 35. Path
+// params use a placeholder id — this proves guard behavior only, which runs before any
+// per-resource lookup.
 const ROUTE_INVENTORY: RouteCase[] = [
   { method: "POST", path: "/api/auth/google", guard: "none" },
   { method: "POST", path: "/api/auth/logout", guard: "none" },
@@ -199,12 +200,13 @@ const ROUTE_INVENTORY: RouteCase[] = [
   { method: "GET", path: "/api/quizzes/placeholder-id/review", guard: "auth" },
   { method: "GET", path: "/api/students/me/history", guard: "auth" },
   { method: "GET", path: "/api/boards/weekly", guard: "auth" },
+  { method: "GET", path: "/api/boards/monthly", guard: "auth" },
   { method: "GET", path: "/api/admin/quizzes/placeholder-id/report", guard: "admin" },
 ]
 
 describe("AC-6: route-guard inventory", () => {
-  it("declares exactly 34 documented routes", () => {
-    expect(ROUTE_INVENTORY).toHaveLength(34)
+  it("declares exactly 35 documented routes", () => {
+    expect(ROUTE_INVENTORY).toHaveLength(35)
   })
 
   it("has no unguarded alias or debug/test endpoint mounted beyond the documented routes", () => {

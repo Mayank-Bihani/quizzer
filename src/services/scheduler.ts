@@ -15,8 +15,8 @@ import type {
   QuizAnnouncePayload,
   TelegramContract,
 } from "../core/contracts"
-import { CLOSE_ALERT_DELAY_MS, MATERIALIZE_LOOKAHEAD_DAYS, SCHEDULER_DISCOVERY_LIMIT, WEEKLY_RETRY_LOOKBACK_WEEKS } from "../core/config"
-import { weekStartOffsetBy } from "../core/schedule"
+import { CLOSE_ALERT_DELAY_MS, MATERIALIZE_LOOKAHEAD_DAYS, MONTHLY_RETRY_LOOKBACK_MONTHS, SCHEDULER_DISCOVERY_LIMIT, WEEKLY_RETRY_LOOKBACK_WEEKS } from "../core/config"
+import { monthStartOffsetBy, weekStartOffsetBy } from "../core/schedule"
 import { sendFailureAlert, type EmailSender, type TelegramSender } from "./observability"
 
 export type SchedulerDeps = {
@@ -206,6 +206,41 @@ export async function runWeeklyRetrySweep(
     }
   }
   return { attempted: WEEKLY_RETRY_LOOKBACK_WEEKS, sent }
+}
+
+// Mirrors runWeeklyPass exactly, parameterized by computeMonthlyBoards/'monthly' instead of their
+// weekly equivalents.
+export async function runMonthlyPass(
+  computeMonthlyBoards: (monthStart: string) => Promise<BoardSummary[]>,
+  monthStart: string,
+  telegram: TelegramContract
+): Promise<{ sent: boolean }> {
+  const boards = await computeMonthlyBoards(monthStart)
+  if (boards.length === 0) return { sent: false } // month not ready yet
+  await telegram.claimAndSend("monthly", { weekStart: monthStart }, boards)
+  return { sent: true }
+}
+
+// Mirrors runWeeklyRetrySweep exactly: the current (most recently elapsed) month plus
+// MONTHLY_RETRY_LOOKBACK_MONTHS-1 prior months, each attempted through runMonthlyPass, each
+// isolated from the others — no monthly equivalent of WEEKLY_CRON exists, so this sweep (run every
+// hourly tick alongside runWeeklyRetrySweep) is monthly publishing's only production trigger.
+export async function runMonthlyRetrySweep(
+  computeMonthlyBoards: (monthStart: string) => Promise<BoardSummary[]>,
+  currentMonthStart: string,
+  telegram: TelegramContract
+): Promise<{ attempted: number; sent: number }> {
+  let sent = 0
+  for (let monthsBack = 0; monthsBack < MONTHLY_RETRY_LOOKBACK_MONTHS; monthsBack++) {
+    const monthStart = monthStartOffsetBy(currentMonthStart, monthsBack)
+    try {
+      const outcome = await runMonthlyPass(computeMonthlyBoards, monthStart, telegram)
+      if (outcome.sent) sent++
+    } catch (err) {
+      logPassFailure("monthly-retry", monthStart, err)
+    }
+  }
+  return { attempted: MONTHLY_RETRY_LOOKBACK_MONTHS, sent }
 }
 
 // Sprint 4's sendFailureAlert/AlertMessage (src/services/observability.ts) is a frozen file for

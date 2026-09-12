@@ -29,6 +29,8 @@ import type {
   ListTemplatesResponse,
   LockQuizResponse,
   LogoutResponse,
+  MonthlyBoardRequest,
+  MonthlyBoardResponse,
   PlayStatusResponse,
   ReshuffleQuizResponse,
   ReviewResponse,
@@ -245,6 +247,8 @@ export function createApiClient(fetcher: typeof fetch = fetch) {
       get<HistoryResponse>(withQuery("/api/students/me/history", query)),
     weeklyBoard: (query: WeeklyBoardRequest = {}) =>
       get<WeeklyBoardResponse>(withQuery("/api/boards/weekly", query)),
+    monthlyBoard: (query: MonthlyBoardRequest = {}) =>
+      get<MonthlyBoardResponse>(withQuery("/api/boards/monthly", query)),
     adminReport: (id: string, query: AdminReportRequest = {}) =>
       get<AdminReportResponse>(
         withQuery(`/api/admin/quizzes/${encodeSegment(id)}/report`, query),

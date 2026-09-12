@@ -159,7 +159,7 @@ export interface QuizzingSchedulerContract {
   computeWeeklyBoards(weekStart: string): Promise<BoardSummary[]>
 }
 
-export type TelegramPostKind = 'announce' | 'soon' | 'open' | 'result' | 'weekly' | 'cancelled'
+export type TelegramPostKind = 'announce' | 'soon' | 'open' | 'result' | 'weekly' | 'monthly' | 'cancelled'
 export type ClaimAndSendResult = { sent: boolean; skipped: boolean }
 export type FailedTelegramPostRef = {
   quizId: string | null
