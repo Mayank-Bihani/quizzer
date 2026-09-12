@@ -345,6 +345,7 @@ describe("AC-14: API-driven backend launch journey", () => {
     const fakeAlertEmail = { send: vi.fn(async (msg: unknown) => void emailCalls.push(msg)) }
     const customEnv = {
       ...env,
+      TELEGRAM_ENABLED: "true",
       TELEGRAM_BOT_TOKEN: "fake-bot-token",
       TELEGRAM_ALERT_CHAT_ID: "alert-chat",
       EMAIL_ALERT_ADDRESS: "alerts@example.com",

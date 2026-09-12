@@ -125,7 +125,7 @@ async function scheduled(controller: ScheduledController, env: Bindings): Promis
       materializeTemplates: (days, materializeNow) =>
         materializeTemplates({ db: env.DB, bank: createBankContract(env.DB), random: () => Math.random() }, days, materializeNow),
       now: () => now,
-      telegram: env.TELEGRAM_BOT_TOKEN ? createTelegramSender(env.TELEGRAM_BOT_TOKEN) : null,
+      telegram: env.TELEGRAM_ENABLED === "true" && env.TELEGRAM_BOT_TOKEN ? createTelegramSender(env.TELEGRAM_BOT_TOKEN) : null,
       email: env.ALERT_EMAIL && env.EMAIL_ALERT_ADDRESS ? createEmailSender(env.ALERT_EMAIL, env.EMAIL_ALERT_ADDRESS) : null,
       alertChatId: env.TELEGRAM_ALERT_CHAT_ID ?? null,
       alertEmailAddress: env.EMAIL_ALERT_ADDRESS ?? null,

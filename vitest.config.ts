@@ -42,6 +42,15 @@ export default defineConfig({
           GOOGLE_CLIENT_ID: testVars.GOOGLE_CLIENT_ID,
           SESSION_SIGNING_KEY: testVars.SESSION_SIGNING_KEY,
           SUPERADMIN_EMAIL: testVars.SUPERADMIN_EMAIL,
+          // Several tests call app.scheduled(...) directly, exercising the real cron handler.
+          // Without an explicit override here, any TELEGRAM_* var left unset falls through to the
+          // developer's real .dev.vars (Miniflare's default dev-vars merge) — which is how a local
+          // `vitest run` ended up posting real messages to the real student Telegram group.
+          // Forcing these here, regardless of .dev.vars, keeps every test on the no-op bot client.
+          TELEGRAM_ENABLED: "false",
+          TELEGRAM_BOT_TOKEN: "",
+          TELEGRAM_CHAT_ID: "test-chat-id",
+          TELEGRAM_ALERT_CHAT_ID: "test-alert-chat-id",
         },
       },
     }),
