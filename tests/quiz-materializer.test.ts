@@ -145,14 +145,25 @@ describe("materializeTemplates", () => {
     expect(result.failures).toEqual([])
     expect(result.quizIds).toHaveLength(1)
 
-    const row = await env.DB.prepare("SELECT status, window_sec, seat_cap, template_id, room_code FROM quizzes WHERE id = ?")
+    const row = await env.DB.prepare(
+      "SELECT status, window_sec, seat_cap, template_id, room_code, selection_mode FROM quizzes WHERE id = ?"
+    )
       .bind(result.quizIds[0])
-      .first<{ status: string; window_sec: number; seat_cap: number; template_id: string | null; room_code: string | null }>()
+      .first<{
+        status: string
+        window_sec: number
+        seat_cap: number
+        template_id: string | null
+        room_code: string | null
+        selection_mode: string
+      }>()
     expect(row?.status).toBe("scheduled")
     expect(row?.window_sec).toBe(2 * 60 + 30) // SUM(unit time limits) + slackSec, never a stale/copied duration
     expect(row?.seat_cap).toBe(120)
     expect(row?.template_id).not.toBeNull()
     expect(row?.room_code).not.toBeNull()
+    // BE-10: materializer-created quizzes never set selectionMode, so the DB default applies.
+    expect(row?.selection_mode).toBe("auto")
 
     // BankContract.claimUnused's actual contract surface is the fake's own claim bookkeeping —
     // not the real questions.used_in_quiz_id column, which only Sprint 2's real BANK implementation touches.

@@ -1,0 +1,74 @@
+/* Sprint S1 — auth & entry. Layout only.
+   No tokens defined here, no colours, no components — shared components were
+   appended to components.css §18–26. */
+
+/* ---- signed-out pages: sign-in, session expired, 403, 404 -------------
+   These render without the app shell, so they own their own centring.
+   The card is capped by a typographic measure (ch), not a device width —
+   this is a 40-character form, not quiz content, so "do not equalise"
+   does not apply. Every quiz screen stays uncapped. */
+.auth-page{min-height:100dvh;display:grid;align-content:center;justify-items:center;gap:var(--sp-9);padding:var(--sp-11) var(--gutter-mobile) calc(var(--sp-11) + env(safe-area-inset-bottom))}
+.auth-col{width:100%;max-width:46ch;display:grid;gap:var(--sp-7)}
+.auth-brand{display:grid;justify-items:center;gap:var(--sp-3);text-align:center}
+.auth-card{display:grid;gap:var(--sp-6)}
+.auth-card h1{font:var(--type-h1);text-align:center;text-wrap:balance}
+.auth-card p{font:var(--type-body-sm);color:var(--text-2);text-align:center}
+.auth-foot{display:grid;gap:var(--sp-3);justify-items:center;text-align:center}
+/* the Google mark is drawn in currentColor — see SYSTEM-GAPS #7 */
+.gmark{flex:0 0 auto}
+
+/* ---- quiz detail (pre-join) ----------------------------------------- */
+.detail{display:grid;gap:var(--sp-7);align-content:start}
+.detail__head{display:flex;gap:var(--sp-4);align-items:center;flex-wrap:wrap}
+.detail__body{display:grid;gap:var(--sp-6)}
+.detail__when{display:flex;gap:var(--sp-4);align-items:center;justify-content:space-between;flex-wrap:wrap}
+.detail__actions{display:flex;gap:var(--sp-4);align-items:center;flex-wrap:wrap}
+.detail__actions .btn{flex:1 1 auto}
+@media (min-width:900px){
+  .detail{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:start}
+  .detail__body{grid-column:1}
+  .detail__aside{grid-column:2;display:grid;gap:var(--sp-6);position:sticky;top:var(--sp-9)}
+  .detail__actions .btn{flex:0 0 auto}
+}
+
+/* ---- join by room code ----------------------------------------------
+   Capped by a typographic measure for the same reason as .auth-col: this is
+   an 8-character form, not quiz content. Eight boxes adrift in a 1440px card
+   read as an accident. Nothing a student is scored on is capped anywhere. */
+.join{display:grid;gap:var(--sp-7);align-content:start;width:100%;max-width:62ch}
+.join__form{display:grid;gap:var(--sp-6)}
+.join__alt{display:grid;gap:var(--sp-3);justify-items:center;text-align:center}
+
+/* ---- lobby ----------------------------------------------------------- */
+.lobby{display:grid;gap:var(--sp-6);align-content:start}
+.lobby__head{display:flex;gap:var(--sp-4);align-items:center;justify-content:space-between;flex-wrap:wrap}
+.lobby__title{font:var(--type-h1);text-wrap:balance}
+.lobby__hero{display:grid;gap:var(--sp-4);justify-items:center;text-align:center;padding:var(--sp-8) var(--sp-6)}
+.lobby__foot{display:grid;gap:var(--sp-4);justify-items:stretch}
+.lobby__foot .tiny{text-align:center}
+
+/* ---- room full, 403, 404, session expired ---------------------------- */
+/* error-state A fills the page rather than sitting in a column. */
+.deadend{min-height:100dvh;display:grid;align-content:center;justify-items:center;padding:var(--sp-11) var(--gutter-mobile)}
+.deadend > .state{width:100%;max-width:46ch;padding:var(--sp-9) var(--sp-7)}
+.state__actions{display:flex;gap:var(--sp-4);flex-wrap:wrap;justify-content:center}
+
+/* ---- profile ---------------------------------------------------------- */
+.profile{display:grid;gap:var(--sp-7);align-content:start}
+/* Grid items default to min-width:auto, i.e. a min-content floor. .profile__name is
+   nowrap, so a long unbroken name would set that floor and widen the column instead
+   of ellipsing. The >=900 rule clamps this with minmax(0,..); the base rule needs it too. */
+.profile > *{min-width:0}
+.profile__id{display:flex;gap:var(--sp-5);align-items:center;min-width:0}
+.profile__id .grow{min-width:0}
+.profile__name{font:var(--type-h2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deflist{display:grid;gap:0;margin:0}
+.deflist > div{display:flex;flex-wrap:wrap;gap:var(--sp-2) var(--sp-5);align-items:baseline;justify-content:space-between;padding:var(--sp-5) 0;border-bottom:1px solid var(--border-1)}
+.deflist > div:last-child{border-bottom:0}
+.deflist dt{font:var(--type-caption);color:var(--text-3);flex:0 1 auto;min-width:0}
+.deflist dd{margin:0;font:var(--type-body-sm);color:var(--text-1);text-align:right;flex:1 1 auto;min-width:0}
+@media (min-width:900px){
+  .profile{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:start}
+  .profile__main{grid-column:1;display:grid;gap:var(--sp-7)}
+  .profile__aside{grid-column:2;display:grid;gap:var(--sp-7)}
+}

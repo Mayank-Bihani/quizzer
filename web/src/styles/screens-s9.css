@@ -1,0 +1,57 @@
+/* ============================================================================
+   Sprint S9 screens — admin: builder. Layout only; components live in
+   components.css. Shared across builder-define.html, builder-draw.html,
+   builder-scoring.html, builder-schedule.html, builder-lock.html.
+
+   GRID/FLEX BLOWOUT (SYSTEM-GAPS #34) — every grid/flex container below that
+   can hold a long name, stem or sentence gets an explicit min-width:0 on
+   its children, per the standing rule S7/S8 both had to rediscover.
+   ========================================================================= */
+
+/* the whole builder page: stepper, then one step's content */
+.builder{display:grid;gap:var(--sp-7);min-width:0}
+.builder>*{min-width:0}
+
+/* Define / Scoring / Schedule / Lock are short forms, not content — capped
+   the same way S1's .auth-col and S8's .dzwrap/.commitwrap cap chrome-shaped
+   screens, never a precedent for capping the bank/report tables S7 rejected
+   a cap for. */
+.builderform{max-width:720px;min-width:0}
+
+/* ---------- Draw step — the sprint's one genuine relayout ------------------
+   Phone: stacked (composition summary, then the drawn list). >=900px: the
+   composition/re-draw controls sit left as a fixed-width "form", the drawn
+   list scrolls beside it as the live preview — MOCKUP_PROMPT's own wording
+   for this screen. */
+.drawgrid{display:grid;gap:var(--sp-7);min-width:0}
+.drawgrid>*{min-width:0}
+@media (min-width:900px){
+  .drawgrid{grid-template-columns:minmax(280px,360px) minmax(0,1fr);align-items:start}
+}
+
+/* ---------- Scoring step — fields beside the live curve --------------------
+   Narrower threshold than the draw step's: six short fields and a compact
+   SVG chart fit side by side well before 900px, matching the guideline's
+   own "~320px for the chart" note. Stacks below 640. */
+.scoregrid{display:grid;gap:var(--sp-6);min-width:0}
+.scoregrid>*{min-width:0}
+@media (min-width:640px){
+  .scoregrid{grid-template-columns:minmax(0,1fr) minmax(240px,300px);align-items:start}
+}
+
+/* the bonus-decay curve card */
+.curvecard{display:grid;gap:var(--sp-3);min-width:0}
+.curvecard svg{width:100%;height:auto;display:block}
+
+/* ---------- Lock step — modal-sheet A needs a positioned ancestor ---------
+   `.stage` is harness-only (same status as `.mock-state`, `.runstate`): it
+   bounds one rendering of the confirm dialog/sheet so several states can
+   stack in one file without every instance fighting to cover the real
+   viewport at once. The lock screen's own inert page content goes inside
+   it, dimmed, exactly as it would sit behind a real overlay. */
+.stage{position:relative;min-height:420px;border-radius:var(--r-lg);overflow:hidden;background:var(--surface-sunken);display:grid;place-items:center;padding:var(--sp-6)}
+.lockpage{display:grid;gap:var(--sp-5);min-width:0;max-width:520px;filter:saturate(.65) opacity(80%)}
+
+/* recurrence weekday row and window-length chip row both need to wrap
+   without a text column collapsing to its own min-content width */
+.chiprow{display:flex;gap:4px;flex-wrap:wrap;min-width:0}

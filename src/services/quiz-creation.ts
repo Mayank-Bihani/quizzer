@@ -11,7 +11,7 @@ import type {
   UpdateQuizParamsRequest,
 } from "../core/api"
 import { MAX_SEAT_CAP, ROOM_CODE_DIGIT_LENGTH, ROOM_CODE_MAX_COLLISION_RETRIES, ROOM_CODE_PREFIX_BY_TYPE } from "../core/config"
-import { selectExactDraw } from "../core/selection"
+import { buildManualDraw, selectExactDraw, type ManualDrawFailureReason } from "../core/selection"
 import {
   applySettingsUpdate,
   cancelQuiz,
@@ -54,16 +54,32 @@ function generateRoomCode(type: QuizType, random: () => number): string {
 // Create
 // ============================================================================
 
-export type CreateInput = {
-  title: string
-  scheduledAt: number
-  type: QuizType
-  difficultyMix: Partial<Record<Difficulty, number>>
-  count: number
-}
-export type CreateOutcome = { kind: "ok"; response: CreateQuizDraftResponse } | { kind: "pool_exhausted" }
+export type CreateInput =
+  | {
+      mode: "auto"
+      title: string
+      scheduledAt: number
+      type: QuizType
+      difficultyMix: Partial<Record<Difficulty, number>>
+      count: number
+    }
+  | {
+      mode: "manual"
+      title: string
+      scheduledAt: number
+      type: QuizType
+      questionIds: string[]
+    }
+export type CreateOutcome =
+  | { kind: "ok"; response: CreateQuizDraftResponse }
+  | { kind: "pool_exhausted" }
+  | { kind: "invalid_selection"; reason: ManualDrawFailureReason }
 
-export async function createDraft(deps: CreationDeps, adminId: string, input: CreateInput): Promise<CreateOutcome> {
+async function createAutoDraft(
+  deps: CreationDeps,
+  adminId: string,
+  input: Extract<CreateInput, { mode: "auto" }>
+): Promise<CreateOutcome> {
   const candidates = await deps.bank.listUnused({ type: input.type, difficultyMix: input.difficultyMix, count: input.count })
   const draw = selectExactDraw(candidates, input.difficultyMix, input.count, deps.random)
   if (!draw.ok) return { kind: "pool_exhausted" }
@@ -95,6 +111,56 @@ export async function createDraft(deps: CreationDeps, adminId: string, input: Cr
   }
 }
 
+async function createManualDraft(
+  deps: CreationDeps,
+  adminId: string,
+  input: Extract<CreateInput, { mode: "manual" }>
+): Promise<CreateOutcome> {
+  if (input.questionIds.length === 0) return { kind: "invalid_selection", reason: "empty_selection" }
+
+  const candidates = await deps.bank.listUnused({
+    type: input.type,
+    difficultyMix: { easy: 1, medium: 1, hard: 1 },
+    count: input.questionIds.length,
+  })
+  const draw = buildManualDraw(candidates, input.questionIds)
+  if (!draw.ok) return { kind: "invalid_selection", reason: draw.reason }
+
+  const difficultyMix: Partial<Record<Difficulty, number>> = {}
+  for (const question of draw.questions) difficultyMix[question.difficulty] = (difficultyMix[question.difficulty] ?? 0) + 1
+
+  const id = crypto.randomUUID()
+  await insertDraft(deps.db, {
+    id,
+    title: input.title,
+    type: input.type,
+    scheduledAt: input.scheduledAt,
+    questionCount: draw.questions.length,
+    difficultyMix,
+    createdBy: adminId,
+    createdAt: deps.now(),
+    units: draw.units,
+    questionIds: draw.questions.map((q) => q.id),
+    selectionMode: "manual",
+  })
+
+  return {
+    kind: "ok",
+    response: {
+      quizId: id,
+      status: "draft",
+      questionCount: draw.questions.length,
+      unitCount: draw.units.length,
+      units: draw.units,
+      questions: draw.questions,
+    },
+  }
+}
+
+export async function createDraft(deps: CreationDeps, adminId: string, input: CreateInput): Promise<CreateOutcome> {
+  return input.mode === "manual" ? createManualDraft(deps, adminId, input) : createAutoDraft(deps, adminId, input)
+}
+
 // ============================================================================
 // Reshuffle
 // ============================================================================
@@ -104,11 +170,13 @@ export type ReshuffleOutcome =
   | { kind: "not_found" }
   | { kind: "conflict" }
   | { kind: "pool_exhausted" }
+  | { kind: "manual_locked" }
 
 export async function reshuffleDraft(deps: CreationDeps, id: string): Promise<ReshuffleOutcome> {
   const draft = await getDraftForReshuffle(deps.db, id)
   if (!draft) return { kind: "not_found" }
   if (draft.status !== "draft") return { kind: "conflict" }
+  if (draft.selectionMode === "manual") return { kind: "manual_locked" }
 
   const candidates = await deps.bank.listUnused({ type: draft.type, difficultyMix: draft.difficultyMix, count: draft.questionCount })
   const draw = selectExactDraw(candidates, draft.difficultyMix, draft.questionCount, deps.random)

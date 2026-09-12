@@ -163,6 +163,7 @@ export type ListQuestionsRequest = PageRequest & {
   topic?: string
   difficulty?: Difficulty
   used?: boolean
+  passageId?: string
 }
 // QuestionFull (correctOption, explanationMd included) is safe here — AUDIT.md §11 decision 17:
 // admin-role holders already author and know the answer, so this is not a student-facing leak.
@@ -226,10 +227,12 @@ export type ListQuizzesResponse = PageResponse<QuizAdminSummary>
 // to the later PATCH (COUNCIL_FINDINGS.md #2/#3). question_count/difficultyMix are stored from
 // SelectionFilters at draft time so reshuffle and the window derivation have something to read
 // (COUNCIL_FINDINGS.md #5).
-export type CreateQuizDraftRequest = SelectionFilters & {
-  title: string
-  scheduledAt: number
-}
+// Manual mode (Sprint 10): the admin hand-picks exact questionIds instead of a difficultyMix/count
+// target; questionCount/difficultyMix are derived server-side from what was actually picked
+// (QUIZZING.md §4, "manual selection").
+export type CreateQuizDraftRequest =
+  | (SelectionFilters & { title: string; scheduledAt: number; mode?: 'auto' })
+  | { title: string; scheduledAt: number; type: QuizType; mode: 'manual'; questionIds: string[] }
 export type CreateQuizDraftResponse = {
   quizId: string
   status: 'draft'
@@ -275,6 +278,56 @@ export type UpdateQuizParamsResponse = QuizAdminSummary
 
 // POST /api/admin/quizzes/:id/cancel — no body
 export type CancelQuizResponse = QuizAdminSummary
+
+// ============================================================================
+// QUIZZING — templates (QUIZZING.md §4.4; API.md "QUIZZING — templates")
+// ============================================================================
+
+// Admin-facing recurring template row. Unlike QuizAdminSummary's fields, a template's
+// difficultyMix/timingPolicy/rrule columns are NOT NULL (migrations/0001_init.sql:41-56), so they
+// are typed non-nullable here rather than reusing QuizAdminSummary's nullable variants.
+export type TemplateSummary = {
+  id: string
+  name: string
+  type: QuizType
+  questionCount: number
+  difficultyMix: Partial<Record<Difficulty, number>>
+  timingPolicy: TimingPolicy
+  slackSec: number
+  joinWindowSec: number
+  marksCorrect: number
+  marksWrong: number
+  seatCap: number
+  rrule: string
+  active: boolean
+}
+
+export type CreateTemplateRequest = {
+  name: string
+  type: QuizType
+  questionCount: number
+  difficultyMix: Partial<Record<Difficulty, number>>
+  timingPolicy: TimingPolicy
+  slackSec: number
+  joinWindowSec: number
+  marksCorrect: number
+  marksWrong: number
+  seatCap: number
+  rrule: string
+}
+export type CreateTemplateResponse = TemplateSummary
+
+// GET /api/admin/templates — bare PageRequest; no status/active/type filter is named anywhere in
+// API.md's route table, and the list includes both active and inactive rows (each carries
+// `active`) so an admin can still see a deactivated template without one.
+export type ListTemplatesRequest = PageRequest
+export type ListTemplatesResponse = PageResponse<TemplateSummary>
+
+export type UpdateTemplateRequest = Partial<CreateTemplateRequest>
+export type UpdateTemplateResponse = TemplateSummary
+
+// POST /api/admin/templates/:id/deactivate — no body
+export type DeactivateTemplateResponse = TemplateSummary
 
 // ============================================================================
 // QUIZZING — the run (QUIZZING.md §5)

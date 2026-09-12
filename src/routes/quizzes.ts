@@ -7,7 +7,16 @@ import { DEFAULT_PAGE_LIMIT, MAX_GRADED_QUESTION_COUNT, MAX_PAGE_LIMIT } from ".
 import type { Difficulty, QuizStatus, QuizType, UnitKind } from "../core/contracts"
 import type { ListQuizzesResponse, UpdateQuizParamsRequest } from "../core/api"
 import { listQuizzesPage } from "../db/quizzes"
-import { cancel, createDraft, lockQuiz, patchSettings, reshuffleDraft, type CreationDeps } from "../services/quiz-creation"
+import {
+  cancel,
+  createDraft,
+  lockQuiz,
+  patchSettings,
+  reshuffleDraft,
+  type CreateInput,
+  type CreationDeps,
+} from "../services/quiz-creation"
+import type { ManualDrawFailureReason } from "../core/selection"
 import { currentUser, requireRole } from "../middleware/auth"
 
 type Env = { Bindings: Bindings; Variables: Variables }
@@ -29,6 +38,13 @@ const VALID_TYPES: readonly QuizType[] = ["verbal", "quant", "lr"]
 const VALID_DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"]
 const VALID_STATUSES: readonly QuizStatus[] = ["draft", "scheduled", "open", "ended", "cancelled"]
 const VALID_UNIT_KINDS: readonly UnitKind[] = ["standalone", "rc", "lrdi"]
+
+const INVALID_SELECTION_MESSAGES: Record<ManualDrawFailureReason, string> = {
+  unknown_question: "One or more selected questions are no longer in the unused pool",
+  duplicate_question: "questionIds contains a duplicate",
+  partial_group: "A passage/LRDI group must be selected in full, or not at all",
+  empty_selection: "questionIds must not be empty",
+}
 
 quizzes.get("/", async (c) => {
   const limitRaw = parsePaginationParam(c.req.query("limit"), DEFAULT_PAGE_LIMIT)
@@ -55,7 +71,7 @@ quizzes.post("/", async (c) => {
   }
   if (typeof body !== "object" || body === null || Array.isArray(body)) return c.json({ message: "Invalid request body" }, 400)
   const b = body as Record<string, unknown>
-  const allowedFields = ["title", "scheduledAt", "type", "difficultyMix", "count"]
+  const allowedFields = ["title", "scheduledAt", "type", "difficultyMix", "count", "mode", "questionIds"]
   if (Object.keys(b).some((k) => !allowedFields.includes(k))) return c.json({ message: "Unknown field" }, 400)
 
   if (typeof b.title !== "string" || b.title.trim().length === 0) return c.json({ message: "Invalid title" }, 400)
@@ -63,33 +79,64 @@ quizzes.post("/", async (c) => {
     return c.json({ message: "Invalid scheduledAt" }, 400)
   }
   if (typeof b.type !== "string" || !VALID_TYPES.includes(b.type as QuizType)) return c.json({ message: "Invalid type" }, 400)
-  if (typeof b.count !== "number" || !Number.isInteger(b.count) || b.count < 1 || b.count > MAX_GRADED_QUESTION_COUNT) {
-    return c.json({ message: "Invalid count" }, 400)
-  }
-  if (typeof b.difficultyMix !== "object" || b.difficultyMix === null || Array.isArray(b.difficultyMix)) {
-    return c.json({ message: "Invalid difficultyMix" }, 400)
-  }
-  let mixSum = 0
-  const difficultyMix: Partial<Record<Difficulty, number>> = {}
-  for (const [key, value] of Object.entries(b.difficultyMix as Record<string, unknown>)) {
-    if (!VALID_DIFFICULTIES.includes(key as Difficulty)) return c.json({ message: "Invalid difficulty key" }, 400)
-    if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-      return c.json({ message: "Invalid difficulty count" }, 400)
-    }
-    difficultyMix[key as Difficulty] = value
-    mixSum += value
-  }
-  if (mixSum !== b.count) return c.json({ message: "difficultyMix must sum to count" }, 400)
+  if (b.mode !== undefined && b.mode !== "auto" && b.mode !== "manual") return c.json({ message: "Invalid mode" }, 400)
+  const mode = (b.mode as "auto" | "manual" | undefined) ?? "auto"
 
-  const result = await createDraft(creationDeps(c), currentUser(c).id, {
-    title: b.title.trim(),
-    scheduledAt: b.scheduledAt,
-    type: b.type as QuizType,
-    difficultyMix,
-    count: b.count,
-  })
+  let input: CreateInput
+  if (mode === "manual") {
+    if (b.difficultyMix !== undefined || b.count !== undefined) {
+      return c.json({ message: "difficultyMix/count are not accepted with mode: manual" }, 400)
+    }
+    if (
+      !Array.isArray(b.questionIds) ||
+      b.questionIds.length === 0 ||
+      b.questionIds.length > MAX_GRADED_QUESTION_COUNT ||
+      !b.questionIds.every((v) => typeof v === "string")
+    ) {
+      return c.json({ message: "Invalid questionIds" }, 400)
+    }
+    input = {
+      mode: "manual",
+      title: b.title.trim(),
+      scheduledAt: b.scheduledAt,
+      type: b.type as QuizType,
+      questionIds: b.questionIds as string[],
+    }
+  } else {
+    if (b.questionIds !== undefined) return c.json({ message: "questionIds is only accepted with mode: manual" }, 400)
+    if (typeof b.count !== "number" || !Number.isInteger(b.count) || b.count < 1 || b.count > MAX_GRADED_QUESTION_COUNT) {
+      return c.json({ message: "Invalid count" }, 400)
+    }
+    if (typeof b.difficultyMix !== "object" || b.difficultyMix === null || Array.isArray(b.difficultyMix)) {
+      return c.json({ message: "Invalid difficultyMix" }, 400)
+    }
+    let mixSum = 0
+    const difficultyMix: Partial<Record<Difficulty, number>> = {}
+    for (const [key, value] of Object.entries(b.difficultyMix as Record<string, unknown>)) {
+      if (!VALID_DIFFICULTIES.includes(key as Difficulty)) return c.json({ message: "Invalid difficulty key" }, 400)
+      if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
+        return c.json({ message: "Invalid difficulty count" }, 400)
+      }
+      difficultyMix[key as Difficulty] = value
+      mixSum += value
+    }
+    if (mixSum !== b.count) return c.json({ message: "difficultyMix must sum to count" }, 400)
+    input = {
+      mode: "auto",
+      title: b.title.trim(),
+      scheduledAt: b.scheduledAt,
+      type: b.type as QuizType,
+      difficultyMix,
+      count: b.count,
+    }
+  }
+
+  const result = await createDraft(creationDeps(c), currentUser(c).id, input)
   if (result.kind === "pool_exhausted") {
     return c.json({ message: "No exact whole-unit composition is available for this request" }, 409)
+  }
+  if (result.kind === "invalid_selection") {
+    return c.json({ message: INVALID_SELECTION_MESSAGES[result.reason] }, 400)
   }
   return c.json(result.response, 200)
 })
@@ -100,6 +147,9 @@ quizzes.post("/:id/reshuffle", async (c) => {
   if (result.kind === "conflict") return c.json({ message: "Quiz is already locked" }, 409)
   if (result.kind === "pool_exhausted") {
     return c.json({ message: "No exact whole-unit composition is available for this request" }, 409)
+  }
+  if (result.kind === "manual_locked") {
+    return c.json({ message: "Manual drafts cannot be reshuffled" }, 409)
   }
   return c.json(result.response, 200)
 })

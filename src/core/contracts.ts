@@ -51,6 +51,7 @@ export type QuestionFull = {
   numericTolerance: number | null
   explanationMd: string
   source: string | null
+  usedInQuizId: string | null
   passage: PassageContent | null
 }
 

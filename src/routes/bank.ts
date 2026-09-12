@@ -257,6 +257,7 @@ bank.get("/questions", async (c) => {
   const topic = c.req.query("topic")
   const difficulty = c.req.query("difficulty")
   const used = c.req.query("used")
+  const passageId = c.req.query("passageId")
   if (type !== undefined && !VALID_TYPES.includes(type as QuizType)) {
     return c.json({ message: "Invalid type filter" }, 400)
   }
@@ -274,6 +275,7 @@ bank.get("/questions", async (c) => {
       topic,
       difficulty: difficulty as Difficulty | undefined,
       used: used === undefined ? undefined : used === "true",
+      passageId,
     },
     limitRaw,
     offsetRaw

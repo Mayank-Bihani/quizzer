@@ -995,6 +995,11 @@ table.dt tr.retired{opacity:.6}
 table.dt td.n,table.dt th.n{text-align:right;font-family:var(--font-num);font-variant-numeric:var(--numeric-features)}
 table.dt input[type="checkbox"]{accent-color:var(--accent-500)}
 table.dt th.chk{width:var(--sp-8)}
+/* stem link (bank table + card) — never blue/underlined text alone; a
+   trailing arrow marks the row as open-able instead. */
+.qlink{display:inline-flex;align-items:baseline;gap:var(--sp-2);color:inherit;text-decoration:none}
+.qlink:hover,.qlink:hover .qlink__arrow{color:var(--accent-700)}
+.qlink__arrow{color:var(--text-3);flex:0 0 auto}
 .ln{font-family:var(--font-num);font-variant-numeric:var(--numeric-features);color:var(--text-3);font-size:var(--fs-12)}
 
 /* dense square badges — section identity and difficulty, distinct from the

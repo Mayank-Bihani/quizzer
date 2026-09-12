@@ -79,6 +79,7 @@ function deps(bank: BankContract, overrides: Partial<CreationDeps> = {}): Creati
 async function createDraftQuiz(onQuizCancelled?: CreationDeps["onQuizCancelled"]) {
   const pool = await Promise.all([makeStandalone("quant"), makeStandalone("quant")])
   const created = await createDraft(deps(fakeBank(pool), { onQuizCancelled }), creatorId, {
+    mode: "auto",
     title: "Cancel Hook Quiz",
     scheduledAt: 1_700_100_000_000,
     type: "quant",

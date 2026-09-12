@@ -1,0 +1,24 @@
+/* ============================================================================
+   Sprint S5 — review. Layout only; every component lives in components.css.
+   ========================================================================= */
+
+/* the review feed — navigator, then the stacked outcome cards, spaced like
+   every other student page's .stack-lg rhythm but its own class so a later
+   sprint's screen CSS never has to guess what this page assumed */
+.reviewfeed{display:grid;gap:var(--sp-7);min-width:0}
+
+/* the review-navigator pins to the bottom edge with a small margin — a
+   floating pill, not an edge-to-edge bar — because this screen replaces the
+   student shell's bottom tab bar rather than stacking a second one under it
+   (see the review.html header comment and SYSTEM-GAPS #25). */
+.rnav-dock{position:sticky;bottom:var(--sp-5);z-index:5;margin:0 auto;max-width:640px}
+
+/* component-reference blocks (states 6-8): same shape S2/S3 used for
+   demonstrating a component outside the context of one real screen. */
+.refgrid{display:grid;gap:var(--sp-6)}
+@media (min-width:640px){
+  .refgrid--2{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (min-width:900px){
+  .refgrid--3{grid-template-columns:repeat(3,minmax(0,1fr))}
+}

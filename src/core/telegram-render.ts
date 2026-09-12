@@ -10,8 +10,27 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
 }
 
+function pluralize(count: number, singular: string, plural = `${singular}s`): string {
+  return `${count} ${count === 1 ? singular : plural}`
+}
+
+// Presentation-only IST rendering (storage stays UTC epoch-ms) — mirrors the fixed-offset trick in
+// core/schedule.ts. A student-facing message showing a raw ISO timestamp ("2026-09-11T19:57:37Z")
+// is unreadable on a phone and in the wrong timezone; every quiz is IST-scheduled.
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000 // UTC+5:30, fixed — Asia/Kolkata observes no DST
+const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
 function formatTimestamp(ms: number): string {
-  return new Date(ms).toISOString()
+  const shifted = new Date(ms + IST_OFFSET_MS)
+  const weekday = WEEKDAY_NAMES[shifted.getUTCDay()]
+  const day = shifted.getUTCDate()
+  const month = MONTH_NAMES[shifted.getUTCMonth()]
+  let hour = shifted.getUTCHours()
+  const minute = String(shifted.getUTCMinutes()).padStart(2, "0")
+  const ampm = hour >= 12 ? "PM" : "AM"
+  hour = hour % 12 || 12
+  return `${weekday}, ${day} ${month} · ${hour}:${minute} ${ampm} IST`
 }
 
 const UNIT_KIND_LABEL: Record<UnitKind, string> = { standalone: "Standalone", rc: "Reading Comprehension", lrdi: "LRDI" }
@@ -20,15 +39,15 @@ function formatTimingSummary(summary: QuizAnnouncePayload["timingSummary"]): str
   return summary
     .map((entry) => {
       const range = entry.minTimeSec === entry.maxTimeSec ? `${entry.minTimeSec}s` : `${entry.minTimeSec}-${entry.maxTimeSec}s`
-      return `• ${UNIT_KIND_LABEL[entry.kind]}: ${entry.count} × ${range}`
+      return `• ${UNIT_KIND_LABEL[entry.kind]}: ${pluralize(entry.count, "question")}, ${range} each`
     })
     .join("\n")
 }
 
 function formatQuizMeta(payload: QuizAnnouncePayload): string {
   return [
-    `${payload.questionCount} questions across ${payload.unitCount} units.`,
-    `Your duration: ${Math.round(payload.windowSec / 60)} min.`,
+    `${pluralize(payload.questionCount, "question")} across ${pluralize(payload.unitCount, "unit")}.`,
+    `Your duration: ${pluralize(Math.round(payload.windowSec / 60), "minute")}.`,
     "",
     "Timing:",
     formatTimingSummary(payload.timingSummary),
@@ -68,7 +87,7 @@ export function renderQuizResult(payload: CloseResult): string {
     .slice(0, MAX_BOARD_ROWS)
     .map((row) => `${row.rank}. ${escapeHtml(row.name)} — ${row.score}`)
     .join("\n")
-  return ["🏆 <b>Results are in!</b>", `${payload.participantCount} students played.`, "", "Top 10:", rows, "", "See the full board and your result in the Quizzer app."].join("\n")
+  return ["🏆 <b>Results are in!</b>", `${pluralize(payload.participantCount, "student")} played.`, "", "Top 10:", rows, "", "See the full board and your result in the Quizzer app."].join("\n")
 }
 
 const WEEKLY_SECTION_ORDER: (QuizType | "overall")[] = ["verbal", "quant", "lr", "overall"]
@@ -80,7 +99,7 @@ function renderWeeklySection(board: BoardSummary): string {
       ? "Nobody ranked this section this week."
       : board.top10
           .slice(0, MAX_BOARD_ROWS)
-          .map((row: WeeklyBoardRow) => `${row.rank}. ${escapeHtml(row.name)} — ${row.totalScore} (quizzes: ${row.quizzesTaken})`)
+          .map((row: WeeklyBoardRow) => `${row.rank}. ${escapeHtml(row.name)} — ${row.totalScore} (${pluralize(row.quizzesTaken, "quiz", "quizzes")})`)
           .join("\n")
   return [`📊 <b>Weekly Board — ${SECTION_LABEL[board.type]}</b>`, `Week of ${board.weekStart}`, "", rows, "", "Full board in the Quizzer app."].join("\n")
 }

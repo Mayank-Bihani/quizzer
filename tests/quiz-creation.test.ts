@@ -73,6 +73,51 @@ async function makeStandalone(type: QuizType, difficulty: Difficulty): Promise<Q
 }
 
 
+async function makeGroup(type: QuizType, difficulties: Difficulty[]): Promise<QuestionFull[]> {
+  const passageId = `p-${++questionSeq}`
+  await env.DB.prepare(
+    `INSERT INTO passages (id, type, topic, body_md, created_by, created_at) VALUES (?, ?, 'Topic', 'Passage body', ?, ?)`
+  )
+    .bind(passageId, type, creatorId, Date.now())
+    .run()
+
+  const members: QuestionFull[] = []
+  for (let i = 0; i < difficulties.length; i++) {
+    questionSeq++
+    const id = `q-${questionSeq}`
+    const groupPosition = i + 1
+    await env.DB.prepare(
+      `INSERT INTO questions (id, type, topic, difficulty, format, passage_id, group_position, body_md, option_a, option_b, option_c, option_d, correct_option, explanation_md, created_by, created_at)
+       VALUES (?, ?, 'Topic', ?, 'mcq', ?, ?, ?, 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
+    )
+      .bind(id, type, difficulties[i], passageId, groupPosition, `Body ${questionSeq}`, creatorId, Date.now())
+      .run()
+    members.push({
+      id,
+      type,
+      topic: "Topic",
+      subtopic: null,
+      difficulty: difficulties[i]!,
+      format: "mcq",
+      passageId,
+      groupPosition,
+      bodyMd: `Body ${questionSeq}`,
+      imageUrl: null,
+      optionA: "A",
+      optionB: "B",
+      optionC: "C",
+      optionD: "D",
+      correctOption: "A",
+      numericAnswer: null,
+      numericTolerance: null,
+      explanationMd: "Explanation",
+      source: null,
+      passage: { title: null, bodyMd: "Passage body", imageUrl: null },
+    })
+  }
+  return members
+}
+
 /** In-memory BankContract mirroring the real Sprint 2 semantics closely enough for these tests:
  * same-owner claims are idempotent, other-owner ids are omitted, nothing is ever released. */
 function fakeBank(pool: QuestionFull[]): BankContract & { claims: Map<string, { quizId: string; quizNumber: number }> } {
@@ -114,6 +159,7 @@ describe("createDraft", () => {
     const pool = await Promise.all([makeStandalone("quant", "easy"), makeStandalone("quant", "easy"), makeStandalone("quant", "medium")])
     const admin = await insertAdmin()
     const result = await createDraft(deps(fakeBank(pool)), admin, {
+      mode: "auto",
       title: "Test quiz",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -135,6 +181,7 @@ describe("createDraft", () => {
     const pool = await Promise.all([makeStandalone("quant", "easy")])
     const admin = await insertAdmin()
     const result = await createDraft(deps(fakeBank(pool)), admin, {
+      mode: "auto",
       title: "Test quiz",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -144,6 +191,81 @@ describe("createDraft", () => {
     expect(result.kind).toBe("pool_exhausted")
     const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
     expect(row?.n).toBe(0)
+  })
+
+  it("manual: persists a hand-picked standalone + whole group and derives questionCount/difficultyMix", async () => {
+    const standalones = await Promise.all([makeStandalone("verbal", "easy"), makeStandalone("verbal", "medium")])
+    const g = await makeGroup("verbal", ["hard", "hard", "hard", "hard"])
+    const admin = await insertAdmin()
+    const result = await createDraft(deps(fakeBank([...standalones, ...g])), admin, {
+      mode: "manual",
+      title: "Manual quiz",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: [standalones[0]!.id, standalones[1]!.id, ...g.map((q) => q.id)],
+    })
+    expect(result.kind).toBe("ok")
+    if (result.kind !== "ok") return
+    expect(result.response.questionCount).toBe(6)
+    expect(result.response.unitCount).toBe(3)
+
+    const summary = await getQuizAdminSummary(env.DB, result.response.quizId)
+    expect(summary?.difficultyMix).toEqual({ easy: 1, medium: 1, hard: 4 })
+    expect(summary?.questionCount).toBe(6)
+  })
+
+  it("manual: rejects a partial group with invalid_selection/partial_group and writes nothing", async () => {
+    const g = await makeGroup("verbal", ["easy", "easy", "medium", "medium"])
+    const admin = await insertAdmin()
+    const result = await createDraft(deps(fakeBank(g)), admin, {
+      mode: "manual",
+      title: "Manual quiz",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: [g[0]!.id, g[1]!.id, g[2]!.id], // omits g[3]
+    })
+    expect(result).toEqual({ kind: "invalid_selection", reason: "partial_group" })
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
+    expect(row?.n).toBe(0)
+  })
+
+  it("manual: rejects duplicate ids", async () => {
+    const s = await makeStandalone("verbal", "easy")
+    const admin = await insertAdmin()
+    const result = await createDraft(deps(fakeBank([s])), admin, {
+      mode: "manual",
+      title: "T",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: [s.id, s.id],
+    })
+    expect(result).toEqual({ kind: "invalid_selection", reason: "duplicate_question" })
+  })
+
+  it("manual: rejects an already-used id as unknown_question (stale from a fresh pool re-fetch)", async () => {
+    const s = await makeStandalone("verbal", "easy")
+    const admin = await insertAdmin()
+    const bank = fakeBank([]) // empty pool simulates the id having since been claimed elsewhere
+    const result = await createDraft(deps(bank), admin, {
+      mode: "manual",
+      title: "T",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: [s.id],
+    })
+    expect(result).toEqual({ kind: "invalid_selection", reason: "unknown_question" })
+  })
+
+  it("manual: rejects an empty selection", async () => {
+    const admin = await insertAdmin()
+    const result = await createDraft(deps(fakeBank([])), admin, {
+      mode: "manual",
+      title: "T",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: [],
+    })
+    expect(result).toEqual({ kind: "invalid_selection", reason: "empty_selection" })
   })
 })
 
@@ -158,6 +280,7 @@ describe("reshuffleDraft", () => {
     const admin = await insertAdmin()
     const bank = fakeBank(pool)
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -183,6 +306,7 @@ describe("reshuffleDraft", () => {
     const admin = await insertAdmin()
     const bank = fakeBank(pool)
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -205,12 +329,32 @@ describe("reshuffleDraft", () => {
     const result = await reshuffleDraft(deps(fakeBank([])), "does-not-exist")
     expect(result.kind).toBe("not_found")
   })
+
+  it("returns manual_locked for a manual draft and never draws or writes", async () => {
+    const s = await Promise.all([makeStandalone("verbal", "easy"), makeStandalone("verbal", "medium")])
+    const admin = await insertAdmin()
+    const bank = fakeBank(s)
+    const created = await createDraft(deps(bank), admin, {
+      mode: "manual",
+      title: "T",
+      scheduledAt: 1_700_100_000_000,
+      type: "verbal",
+      questionIds: s.map((q) => q.id),
+    })
+    if (created.kind !== "ok") throw new Error("setup failed")
+    const before = await getQuizAdminSummary(env.DB, created.response.quizId)
+
+    const result = await reshuffleDraft(deps(bank), created.response.quizId)
+    expect(result.kind).toBe("manual_locked")
+    expect(await getQuizAdminSummary(env.DB, created.response.quizId)).toEqual(before)
+  })
 })
 
 describe("patchSettings", () => {
   async function draftWithTwoUnits(bank: BankContract): Promise<string> {
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -307,6 +451,7 @@ describe("lockQuiz", () => {
   async function readyDraft(bank: BankContract): Promise<string> {
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -351,6 +496,7 @@ describe("lockQuiz", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -407,6 +553,7 @@ describe("cancel", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -430,6 +577,7 @@ describe("cancel", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -464,6 +612,7 @@ describe("cancel", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -496,6 +645,7 @@ describe("cancel", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -519,6 +669,7 @@ describe("cancel", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     const created = await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "T",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -550,6 +701,7 @@ describe("listQuizzesPage", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     await createDraft(deps(bank, { now: () => 1 }), admin, {
+      mode: "auto",
       title: "First",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -557,6 +709,7 @@ describe("listQuizzesPage", () => {
       count: 1,
     })
     await createDraft(deps(bank, { now: () => 2 }), admin, {
+      mode: "auto",
       title: "Second",
       scheduledAt: 1_700_100_000_000,
       type: "quant",
@@ -575,6 +728,7 @@ describe("listQuizzesPage", () => {
     const bank = fakeBank(pool)
     const admin = await insertAdmin()
     await createDraft(deps(bank), admin, {
+      mode: "auto",
       title: "Draft",
       scheduledAt: 1_700_100_000_000,
       type: "quant",

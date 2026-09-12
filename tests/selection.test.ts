@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { selectExactDraw } from "../src/core/selection"
+import { buildManualDraw, selectExactDraw } from "../src/core/selection"
 import type { Difficulty, QuestionFull, QuizType } from "../src/core/contracts"
 
 let nextId = 0
@@ -199,6 +199,55 @@ describe("selectExactDraw — randomization and purity", () => {
     // independently-computed exact draws is the real property.
     expect(first.questions).toHaveLength(4)
     expect(second.questions).toHaveLength(4)
+  })
+})
+
+describe("buildManualDraw", () => {
+  it("accepts a whole standalone plus a whole group, ordered by first-pick", () => {
+    const g = group("verbal", ["easy", "medium", "hard", "hard"])
+    const s1 = standalone("verbal", "easy")
+    const s2 = standalone("verbal", "medium")
+    const candidates = [s1, ...g, s2]
+    // Admin first picks s2, then the group's members out of order, then s1 last.
+    const questionIds = [s2.id, g[2]!.id, g[0]!.id, g[1]!.id, g[3]!.id, s1.id]
+    const result = buildManualDraw(candidates, questionIds)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(6)
+    expect(result.units).toHaveLength(3)
+    // s2 was picked first, so its standalone unit comes first; the group (first touched at g[2])
+    // second; s1's standalone unit last, since it was picked last.
+    expect(result.units[0]).toMatchObject({ kind: "standalone", unitPosition: 1 })
+    expect(result.units[1]).toMatchObject({ kind: "rc", unitPosition: 2, questionPositions: [2, 3, 4, 5] })
+    expect(result.units[2]).toMatchObject({ kind: "standalone", unitPosition: 3, questionPositions: [6] })
+    // Group members are still assembled in group_position order, not pick order.
+    expect(result.questions.slice(1, 5).map((q) => q.bodyMd)).toEqual(["Body 1", "Body 2", "Body 3", "Body 4"])
+  })
+
+  it("rejects a partially-selected group even when interleaved with standalones", () => {
+    const g = group("quant", ["easy", "easy", "medium", "medium"])
+    const s = standalone("quant", "hard")
+    const candidates = [...g, s]
+    const result = buildManualDraw(candidates, [g[0]!.id, s.id, g[1]!.id, g[2]!.id]) // omits g[3]
+    expect(result).toEqual({ ok: false, reason: "partial_group" })
+  })
+
+  it("rejects duplicate ids", () => {
+    const s = standalone("quant", "easy")
+    const result = buildManualDraw([s], [s.id, s.id])
+    expect(result).toEqual({ ok: false, reason: "duplicate_question" })
+  })
+
+  it("rejects an id absent from the candidate pool", () => {
+    const s = standalone("quant", "easy")
+    const result = buildManualDraw([s], [s.id, "not-a-real-id"])
+    expect(result).toEqual({ ok: false, reason: "unknown_question" })
+  })
+
+  it("accepts an empty selection as a vacuous success (callers guard emptiness separately)", () => {
+    const s = standalone("quant", "easy")
+    const result = buildManualDraw([s], [])
+    expect(result).toEqual({ ok: true, units: [], questions: [] })
   })
 })
 

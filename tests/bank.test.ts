@@ -292,6 +292,27 @@ describe("GET /api/bank/questions", () => {
       expect(item).toHaveProperty("bodyMd")
     }
   })
+
+  it("filters by passageId, returning exactly that group's questions and none from other groups", async () => {
+    const cookie = await signInAs("admin")
+    const groupCsv = csvWith(
+      'verbal,RC,,medium,passage,rc-1,"Shared passage text",,,,,,,,,,',
+      'verbal,RC,,medium,mcq,rc-1,"Q1",,3,4,5,6,A,,,"E1",',
+      'verbal,RC,,medium,mcq,rc-1,"Q2",,3,4,5,6,A,,,"E2",',
+      'verbal,RC,,medium,mcq,rc-1,"Q3",,3,4,5,6,A,,,"E3",',
+      'verbal,RC,,medium,mcq,rc-1,"Q4",,3,4,5,6,A,,,"E4",'
+    )
+    await authed("/api/bank/import/commit", cookie, { method: "POST", body: multipartBody({ csv: groupCsv }) })
+
+    const passagesRes = await authed("/api/bank/passages", cookie)
+    const { passages } = await passagesRes.json<{ passages: { id: string }[] }>()
+    const passageId = passages[0]!.id
+
+    const res = await authed(`/api/bank/questions?passageId=${passageId}`, cookie)
+    const body = await res.json<{ items: { passageId: string | null }[]; total: number }>()
+    expect(body.total).toBe(4)
+    expect(body.items.every((q) => q.passageId === passageId)).toBe(true)
+  })
 })
 
 describe("PATCH /api/bank/questions/:id", () => {

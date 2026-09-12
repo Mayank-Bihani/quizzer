@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import path from "node:path"
-import { defineConfig } from "vitest/config"
+import { configDefaults, defineConfig } from "vitest/config"
 import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-pool-workers"
 
 // Local-only synthetic test values (AUTH.md §3, §6) — never committed, see .dev.vars.test /
@@ -29,6 +29,7 @@ const migrations = await readD1Migrations(path.join(import.meta.dirname, "migrat
 
 export default defineConfig({
   test: {
+    exclude: [...configDefaults.exclude, "web/**"],
     setupFiles: ["./tests/setup/apply-migrations.ts"],
   },
   plugins: [

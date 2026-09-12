@@ -41,7 +41,7 @@ auth.post("/google", async (c) => {
   let identity
   try {
     identity = await verifyGoogleIdToken(idToken, {
-      fetchImpl: fetch,
+      fetchImpl: globalThis.fetch.bind(globalThis),
       now,
       kv: c.env.CACHE,
       clientId: c.env.GOOGLE_CLIENT_ID,

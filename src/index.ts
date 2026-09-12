@@ -11,6 +11,7 @@ import bank from "./routes/bank"
 import { boards } from "./routes/boards"
 import images from "./routes/images"
 import quizzes from "./routes/quizzes"
+import templates from "./routes/templates"
 import { play, quizzesPublic } from "./routes/play"
 import { reports } from "./routes/reports"
 import { resultsQuizRoutes, studentsRoutes } from "./routes/results"
@@ -89,6 +90,7 @@ app.use("/api/quizzes/*", withTelegramCloseHook)
 
 app.route("/api/admin/quizzes", quizzes)
 app.route("/api/admin/quizzes", reports)
+app.route("/api/admin/templates", templates)
 app.route("/api/quizzes", quizzesPublic)
 app.route("/api/quizzes", resultsQuizRoutes)
 app.route("/api/play", play)

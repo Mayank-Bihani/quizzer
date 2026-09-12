@@ -7,9 +7,9 @@ compatibility_flags = ["nodejs_compat"]
 # Commented out until web/dist actually exists — wrangler dev/deploy fails immediately if this
 # points at a directory that isn't there yet (COUNCIL_FINDINGS.md #22). Uncomment once the
 # frontend build lands after backend implementation.
-# [assets]
-# directory = "./web/dist"
-# binding = "ASSETS"
+[assets]
+directory = "./web/dist"
+binding = "ASSETS"
 
 # D1 — PLAN.md "Data model (D1)" / migrations/0001_init.sql.
 [[d1_databases]]
@@ -44,8 +44,8 @@ crons = [
 # Non-secret Worker vars — TELEGRAM.md §8. Secrets (TELEGRAM_BOT_TOKEN, SUPERADMIN_EMAIL,
 # the session-signing key) are set with `wrangler secret put`, never written here.
 [vars]
-TELEGRAM_CHAT_ID = ""
-TELEGRAM_ALERT_CHAT_ID = ""
+TELEGRAM_CHAT_ID = "-5359398355"
+TELEGRAM_ALERT_CHAT_ID = "-5410370989"
 TELEGRAM_ENABLED = "false"
 EMAIL_ALERT_ADDRESS = ""    # the project owner's personal address — MODULES.md §6
 

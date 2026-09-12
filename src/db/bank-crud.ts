@@ -16,6 +16,7 @@ export type QuestionFilters = {
   topic?: string
   difficulty?: Difficulty
   used?: boolean
+  passageId?: string
 }
 
 function buildFilterClause(filters: QuestionFilters): { where: string; params: unknown[] } {
@@ -35,6 +36,10 @@ function buildFilterClause(filters: QuestionFilters): { where: string; params: u
   }
   if (filters.used !== undefined) {
     conditions.push(filters.used ? "q.used_in_quiz_id IS NOT NULL" : "q.used_in_quiz_id IS NULL")
+  }
+  if (filters.passageId) {
+    conditions.push("q.passage_id = ?")
+    params.push(filters.passageId)
   }
   return { where: conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "", params }
 }

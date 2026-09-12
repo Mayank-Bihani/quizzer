@@ -87,6 +87,7 @@ export function toQuestionFull(row: JoinedQuestionRow): QuestionFull {
     numericTolerance: row.numeric_tolerance,
     explanationMd: row.explanation_md,
     source: row.source,
+    usedInQuizId: row.used_in_quiz_id,
     passage: toPassageContent(row),
   }
 }

@@ -93,7 +93,58 @@ student_deadline = participants.started_at + window_sec * 1000
 configured; changing set allowances cannot silently change when the join window closes.
 A template stores a timing policy, slack and admission length; QUIZZING derives the duration
 again from each actual recurring draw. Templates do not store a fixed duration copied blindly
-across different set/standalone compositions. Template CRUD remains deferred.
+across different set/standalone compositions.
+
+### 4.4 Template CRUD (resolved 2026-09-12)
+
+Admin CRUD on `quiz_templates` is in scope: create, list, view, edit and deactivate. There is no
+hard delete — `quizzes.template_id` references a template row indefinitely, so removing one would
+orphan history. Deactivation only flips `active = 0`, which `materializeTemplates` already excludes
+(`getActiveTemplates` filters `active = 1`); already-materialized quizzes are untouched.
+
+A template's fields mirror a manual quiz definition: `name`, `type`, `questionCount`,
+`difficultyMix`, `timingPolicy` (only the unit kinds implied by `type`, matching the same
+per-used-kind validation `patchSettings` already applies to manual quizzes), `slackSec`,
+`joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap`, and `rrule` (the same minimal RRULE
+subset resolved for Sprint 7 above). Reject a body outside these fields the same way manual
+creation does.
+
+Editing an active template changes only future materializations. Each materialized quiz is
+already an independent row with its own drawn units/questions/timing snapshot, so an edit has no
+retroactive effect on quizzes already produced — no versioning or history table is introduced for
+this.
+
+Creating or editing a template does not dry-run the draw against current bank counts. Selection
+can still fail at materialization time; the existing hourly `MaterializationFailure` reporting and
+alert path (Telegram + email, §7) is the sole failure signal and is unchanged by this sprint.
+
+### 4.5 Manual question selection (resolved 2026-09-12)
+
+`POST /api/admin/quizzes` accepts an optional `mode: 'auto' | 'manual'` (default `'auto'`).
+`'auto'` is the existing draw-by-difficultyMix/count behavior, unchanged. `'manual'` lets the
+admin hand-pick exact `questionIds` instead: `difficultyMix`/`count` are not accepted with
+`mode: 'manual'`, and `questionIds` is not accepted with `mode: 'auto'` (or omitted). A quiz's
+`selection_mode` is fixed at creation and stored on `quizzes` (`DEFAULT 'auto'`); it cannot be
+changed after creation, and reshuffling a `'manual'` draft is rejected (409, `manual_locked`) —
+there is no auto pool/difficultyMix target to redraw from since the admin picked these exact
+questions.
+
+Manual validation reuses `BankContract.listUnused` with `{ easy: 1, medium: 1, hard: 1 }` to fetch
+the full fresh unused pool for the quiz's `type` (§1's note: `listUnused` only reads key presence,
+never the per-difficulty values), then validates the admin's `questionIds` against it: reject
+duplicate ids, reject any id absent from the fresh pool (`unknown_question` — covers a since-used
+id going stale between picker load and submit), and reject a partially-selected RC/LRDI group
+(`partial_group`) — a group is selected whole or not at all, exactly like the auto draw's own
+whole-unit rule. `questionCount`/`difficultyMix` are derived by tallying the validated selection,
+never accepted from the client. Units are ordered by the admin's first-pick order (the minimum
+index of any of a unit's member ids within `questionIds`), not bank insertion order; each group's
+own questions still follow bank `group_position` order.
+
+Recurring templates and `materializeTemplates` are completely unaffected: they have no `mode`
+field, no manual code path, and every template-created quiz's `selection_mode` is `'auto'` by
+database default (`DraftInsert.selectionMode` is never set on that path). `GET /api/bank/questions`
+gained an optional `passageId` filter purely to support the admin question picker's group-aware
+selection (checking one member of an RC/LRDI group surfaces the rest of that group).
 
 ## 5. Run (Phase 4)
 
@@ -253,7 +304,7 @@ time. No all-time, partial, or live leaderboard.
 participant scores, correct/wrong/skipped/unanswered counts, total unit time and rank; per-question
 counts remain available, plus unit timing aggregates. Missing answer rows must be included as
 unanswered via roster/question joins, not omitted by grouping only existing answers. Full item
-analysis and live monitoring remain deferred. Weekly template CRUD also remains deferred.
+analysis and live monitoring remain deferred. Weekly template CRUD is specified in §4.4.
 
 ## 8. Data owned
 
@@ -285,6 +336,11 @@ not a read-after-write through eventually consistent KV. Participant state alway
 no-Back rule, speed-bonus formula and per-question time comparisons. Backend implementation
 precedes frontend integration. Existing sprint packets and mockups are intentionally unchanged
 and are not authoritative for these revised behaviors. See [[V1_CHANGES]] for revision scope.
+
+2026-09-12: template CRUD (§4.4) was resolved by the project owner and is no longer deferred.
+Edits to an active template affect only future materializations, never quizzes already produced
+from it. Template save does not dry-run the draw against current bank counts; materialization
+failure and its existing alert path remain the only pool-exhaustion signal.
 
 ## 12. Verification required at implementation
 

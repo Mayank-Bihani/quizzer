@@ -18,6 +18,11 @@ export type SelectionOutcome =
   | { ok: true; units: QuizUnitDefinition[]; questions: QuestionFull[] }
   | { ok: false }
 
+export type ManualDrawFailureReason = "unknown_question" | "duplicate_question" | "partial_group" | "empty_selection"
+export type ManualDrawOutcome =
+  | { ok: true; units: QuizUnitDefinition[]; questions: QuestionFull[] }
+  | { ok: false; reason: ManualDrawFailureReason }
+
 function kindForType(type: QuizType): UnitKind {
   return type === "verbal" ? "rc" : "lrdi"
 }
@@ -106,6 +111,56 @@ function search(
 
   impossible.set(key, true)
   return null
+}
+
+/**
+ * Validates an admin's hand-picked questionIds against the fresh unused candidate pool: no
+ * duplicates, no unknown ids, and no partially-selected RC/LRDI group. Unit order follows the
+ * admin's first-pick order (the minimum index of any of its members within questionIds), not
+ * bank insertion order — mirroring the assembly in selectExactDraw but without randomization.
+ */
+export function buildManualDraw(candidates: QuestionFull[], questionIds: string[]): ManualDrawOutcome {
+  const seen = new Set<string>()
+  for (const id of questionIds) {
+    if (seen.has(id)) return { ok: false, reason: "duplicate_question" }
+    seen.add(id)
+  }
+
+  const candidatesById = new Map(candidates.map((q) => [q.id, q]))
+  for (const id of questionIds) {
+    if (!candidatesById.has(id)) return { ok: false, reason: "unknown_question" }
+  }
+
+  const indexInSelection = new Map(questionIds.map((id, index) => [id, index]))
+  const touched: { unit: UnitCandidate; firstIndex: number }[] = []
+  for (const unit of buildUnitCandidates(candidates)) {
+    const memberIndices = unit.questions.map((q) => indexInSelection.get(q.id)).filter((i): i is number => i !== undefined)
+    if (memberIndices.length === 0) continue
+    if (memberIndices.length !== unit.questions.length) return { ok: false, reason: "partial_group" }
+    touched.push({ unit, firstIndex: Math.min(...memberIndices) })
+  }
+  touched.sort((a, b) => a.firstIndex - b.firstIndex)
+
+  const units: QuizUnitDefinition[] = []
+  const questions: QuestionFull[] = []
+  let flatPosition = 1
+  touched.forEach(({ unit }, index) => {
+    const questionPositions: number[] = []
+    for (const question of unit.questions) {
+      questionPositions.push(flatPosition)
+      questions.push(question)
+      flatPosition++
+    }
+    units.push({
+      unitPosition: index + 1,
+      kind: unit.kind,
+      passageId: unit.passageId,
+      questionPositions,
+      timeLimitSec: null,
+    })
+  })
+
+  return { ok: true, units, questions }
 }
 
 export function selectExactDraw(

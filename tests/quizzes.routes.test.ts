@@ -60,6 +60,33 @@ async function seedStandalones(creatorId: string, n: number, type = "quant", dif
   await env.DB.batch(statements)
 }
 
+async function seedGroup(creatorId: string, type = "verbal", difficulty = "medium"): Promise<string[]> {
+  const passageId = crypto.randomUUID()
+  await env.DB.prepare(
+    "INSERT INTO passages (id, type, topic, body_md, created_by, created_at) VALUES (?, ?, 'Topic', 'Passage body', ?, ?)"
+  )
+    .bind(passageId, type, creatorId, Date.now())
+    .run()
+  const ids = [crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID(), crypto.randomUUID()]
+  const statements = ids.map((id, i) =>
+    env.DB.prepare(
+      `INSERT INTO questions (id, type, topic, difficulty, format, passage_id, group_position, body_md, option_a, option_b, option_c, option_d, correct_option, explanation_md, created_by, created_at)
+       VALUES (?, ?, 'Topic', ?, 'mcq', ?, ?, 'Body', 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
+    ).bind(id, type, difficulty, passageId, i + 1, creatorId, Date.now())
+  )
+  await env.DB.batch(statements)
+  return ids
+}
+
+async function unusedIds(type: string, difficulty: string): Promise<string[]> {
+  const { results } = await env.DB.prepare(
+    "SELECT id FROM questions WHERE type = ? AND difficulty = ? AND passage_id IS NULL AND used_in_quiz_id IS NULL ORDER BY created_at ASC"
+  )
+    .bind(type, difficulty)
+    .all<{ id: string }>()
+  return results.map((r) => r.id)
+}
+
 const CREATE_BODY = { title: "Quiz", scheduledAt: 1_700_100_000_000, type: "quant", difficultyMix: { easy: 2 }, count: 2 }
 
 describe("guard matrix", () => {
@@ -161,6 +188,172 @@ describe("POST /api/admin/quizzes — input validation", () => {
     expect(res.status).toBe(409)
     const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
     expect(row?.n).toBe(0)
+  })
+})
+
+describe("POST /api/admin/quizzes — manual mode", () => {
+  it("BE-1: creates a manual draft from a whole standalone pair + a whole group", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 2, "verbal", "easy")
+    const standaloneIds = await unusedIds("verbal", "easy")
+    const groupIds = await seedGroup(id, "verbal", "hard")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: [...standaloneIds, ...groupIds],
+      }),
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json<{ quizId: string; questionCount: number; unitCount: number }>()
+    expect(body.questionCount).toBe(6)
+    expect(body.unitCount).toBe(3)
+
+    const row = await env.DB.prepare("SELECT selection_mode FROM quizzes WHERE id = ?")
+      .bind(body.quizId)
+      .first<{ selection_mode: string }>()
+    expect(row?.selection_mode).toBe("manual")
+  })
+
+  it("BE-2: rejects a partial group with no write", async () => {
+    const { cookie, id } = await signInAs("admin")
+    const groupIds = await seedGroup(id, "verbal", "hard")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: groupIds.slice(0, 3),
+      }),
+    })
+    expect(res.status).toBe(400)
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
+    expect(row?.n).toBe(0)
+  })
+
+  it("BE-3: rejects a duplicate id", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "verbal", "easy")
+    const [standaloneId] = await unusedIds("verbal", "easy")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: [standaloneId, standaloneId],
+      }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("BE-4: rejects an already-used id as no longer in the unused pool", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "verbal", "easy")
+    const [standaloneId] = await unusedIds("verbal", "easy")
+    await env.DB.prepare("INSERT INTO quizzes (id, title, type, scheduled_at, created_by, created_at) VALUES (?, 'Other', 'verbal', ?, ?, ?)")
+      .bind("other-quiz", Date.now(), id, Date.now())
+      .run()
+    await env.DB.prepare("UPDATE questions SET used_in_quiz_id = ? WHERE id = ?").bind("other-quiz", standaloneId).run()
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: [standaloneId],
+      }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("BE-5: rejects difficultyMix sent alongside mode: manual", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "verbal", "easy")
+    const [standaloneId] = await unusedIds("verbal", "easy")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: [standaloneId],
+        difficultyMix: { easy: 1 },
+      }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("rejects questionIds sent with mode: auto (or omitted)", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 2)
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...CREATE_BODY, questionIds: ["x"] }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("BE-6: blocks reshuffle of a manual draft with 409 and no DB change", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 2, "verbal", "easy")
+    const standaloneIds = await unusedIds("verbal", "easy")
+    const createRes = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "Manual quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        mode: "manual",
+        questionIds: standaloneIds,
+      }),
+    })
+    const { quizId } = await createRes.json<{ quizId: string }>()
+    const before = await env.DB.prepare("SELECT * FROM quiz_questions WHERE quiz_id = ?").bind(quizId).all()
+
+    const res = await authed(`/api/admin/quizzes/${quizId}/reshuffle`, cookie, { method: "POST" })
+    expect(res.status).toBe(409)
+    const after = await env.DB.prepare("SELECT * FROM quiz_questions WHERE quiz_id = ?").bind(quizId).all()
+    expect(after.results).toEqual(before.results)
+  })
+
+  it("BE-7/BE-8: auto mode create + reshuffle are unaffected", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 4)
+    const createRes = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(CREATE_BODY),
+    })
+    expect(createRes.status).toBe(200)
+    const { quizId } = await createRes.json<{ quizId: string }>()
+    const row = await env.DB.prepare("SELECT selection_mode FROM quizzes WHERE id = ?")
+      .bind(quizId)
+      .first<{ selection_mode: string }>()
+    expect(row?.selection_mode).toBe("auto")
+
+    const reshuffleRes = await authed(`/api/admin/quizzes/${quizId}/reshuffle`, cookie, { method: "POST" })
+    expect(reshuffleRes.status).toBe(200)
   })
 })
 

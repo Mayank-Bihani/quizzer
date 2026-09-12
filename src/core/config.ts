@@ -114,8 +114,16 @@ export const WEEKLY_RETRY_LOOKBACK_WEEKS = 8
 
 // ============================================================================
 // Production configuration gate — Sprint 8 AC-9. Names only the missing binding/var; never its
-// value. Telegram/email pieces are conditionally required only when TELEGRAM_ENABLED === "true",
-// so local/test runs (which always leave it "false") are never blocked by this check.
+// value. Telegram pieces are conditionally required only when TELEGRAM_ENABLED === "true", so
+// local/test runs (which always leave it "false") are never blocked by this check.
+//
+// Email alerting (EMAIL_ALERT_ADDRESS / ALERT_EMAIL) is deliberately NOT required here. It was
+// originally coupled to TELEGRAM_ENABLED as a "dual-channel alerts fail closed together"
+// guarantee, but that meant Telegram couldn't go live until a custom domain was attached to the
+// Cloudflare zone for Email Routing (workers.dev can't send email) — an unrelated, larger
+// prerequisite. Email alerting is best-effort wherever it's used (see observability composition
+// in index.ts, which already no-ops when ALERT_EMAIL/EMAIL_ALERT_ADDRESS are absent); Telegram
+// alerts alone are enough of a failure signal to ship with.
 // ============================================================================
 
 export class ProductionConfigError extends Error {
@@ -128,7 +136,7 @@ export class ProductionConfigError extends Error {
 }
 
 const ALWAYS_REQUIRED_STRING_VARS: (keyof Bindings)[] = ["GOOGLE_CLIENT_ID", "SESSION_SIGNING_KEY", "SUPERADMIN_EMAIL"]
-const TELEGRAM_ENABLED_REQUIRED_STRING_VARS: (keyof Bindings)[] = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_ALERT_CHAT_ID", "EMAIL_ALERT_ADDRESS"]
+const TELEGRAM_ENABLED_REQUIRED_STRING_VARS: (keyof Bindings)[] = ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_ALERT_CHAT_ID"]
 
 function assertNonEmptyString(env: Bindings, name: keyof Bindings): void {
   const value = env[name]
@@ -143,6 +151,5 @@ export function assertProductionConfig(env: Bindings): void {
 
   if (env.TELEGRAM_ENABLED === "true") {
     for (const name of TELEGRAM_ENABLED_REQUIRED_STRING_VARS) assertNonEmptyString(env, name)
-    if (!env.ALERT_EMAIL) throw new ProductionConfigError("ALERT_EMAIL")
   }
 }

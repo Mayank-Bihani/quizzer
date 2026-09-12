@@ -21,6 +21,8 @@ against the archived generation. Surface missing decisions instead of inventing 
 | 6 | TELEGRAM — six post kinds, unit timing summaries and claim-then-send behavior | 4, 5 | done | [claude-task--001--telegram-six-post-kinds.md](sprint%206/claude-task--001--telegram-six-post-kinds.md) |
 | 7 | Weekly boards + recurring — IST weeks, complete publication, template draws and derived unit duration | 1, 2, 3, 5, 6 | done | [claude-task--001--weekly-boards-recurring-materialization.md](sprint%207/claude-task--001--weekly-boards-recurring-materialization.md) |
 | 8 | Backend hardening and admin report export | 1–7 | done | [claude-task--001--backend-hardening-report-export.md](sprint%208/claude-task--001--backend-hardening-report-export.md) |
+| 9 | Recurring template CRUD — admin create/list/view/edit/deactivate of `quiz_templates` (name, type, question count, difficulty mix, per-unit timing policy, slack/join-window seconds, marks, seat cap, rrule), feeding the existing Sprint 7 materializer | 1, 3, 7 | done | [claude-task--001--recurring-template-admin-crud.md](sprint%209/claude-task--001--recurring-template-admin-crud.md) |
+| 10 | Manual question selection — `selection_mode` on `quizzes`, `buildManualDraw` whole-unit validation, manual-mode `POST /api/admin/quizzes`/reshuffle-block, bank `passageId` filter, and an admin question-picker UI; recurring templates stay auto-only | 1, 2, 3 | done | [claude-task--001--manual-question-selection.md](sprint%2010/claude-task--001--manual-question-selection.md) |
 
 Statuses: pending → in-progress → written → done. Done means the replacement packet has been
 reviewed against the current documents/contracts and the skill's required structure; it does
@@ -73,6 +75,37 @@ Sprint 7 packet were reconciled and validated. The owner accepted the packet's e
 board retry lookback as a V1 limitation because the quiz season ends in the third week of November;
 V1 does not promise backlog discovery or indefinite recovery beyond that window. Sprint 8 was also
 reconciled against the same alert contract and revalidated. `done`.
+
+Sprint 9 (recurring template CRUD) reverses Sprint 7's "template CRUD remains deferred" scoping
+decision, resolved by the project owner on 2026-09-12: edits to an active template affect only its
+future materializations, never the already-persisted units/questions/timing of quizzes already
+materialized from it (no versioning/history table); and template save never dry-runs the draw
+against current bank counts, so pool exhaustion is still only surfaced by the existing hourly
+`materializeTemplates` failure/alert path. Both are recorded in `QUIZZING.md` §4.4 and the new
+"QUIZZING — templates" route table in `API.md`. The packet does not touch `getActiveTemplates`,
+`TemplateRow`, or `quiz-materializer.ts` — it is pure CRUD in front of the table Sprint 7 already
+reads. No frontend admin screen is in scope; that is a future packet. Reviewed on 2026-09-12:
+validator passes, no `<INPUT_REQUIRED>` marker remains, and citations were spot-checked against
+`src/db/quizzes.ts:596-632`, `src/core/api.ts:44-54`, `src/core/schedule.ts:58-98`, and
+`migrations/0001_init.sql:41-56`. `done`.
+
+Sprint 10 (manual question selection) implements the packet's default answer to its only
+`<INPUT_REQUIRED>` (OQ-1): a new `migrations/0002_manual_selection_mode.sql` adds `selection_mode`
+to `quizzes` rather than editing `migrations/0001_init.sql` in place — `migrations/` held only that
+one file with no other evidence of the project's actual `wrangler d1 migrations apply` history at
+implementation time, so the packet's stated default (the technically correct pattern, safe under
+either history) was taken as-is; flag to the project owner if the team's real practice turns out to
+be single-file hand-editing instead. `selection_mode TEXT NOT NULL DEFAULT 'auto'` is fixed at
+creation and never exposed on `QuizAdminSummary`/the drafts list. `src/core/selection.ts` gained
+`buildManualDraw` (whole-unit validation, ordered by the admin's first-pick position, reusing the
+existing private `buildUnitCandidates`); `createDraft`/`reshuffleDraft` branch on mode without
+touching `reserveClaimAndPublish`/`lockQuiz`; `POST /api/admin/quizzes` and its reshuffle route
+gained the `mode`/`questionIds` validation and `invalid_selection`/`manual_locked` outcomes.
+`GET /api/bank/questions` gained an additive `passageId` filter for the new admin question-picker
+UI (`web/src/features/admin/AdminPages.tsx`'s `pick` step, `builder-state.ts`'s `tallyByDifficulty`/
+`toggleSelection`). Recorded in `QUIZZING.md` §4.5 and `API.md`'s QUIZZING/BANK route notes. The
+Hard NO list held: `git diff` on `src/services/templates.ts`, `src/services/quiz-materializer.ts`,
+and `src/core/contracts.ts` is empty for this packet's changes. `done`.
 
 Old packets and their original tracker are preserved in
 [the historical archive](../archive/backend-specs/2026-09-09-before-regeneration/README.md).

@@ -61,6 +61,30 @@ describe("renderQuizAnnounce (TG-1)", () => {
       expect(text.toLowerCase()).not.toContain(forbidden)
     }
   })
+
+  it("renders scheduledAt/endsAt as human-readable IST, never a raw ISO timestamp", () => {
+    const text = renderQuizAnnounce(announcePayload())
+    expect(text).not.toContain("T00:") // no bare ISO "T"-separator timestamp anywhere
+    expect(text).not.toMatch(/\d{4}-\d{2}-\d{2}T/)
+    expect(text).toContain("IST")
+  })
+
+  it("uses singular question/unit/minute wording for a count of exactly one", () => {
+    const text = renderQuizAnnounce(
+      announcePayload({ questionCount: 1, unitCount: 1, windowSec: 60, timingSummary: [{ kind: "standalone", count: 1, minTimeSec: 30, maxTimeSec: 30 }] })
+    )
+    expect(text).toContain("1 question across 1 unit.")
+    expect(text).toContain("Your duration: 1 minute.")
+    expect(text).not.toContain("1 questions")
+    expect(text).not.toContain("1 units")
+    expect(text).not.toContain("1 minutes")
+  })
+
+  it("uses plural question/unit/minute wording for counts greater than one", () => {
+    const text = renderQuizAnnounce(announcePayload({ questionCount: 20, unitCount: 5, windowSec: 1800 }))
+    expect(text).toContain("20 questions across 5 units.")
+    expect(text).toContain("Your duration: 30 minutes.")
+  })
 })
 
 describe("renderStartingSoon (TG-2)", () => {
@@ -105,6 +129,16 @@ describe("renderQuizResult (TG-4)", () => {
     expect(text.toLowerCase()).toContain("nobody")
   })
 
+  it("uses singular 'student' wording for exactly one participant", () => {
+    const text = renderQuizResult({
+      participantCount: 1,
+      top10: [{ rank: 1, userId: "u1", name: "Alice", score: 40 }],
+      boardComputedAt: 1_700_001_000_000,
+    })
+    expect(text).toContain("1 student played.")
+    expect(text).not.toContain("1 students")
+  })
+
   it("stays under the 4096-character limit for a worst-case long-name result", () => {
     const longName = "A".repeat(200)
     const worstCase: CloseResult = {
@@ -138,8 +172,20 @@ describe("renderWeeklyBoards (TG-5)", () => {
     const messages = renderWeeklyBoards([board("verbal", 3), board("quant", 0), board("lr", 0), board("overall", 0)])
     const verbal = messages.find((m) => m.type === "verbal")
     expect(verbal?.text).toContain("100") // totalScore
-    expect(verbal?.text).toContain("3") // quizzesTaken
+    expect(verbal?.text).toContain("3 quizzes") // quizzesTaken, plural
     expect(verbal?.text.toLowerCase()).not.toContain("average")
+  })
+
+  it("uses singular 'quiz' wording when quizzesTaken is exactly one", () => {
+    const singleQuizBoard: BoardSummary = {
+      type: "verbal",
+      weekStart: "2026-09-07",
+      top10: [{ rank: 1, userId: "u1", name: "Alice", totalScore: 40, quizzesTaken: 1 }],
+    }
+    const messages = renderWeeklyBoards([singleQuizBoard, board("quant", 0), board("lr", 0), board("overall", 0)])
+    const verbal = messages.find((m) => m.type === "verbal")
+    expect(verbal?.text).toContain("1 quiz)")
+    expect(verbal?.text).not.toContain("1 quizzes")
   })
 
   it("renders a valid nobody-ranked message for an empty section instead of erroring", () => {

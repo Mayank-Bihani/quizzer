@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300" role="img" aria-label="Circle with centre O, radii OA and OB meeting at 110 degrees, and tangents from A and B meeting at external point T">
+  <rect width="400" height="300" fill="#FFFFFF"/>
+  <circle cx="150" cy="150" r="70" fill="none" stroke="#1A1F26" stroke-width="1.5"/>
+  <path d="M150 150 L190.1 92.7" stroke="#5B6675" stroke-width="1.25" stroke-dasharray="5 4"/>
+  <path d="M150 150 L190.1 207.3" stroke="#5B6675" stroke-width="1.25" stroke-dasharray="5 4"/>
+  <path d="M190.1 92.7 L272 150 L190.1 207.3" fill="none" stroke="#1A1F26" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M163.8 130.3 A24 24 0 0 1 163.8 169.7" fill="none" stroke="#2F6BFF" stroke-width="1.75"/>
+  <path d="M190.1 92.7 L198.3 98.4 L192.6 106.6 L184.4 100.9 Z" fill="none" stroke="#5B6675" stroke-width="1.1"/>
+  <path d="M190.1 207.3 L198.3 201.6 L192.6 193.4 L184.4 199.1 Z" fill="none" stroke="#5B6675" stroke-width="1.1"/>
+  <circle cx="150" cy="150" r="3.5" fill="#1A1F26"/>
+  <circle cx="190.1" cy="92.7" r="3.5" fill="#1A1F26"/>
+  <circle cx="190.1" cy="207.3" r="3.5" fill="#1A1F26"/>
+  <circle cx="272" cy="150" r="3.5" fill="#1A1F26"/>
+  <g font-family="IBM Plex Sans, ui-sans-serif, system-ui, sans-serif" font-size="15" fill="#1A1F26">
+    <text x="132" y="146">O</text>
+    <text x="196" y="84">A</text>
+    <text x="196" y="224">B</text>
+    <text x="282" y="155">T</text>
+    <text x="180" y="156" font-size="13" fill="#2F6BFF">110°</text>
+  </g>
+</svg>

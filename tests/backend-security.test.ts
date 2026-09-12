@@ -135,27 +135,36 @@ describe("AC-9: assertProductionConfig", () => {
       TELEGRAM_BOT_TOKEN: "token",
       TELEGRAM_CHAT_ID: "chat",
       TELEGRAM_ALERT_CHAT_ID: "alert-chat",
-      EMAIL_ALERT_ADDRESS: "alerts@example.com",
-      ALERT_EMAIL: {} as SendEmail,
     })
     expect(() => assertProductionConfig(enabledComplete)).not.toThrow()
 
-    for (const missing of ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_ALERT_CHAT_ID", "EMAIL_ALERT_ADDRESS"] as const) {
+    for (const missing of ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TELEGRAM_ALERT_CHAT_ID"] as const) {
       expect(() => assertProductionConfig({ ...enabledComplete, [missing]: "" })).toThrow(ProductionConfigError)
     }
-    expect(() => assertProductionConfig({ ...enabledComplete, ALERT_EMAIL: undefined })).toThrow(ProductionConfigError)
+  })
+
+  it("does not require email-alert config even when Telegram is enabled", () => {
+    const enabledNoEmail = baseBindings({
+      TELEGRAM_ENABLED: "true",
+      TELEGRAM_BOT_TOKEN: "token",
+      TELEGRAM_CHAT_ID: "chat",
+      TELEGRAM_ALERT_CHAT_ID: "alert-chat",
+      EMAIL_ALERT_ADDRESS: undefined,
+      ALERT_EMAIL: undefined,
+    })
+    expect(() => assertProductionConfig(enabledNoEmail)).not.toThrow()
   })
 })
 
 // ============================================================================
-// AC-6 — the complete 29-route inventory, guarded exactly as documented (API.md's route table)
+// AC-6 — the complete 33-route inventory, guarded exactly as documented (API.md's route table)
 // ============================================================================
 
 type RouteCase = { method: string; path: string; guard: "none" | "auth" | "admin" | "superadmin" }
 
-// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 16 (creation 6, run 5,
-// results 4, report 1) = 29. Path params use a placeholder id — this proves guard behavior only,
-// which runs before any per-resource lookup.
+// Mirrors API.md's "Route inventory and revision": AUTH 5, BANK 8, QUIZZING 20 (creation 6,
+// templates 4, run 5, results 4, report 1) = 33. Path params use a placeholder id — this proves
+// guard behavior only, which runs before any per-resource lookup.
 const ROUTE_INVENTORY: RouteCase[] = [
   { method: "POST", path: "/api/auth/google", guard: "none" },
   { method: "POST", path: "/api/auth/logout", guard: "none" },
@@ -176,6 +185,10 @@ const ROUTE_INVENTORY: RouteCase[] = [
   { method: "POST", path: "/api/admin/quizzes/placeholder-id/lock", guard: "admin" },
   { method: "PATCH", path: "/api/admin/quizzes/placeholder-id", guard: "admin" },
   { method: "POST", path: "/api/admin/quizzes/placeholder-id/cancel", guard: "admin" },
+  { method: "GET", path: "/api/admin/templates", guard: "admin" },
+  { method: "POST", path: "/api/admin/templates", guard: "admin" },
+  { method: "PATCH", path: "/api/admin/templates/placeholder-id", guard: "admin" },
+  { method: "POST", path: "/api/admin/templates/placeholder-id/deactivate", guard: "admin" },
   { method: "GET", path: "/api/quizzes/open", guard: "auth" },
   { method: "POST", path: "/api/quizzes/ABCDEF/join", guard: "auth" },
   { method: "GET", path: "/api/play/placeholder-id/current", guard: "auth" },
@@ -189,8 +202,8 @@ const ROUTE_INVENTORY: RouteCase[] = [
 ]
 
 describe("AC-6: route-guard inventory", () => {
-  it("declares exactly 29 documented routes", () => {
-    expect(ROUTE_INVENTORY).toHaveLength(29)
+  it("declares exactly 33 documented routes", () => {
+    expect(ROUTE_INVENTORY).toHaveLength(33)
   })
 
   it("has no unguarded alias or debug/test endpoint mounted beyond the documented 29", () => {

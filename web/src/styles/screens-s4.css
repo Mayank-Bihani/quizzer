@@ -1,0 +1,22 @@
+/* Sprint S4 — results: finish, holding, rank reveal, score breakdown. Layout only.
+   Shared components this sprint needed were appended to components.css §41–44;
+   what's left here is page-specific layout, following the S0/S1/S2/S3 convention
+   that each sprint's screen CSS is self-contained rather than importing another
+   sprint's wrapper. */
+
+/* ---- full-screen result interstitial: finish, holding ------------------
+   Same shape as S1's .deadend and S3's .runstate, rebuilt here on purpose.
+   Finish and holding sit right after a run ends: there is still no app shell
+   (nowhere to go except Home), so this is a captive centred page, not a
+   section inside .app. Rank reveal is different — see .resultsview below —
+   because by tier 3 normal navigation (History, leaderboard, review) is back. */
+.resultpage{min-height:100dvh;display:grid;align-content:center;justify-items:center;padding:var(--sp-11) var(--gutter-mobile)}
+.resultpage > .state{width:100%;max-width:46ch;padding:var(--sp-9) var(--sp-7)}
+.resultpage .state__actions{display:flex;gap:var(--sp-4);flex-wrap:wrap;justify-content:center}
+
+/* ---- rank reveal + score breakdown (tier 3) -----------------------------
+   Unlike finish/holding, this is a normal page inside the app shell: once the
+   hard deadline passes, Home, History and the leaderboard are live choices
+   again, so the student should be able to navigate away and back. */
+.resultsview{display:grid;gap:var(--sp-9);max-width:64ch}
+.resultsview h2{font:var(--type-h2)}

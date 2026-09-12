@@ -3,7 +3,7 @@
 
 import type { Difficulty, QuizUnitDefinition, TimingPolicy } from "../core/contracts"
 import type { DueAnnounceQuiz, QuizStatus, QuizType, UnitKind } from "../core/contracts"
-import type { QuizAdminSummary } from "../core/api"
+import type { QuizAdminSummary, TemplateSummary } from "../core/api"
 
 type QuizRow = {
   id: string
@@ -122,6 +122,7 @@ export type DraftInsert = {
   questionIds: string[] // caller-ordered, matching units' questionPositions
   templateId?: string // Sprint 7 materialization only; admin-created drafts never set this
   seatCap?: number // defaults to 120, matching the admin-draft path's prior fixed value exactly
+  selectionMode?: "auto" | "manual" // defaults to 'auto'; the materializer never sets this
 }
 
 export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<void> {
@@ -129,8 +130,8 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
   const statements = [
     db
       .prepare(
-        `INSERT INTO quizzes (id, template_id, title, type, question_count, unit_count, difficulty_mix, scheduled_at, lobby_opens_at, seat_cap, created_by, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO quizzes (id, template_id, title, type, question_count, unit_count, difficulty_mix, scheduled_at, lobby_opens_at, seat_cap, selection_mode, created_by, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         draft.id,
@@ -143,6 +144,7 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
         draft.scheduledAt,
         lobbyOpensAt,
         draft.seatCap ?? 120,
+        draft.selectionMode ?? "auto",
         draft.createdBy,
         draft.createdAt
       ),
@@ -238,13 +240,20 @@ export type DraftForReshuffle = {
   difficultyMix: Partial<Record<Difficulty, number>>
   timingPolicy: TimingPolicy | null
   slackSec: number | null
+  selectionMode: "auto" | "manual"
 }
 
 export async function getDraftForReshuffle(db: D1Database, id: string): Promise<DraftForReshuffle | null> {
   const row = await db
-    .prepare("SELECT status, type, question_count, difficulty_mix, timing_policy, slack_sec FROM quizzes WHERE id = ?")
+    .prepare(
+      "SELECT status, type, question_count, difficulty_mix, timing_policy, slack_sec, selection_mode FROM quizzes WHERE id = ?"
+    )
     .bind(id)
-    .first<Pick<QuizRow, "status" | "type" | "question_count" | "difficulty_mix" | "timing_policy" | "slack_sec">>()
+    .first<
+      Pick<QuizRow, "status" | "type" | "question_count" | "difficulty_mix" | "timing_policy" | "slack_sec"> & {
+        selection_mode: "auto" | "manual"
+      }
+    >()
   if (!row) return null
   return {
     status: row.status,
@@ -253,6 +262,7 @@ export async function getDraftForReshuffle(db: D1Database, id: string): Promise<
     difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(row.difficulty_mix) ?? {},
     timingPolicy: parseJsonColumn<TimingPolicy>(row.timing_policy),
     slackSec: row.slack_sec,
+    selectionMode: row.selection_mode,
   }
 }
 
@@ -629,6 +639,141 @@ export async function getActiveTemplates(db: D1Database): Promise<TemplateRow[]>
     rrule: r.rrule,
     createdBy: r.created_by,
   }))
+}
+
+// ============================================================================
+// Template CRUD — Sprint 9; QUIZZING.md §4.4; API.md "QUIZZING — templates". Additive siblings
+// only: never widens TemplateRow or getActiveTemplates, the frozen read path materializeTemplates
+// depends on.
+// ============================================================================
+
+type TemplateColumnRow = {
+  id: string
+  name: string
+  type: QuizType
+  question_count: number
+  difficulty_mix: string
+  timing_policy: string
+  slack_sec: number
+  join_window_sec: number
+  marks_correct: number
+  marks_wrong: number
+  seat_cap: number
+  rrule: string
+  active: number
+}
+
+function toTemplateSummary(row: TemplateColumnRow): TemplateSummary {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    questionCount: row.question_count,
+    difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(row.difficulty_mix) ?? {},
+    timingPolicy: parseJsonColumn<TimingPolicy>(row.timing_policy) ?? {},
+    slackSec: row.slack_sec,
+    joinWindowSec: row.join_window_sec,
+    marksCorrect: row.marks_correct,
+    marksWrong: row.marks_wrong,
+    seatCap: row.seat_cap,
+    rrule: row.rrule,
+    active: row.active === 1,
+  }
+}
+
+export type TemplateInsert = {
+  id: string
+  name: string
+  type: QuizType
+  questionCount: number
+  difficultyMix: Partial<Record<Difficulty, number>>
+  timingPolicy: TimingPolicy
+  slackSec: number
+  joinWindowSec: number
+  marksCorrect: number
+  marksWrong: number
+  seatCap: number
+  rrule: string
+  createdBy: string
+}
+
+export async function insertTemplateRow(db: D1Database, input: TemplateInsert): Promise<void> {
+  await db
+    .prepare(
+      `INSERT INTO quiz_templates (id, name, type, question_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`
+    )
+    .bind(
+      input.id,
+      input.name,
+      input.type,
+      input.questionCount,
+      JSON.stringify(input.difficultyMix),
+      JSON.stringify(input.timingPolicy),
+      input.slackSec,
+      input.joinWindowSec,
+      input.marksCorrect,
+      input.marksWrong,
+      input.seatCap,
+      input.rrule,
+      input.createdBy
+    )
+    .run()
+}
+
+export async function getTemplateSummaryById(db: D1Database, id: string): Promise<TemplateSummary | null> {
+  const row = await db.prepare("SELECT * FROM quiz_templates WHERE id = ?").bind(id).first<TemplateColumnRow>()
+  return row ? toTemplateSummary(row) : null
+}
+
+export async function listTemplatesPage(db: D1Database, limit: number, offset: number): Promise<{ items: TemplateSummary[]; total: number }> {
+  const totalRow = await db.prepare("SELECT COUNT(*) AS total FROM quiz_templates").first<{ total: number }>()
+  const { results } = await db
+    .prepare("SELECT * FROM quiz_templates ORDER BY rowid DESC LIMIT ? OFFSET ?")
+    .bind(limit, offset)
+    .all<TemplateColumnRow>()
+  return { items: results.map(toTemplateSummary), total: totalRow?.total ?? 0 }
+}
+
+export type TemplateFieldUpdate = Partial<{
+  name: string
+  type: QuizType
+  questionCount: number
+  difficultyMix: Partial<Record<Difficulty, number>>
+  timingPolicy: TimingPolicy
+  slackSec: number
+  joinWindowSec: number
+  marksCorrect: number
+  marksWrong: number
+  seatCap: number
+  rrule: string
+}>
+
+const TEMPLATE_COLUMN_BY_FIELD: Record<string, string> = {
+  name: "name",
+  type: "type",
+  questionCount: "question_count",
+  difficultyMix: "difficulty_mix",
+  timingPolicy: "timing_policy",
+  slackSec: "slack_sec",
+  joinWindowSec: "join_window_sec",
+  marksCorrect: "marks_correct",
+  marksWrong: "marks_wrong",
+  seatCap: "seat_cap",
+  rrule: "rrule",
+}
+
+export async function updateTemplateRow(db: D1Database, id: string, fields: TemplateFieldUpdate): Promise<void> {
+  const entries = Object.entries(fields).filter(([, v]) => v !== undefined)
+  if (entries.length === 0) return
+  const setClause = entries.map(([field]) => `${TEMPLATE_COLUMN_BY_FIELD[field]} = ?`).join(", ")
+  const values = entries.map(([field, v]) => (field === "difficultyMix" || field === "timingPolicy" ? JSON.stringify(v) : v))
+  await db.prepare(`UPDATE quiz_templates SET ${setClause} WHERE id = ?`).bind(...values, id).run()
+}
+
+export async function deactivateTemplateRow(db: D1Database, id: string): Promise<boolean> {
+  const result = await db.prepare("UPDATE quiz_templates SET active = 0 WHERE id = ? AND active = 1").bind(id).run()
+  return result.meta.changes === 1
 }
 
 // Cheap existence check backed by idx_quizzes_template_scheduled — the authoritative retry-safety

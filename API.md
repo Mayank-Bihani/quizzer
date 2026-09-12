@@ -105,6 +105,12 @@ non-200 status: if `errors` is non-empty nothing was written (`importId` is `nul
 "a failed import writes nothing at all" (BANK.md §3.3). A structural upload problem (not a
 CSV/ZIP at all) is the one case that should 400 with the generic error shape instead.
 
+**`ListQuestionsRequest.passageId`** (Sprint 10, additive) filters to exactly one RC/LRDI group's
+questions, ordered the same as any other browse result (`created_at ASC, id ASC` — the caller
+re-sorts by `groupPosition` for display/selection order). Added purely to support the admin quiz
+builder's manual question picker (QUIZZING.md §4.5): checking one group member surfaces the rest
+of that group so it can be selected as a whole unit.
+
 **`ListQuestionsResponse` embeds `QuestionFull`** — including `correctOption` and
 `explanationMd` — deliberately. This is the one route where that's not a leak: AUDIT.md §11
 decision 17 settled that admin-role holders already authored the question and know the answer,
@@ -129,8 +135,8 @@ closes (COUNCIL_FINDINGS.md #20).
 | Method | Path | Request | Response | Extra status codes |
 |---|---|---|---|---|
 | `GET` | `/api/admin/quizzes` | `ListQuizzesRequest` | `ListQuizzesResponse` | 400, 403 |
-| `POST` | `/api/admin/quizzes` | `CreateQuizDraftRequest` | `CreateQuizDraftResponse` | 400, 403, 409 (pool exhaustion — fail loudly, no partial draw, no silent reuse, QUIZZING.md §11) |
-| `POST` | `/api/admin/quizzes/:id/reshuffle` | — (no body; same stored parameters) | `ReshuffleQuizResponse` | 403, 404, 409 (already locked) |
+| `POST` | `/api/admin/quizzes` | `CreateQuizDraftRequest` | `CreateQuizDraftResponse` | 400 (also `invalid_selection` in manual mode — unknown/duplicate/partial-group/empty questionIds, QUIZZING.md §4.5), 403, 409 (pool exhaustion, auto mode only — fail loudly, no partial draw, no silent reuse, QUIZZING.md §11) |
+| `POST` | `/api/admin/quizzes/:id/reshuffle` | — (no body; same stored parameters) | `ReshuffleQuizResponse` | 403, 404, 409 (already locked, or a manual draft — manual drafts can never be reshuffled, QUIZZING.md §4.5) |
 | `POST` | `/api/admin/quizzes/:id/lock` | — (no body) | `LockQuizResponse` | 403, 404, 409 (already locked) |
 | `PATCH` | `/api/admin/quizzes/:id` | `UpdateQuizParamsRequest` | `UpdateQuizParamsResponse` | 400, 403, 404, 409 (legal only while `status` is `'draft'`/`'scheduled'` — rejected once the room has opened, so a setting can't change under a student already mid-run, QUIZZING.md §11) |
 | `POST` | `/api/admin/quizzes/:id/cancel` | — (no body) | `CancelQuizResponse` | 403, 404, 409 (already ended/cancelled) |
@@ -153,6 +159,18 @@ from abandoned reservations are accepted. `claimUnused` is idempotent for conten
 by the same quiz/number, so a retry after an ambiguous successful claim can finish publication.
 A true short retirement claim returns `{locked:false,requestedCount,claimedCount}`.
 
+**Manual selection mode (Sprint 10, resolved 2026-09-12, QUIZZING.md §4.5):**
+`CreateQuizDraftRequest` is now a discriminated union on an optional `mode: 'auto' | 'manual'`
+(default `'auto'`, the unchanged existing shape). `mode: 'manual'` instead takes
+`{ title, scheduledAt, type, questionIds: string[] }` — no `difficultyMix`/`count` — and the route
+rejects a request that mixes fields from the wrong branch (e.g. `difficultyMix` sent alongside
+`mode: 'manual'`, or `questionIds` sent with `mode: 'auto'`/omitted). `questionCount`/`difficultyMix`
+on the resulting `quizzes` row are derived server-side from the validated selection, never accepted
+from the client. `selection_mode` is stored on `quizzes` (`DEFAULT 'auto'`), fixed at creation, and
+never exposed on `QuizAdminSummary`/the drafts list — only the in-progress builder session needs it.
+Recurring templates gained no equivalent field; a template request carrying `mode`/`questionIds` is
+rejected the same way any other unknown field already is.
+
 `UpdateQuizParamsRequest` accepts title, scheduledAt, joinWindowSec, timingPolicy, unitTimeLimits,
 slackSec, marksCorrect, marksWrong and seatCap. It no longer accepts timePerQSec, windowSec,
 graceSec or maxSpeedBonus. `windowSec` is derived from actual unit allowances plus slack.
@@ -160,6 +178,29 @@ Changing timingPolicy reapplies defaults to all units before request overrides. 
 rebuilds units using the policy, discards overrides and returns the new duration/counts.
 Validate positive integer allowances/admission length, non-negative slack, correct marks >0,
 wrong marks <=0, finite numeric values and cap <=120. Settings freeze once status becomes open.
+
+## QUIZZING — templates (QUIZZING.md §4.4)
+
+| Method | Path | Request | Response | Extra status codes |
+|---|---|---|---|---|
+| `GET` | `/api/admin/templates` | `ListTemplatesRequest` | `ListTemplatesResponse` | 400, 403 |
+| `POST` | `/api/admin/templates` | `CreateTemplateRequest` | `CreateTemplateResponse` | 400, 403 |
+| `PATCH` | `/api/admin/templates/:id` | `UpdateTemplateRequest` | `UpdateTemplateResponse` | 400, 403, 404 |
+| `POST` | `/api/admin/templates/:id/deactivate` | — (no body) | `DeactivateTemplateResponse` | 403, 404, 409 (already inactive) |
+
+`ListTemplatesRequest`/`Response` follow the same `PageRequest`/`PageResponse<T>` convention as
+`GET /api/admin/quizzes`. `CreateTemplateRequest`/`UpdateTemplateRequest` accept `name`, `type`,
+`questionCount`, `difficultyMix`, `timingPolicy` (only the unit kinds implied by `type` — validate
+with the same per-used-kind rule `PATCH /api/admin/quizzes/:id` already applies), `slackSec`,
+`joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap` and `rrule` (the minimal RRULE subset
+resolved for Sprint 7, QUIZZING.md §4.2 — no `COUNT`/`UNTIL`). Reject any other field. There is no
+draw dry-run against current bank counts on create or edit (QUIZZING.md §4.4); pool exhaustion is
+still only surfaced by the existing hourly `materializeTemplates` failure/alert path, unchanged.
+
+An edit to an active template affects only its future materializations — quizzes already produced
+from it keep their own already-persisted units/questions/timing and are never rewritten. There is
+no hard delete: `POST /:id/deactivate` only flips `active` to 0, which `getActiveTemplates` already
+excludes from materialization; `quizzes.template_id` continues to reference the row.
 
 ## QUIZZING — the run (QUIZZING.md §5)
 
@@ -286,10 +327,11 @@ aggregates the schema can already produce.
 
 ## Route inventory and revision
 
-29 routes: AUTH 5, BANK 8, QUIZZING 16 (creation 6, run 5, results 4, report 1).
+33 routes: AUTH 5, BANK 8, QUIZZING 20 (creation 6, templates 4, run 5, results 4, report 1).
 This revision removes per-question answer/skip/timeout routes and adds one unit-submit route.
 The source of exact type bodies is `src/core/api.ts`; module types are `src/core/contracts.ts`.
 Existing sprint packet route/type references are stale and intentionally not edited yet.
+Template CRUD (QUIZZING.md §4.4) was resolved and added to this inventory on 2026-09-12.
 
 Admin report unit aggregates provide completedCount, timedOutCount and avgElapsedMs per unit.
 Participant rows include unansweredCount and server-measured total unit time.
