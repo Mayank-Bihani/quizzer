@@ -193,7 +193,13 @@ button{font-family:inherit}
 
 /* ---------- 12. app shell — admin (app-shell-admin A) ----------------- */
 .adm{min-height:100dvh;display:grid;grid-template-rows:auto 1fr}
-.adm__bar{display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-4) var(--gutter-mobile);background:var(--glass-bg-strong);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--border-1)}
+/* position+z-index here isn't cosmetic: .card below has backdrop-filter too, which makes it form
+   its own stacking context even though it's plain-flow. Without an explicit position+z-index of
+   its own, .adm__bar's stacking context sits at the implicit z-index:auto tier and loses to .card
+   purely by DOM order (.card comes later in .adm__main) — dragging the admdrawer .menu nested
+   inside it (z-index:30) down with it, since a child's z-index only ever wins ties against
+   siblings within the same stacking context. */
+.adm__bar{position:relative;z-index:30;display:flex;align-items:center;gap:var(--sp-5);padding:var(--sp-4) var(--gutter-mobile);background:var(--glass-bg-strong);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border-bottom:1px solid var(--border-1)}
 .adm__side{display:none;background:var(--glass-bg);border-right:1px solid var(--border-1);padding:var(--sp-5) var(--sp-4);flex-direction:column;gap:2px}
 .adm__side a{font:var(--type-body-sm);color:var(--text-2);text-decoration:none;padding:8px 10px;border-radius:var(--r-sm);display:block;min-height:var(--tap-min);display:flex;align-items:center}
 .adm__side a.on{background:var(--accent-50);color:var(--accent-700);font-weight:var(--fw-medium)}
@@ -949,24 +955,28 @@ a.hrow:hover{border-color:var(--border-2);box-shadow:var(--elev-1);color:inherit
    MOCKUP_PROMPT's reflow/relayout table requires "Admin navigation: Drawer
    (rare, but must not break)" below 900px, but `.adm__side{display:none}`
    below 900 (§12) is the entire mobile story S0 shipped — no drawer, no
-   trigger, nothing to tap. Built here as a real, zero-JS disclosure: native
-   `<details>/<summary>` (rule 3 bars JS-driven component behaviour, but a
-   native HTML disclosure widget is not JS and needs none). Reuses `.menu`
-   (§24) for the link list rather than inventing a second dropdown shape.
-   Hidden entirely at >=900px, where the persistent `.adm__side` takes over —
-   the two are mutually exclusive, never both visible. See SYSTEM-GAPS #32. */
+   trigger, nothing to tap. Controlled by React state (Shells.tsx) rather
+   than a native <details> disclosure: navigating away needs to close the
+   drawer (route change never unmounts AdminShell), and a real scrim +
+   scroll-lock needs JS regardless — a zero-JS disclosure can't do either.
+   Reuses `.menu` (§24) for the link list rather than inventing a second
+   dropdown shape. Hidden entirely at >=900px, where the persistent
+   `.adm__side` takes over — the two are mutually exclusive, never both
+   visible. See SYSTEM-GAPS #32. */
 .admdrawer{position:relative}
-.admdrawer>summary{
-  list-style:none;cursor:pointer;
+.admdrawer__trigger{
+  list-style:none;cursor:pointer;border:0;background:none;
   display:inline-flex;align-items:center;justify-content:center;
   width:var(--tap-min);height:var(--tap-min);border-radius:var(--r-md);
   font-size:var(--fs-18);color:var(--text-1);
 }
-.admdrawer>summary::-webkit-details-marker{display:none}
-.admdrawer>summary::marker{content:""}
-.admdrawer:hover>summary,.admdrawer[open]>summary{background:var(--surface-subtle)}
-.admdrawer>summary:focus-visible{outline:0;box-shadow:var(--focus-ring)}
-.admdrawer .menu{position:absolute;top:calc(100% + var(--sp-2));left:0;z-index:30;min-width:200px;background:var(--surface-raised)}
+.admdrawer__trigger:hover,.admdrawer__trigger[aria-expanded="true"]{background:var(--surface-subtle)}
+.admdrawer__trigger:focus-visible{outline:0;box-shadow:var(--focus-ring)}
+.admdrawer .menu{position:absolute;top:calc(100% + var(--sp-2));left:0;z-index:30;min-width:200px;max-height:calc(100dvh - 80px);overflow-y:auto;background:var(--surface-raised)}
+/* Portaled to <body> (Shells.tsx) so it isn't clipped to .adm__bar's box by the backdrop-filter
+   containing-block quirk that position:fixed descendants of a backdrop-filter ancestor hit. Sits
+   below .menu/.adm__bar's z-index:30 so the header and open menu stay interactive above the dim. */
+.admdrawer__scrim{position:fixed;inset:0;z-index:25;background:var(--scrim);backdrop-filter:blur(var(--scrim-blur));-webkit-backdrop-filter:blur(var(--scrim-blur));border:0;padding:0;cursor:default}
 @media (min-width:900px){
   .admdrawer{display:none}
 }
