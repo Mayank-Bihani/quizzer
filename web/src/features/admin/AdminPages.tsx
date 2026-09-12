@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { Fragment, useMemo, useState, type FormEvent } from "react";
 import {
   Link,
   useNavigate,
@@ -40,9 +40,11 @@ import {
 } from "../../lib/format";
 import {
   derivedWindowSeconds,
+  groupIntoPickUnits,
   mixTotal,
   tallyByDifficulty,
   toggleSelection,
+  type PickUnit,
 } from "./builder-state";
 import { TemplatesPanel } from "./TemplatesPanel";
 
@@ -1425,22 +1427,24 @@ function QuizPickStep({
   busy: boolean;
 }) {
   const [offset, setOffset] = useState(0);
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const resource = useResource(
-    () => api.questions({ type, used: false, limit: 25, offset }),
+    () => api.questions({ type, used: false, limit: 50, offset }),
     [type, offset],
   );
   const selectedIds = new Set(selected.map((question) => question.id));
   const tally = tallyByDifficulty(selected);
+  const units = resource.data ? groupIntoPickUnits(resource.data.items) : [];
+  const unitKindLabel = type === "verbal" ? "RC" : "LRDI";
 
-  const toggle = async (question: QuestionFull) => {
-    if (question.passageId === null) {
-      onToggleGroup([question]);
+  const toggleUnit = async (unit: PickUnit) => {
+    if (unit.passageId === null) {
+      onToggleGroup(unit.members);
       return;
     }
-    const group = await api.questions({
-      type,
-      passageId: question.passageId,
-    });
+    // Re-fetch the full group by passageId rather than trusting the current page's members —
+    // a group can straddle a page boundary, and this is what actually decides what gets locked.
+    const group = await api.questions({ type, passageId: unit.passageId });
     onToggleGroup(
       [...group.items].sort(
         (a, b) => (a.groupPosition ?? 0) - (b.groupPosition ?? 0),
@@ -1473,32 +1477,140 @@ function QuizPickStep({
                 <tr>
                   <th></th>
                   <th>Topic</th>
-                  <th>Diff</th>
-                  <th>Group</th>
+                  <th>Kind</th>
+                  <th>Difficulty</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
-                {resource.data.items.map((question) => (
-                  <tr key={question.id}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(question.id)}
-                        onChange={() => void toggle(question)}
-                        aria-label={`Select ${question.topic}`}
-                      />
-                    </td>
-                    <td>{question.topic}</td>
-                    <td>
-                      <span
-                        className={`badge sq ${difficultyBadgeClass[question.difficulty]}`}
-                      >
-                        {question.difficulty[0].toUpperCase()}
-                      </span>
-                    </td>
-                    <td>{question.passageId ? "Group" : "Standalone"}</td>
-                  </tr>
-                ))}
+                {units.map((unit) => {
+                  const representative = unit.members[0]!;
+                  const label =
+                    representative.passage?.title ?? representative.topic;
+                  const diffTally = tallyByDifficulty(unit.members);
+                  const checked = unit.members.every((question) =>
+                    selectedIds.has(question.id),
+                  );
+                  const expanded = expandedKey === unit.key;
+                  return (
+                    <Fragment key={unit.key}>
+                      <tr>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => void toggleUnit(unit)}
+                            aria-label={`Select ${label}`}
+                          />
+                        </td>
+                        <td>{label}</td>
+                        <td>
+                          {unit.passageId === null
+                            ? "Standalone"
+                            : `${unitKindLabel} · ${unit.members.length}Q`}
+                        </td>
+                        <td>
+                          {(["easy", "medium", "hard"] as const)
+                            .filter((difficulty) => diffTally[difficulty])
+                            .map((difficulty) => (
+                              <span
+                                key={difficulty}
+                                className={`badge sq ${difficultyBadgeClass[difficulty]}`}
+                              >
+                                {difficulty[0].toUpperCase()}
+                                {diffTally[difficulty]! > 1
+                                  ? `×${diffTally[difficulty]}`
+                                  : ""}
+                              </span>
+                            ))}
+                        </td>
+                        <td>
+                          <button
+                            className="btn sm ghost"
+                            type="button"
+                            aria-expanded={expanded}
+                            aria-label={
+                              expanded
+                                ? `Hide preview of ${label}`
+                                : `Preview ${label}`
+                            }
+                            onClick={() =>
+                              setExpandedKey(expanded ? null : unit.key)
+                            }
+                          >
+                            {expanded ? "▾" : "▸"}
+                          </button>
+                        </td>
+                      </tr>
+                      {expanded && (
+                        <tr>
+                          <td colSpan={5}>
+                            <div className="panel stack">
+                              {representative.passage && (
+                                <div className="stack">
+                                  <p className="tiny">
+                                    <MathText
+                                      text={representative.passage.bodyMd}
+                                    />
+                                  </p>
+                                  {representative.passage.imageUrl && (
+                                    <img
+                                      className="qfig"
+                                      src={representative.passage.imageUrl}
+                                      alt="Passage illustration"
+                                    />
+                                  )}
+                                </div>
+                              )}
+                              {unit.members.map((question) => (
+                                <div className="stack" key={question.id}>
+                                  <p>
+                                    <MathText text={question.bodyMd} />
+                                  </p>
+                                  {question.imageUrl && (
+                                    <img
+                                      className="qfig"
+                                      src={question.imageUrl}
+                                      alt="Question illustration"
+                                    />
+                                  )}
+                                  {question.format === "mcq" ? (
+                                    <ul className="tiny">
+                                      {(["A", "B", "C", "D"] as const).map(
+                                        (letter) => {
+                                          const value = {
+                                            A: question.optionA,
+                                            B: question.optionB,
+                                            C: question.optionC,
+                                            D: question.optionD,
+                                          }[letter];
+                                          return (
+                                            <li key={letter}>
+                                              {letter}. {value}
+                                              {question.correctOption ===
+                                              letter
+                                                ? " · correct"
+                                                : ""}
+                                            </li>
+                                          );
+                                        },
+                                      )}
+                                    </ul>
+                                  ) : (
+                                    <p className="tiny">
+                                      Correct answer: {question.numericAnswer}{" "}
+                                      ± {question.numericTolerance}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

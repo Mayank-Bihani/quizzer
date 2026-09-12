@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { QuestionFull, QuizUnitDefinition } from "../../../../src/core/contracts";
 import {
   derivedWindowSeconds,
+  groupIntoPickUnits,
   mixTotal,
   tallyByDifficulty,
   toggleSelection,
@@ -109,5 +110,37 @@ describe("toggleSelection", () => {
     expect(added.map((q) => q.id).sort()).toEqual(["s1", "s2"]);
     const removed = toggleSelection(added, [standalone]);
     expect(removed.map((q) => q.id)).toEqual(["s2"]);
+  });
+});
+
+describe("groupIntoPickUnits", () => {
+  it("collapses a flat page of group questions into one unit per passage", () => {
+    const page = [
+      question("g1", { passageId: "p1", groupPosition: 2 }),
+      question("s1"),
+      question("g2", { passageId: "p1", groupPosition: 1 }),
+      question("g3", { passageId: "p1", groupPosition: 3 }),
+    ];
+    const units = groupIntoPickUnits(page);
+    expect(units).toHaveLength(2);
+    const group = units.find((u) => u.passageId === "p1")!;
+    // Sorted by group_position regardless of the browse page's own order.
+    expect(group.members.map((q) => q.id)).toEqual(["g2", "g1", "g3"]);
+    const standalone = units.find((u) => u.passageId === null)!;
+    expect(standalone.members.map((q) => q.id)).toEqual(["s1"]);
+  });
+
+  it("keeps units in order of first appearance in the page", () => {
+    const page = [
+      question("s1"),
+      question("g1", { passageId: "p1", groupPosition: 1 }),
+      question("s2"),
+    ];
+    const units = groupIntoPickUnits(page);
+    expect(units.map((u) => u.key)).toEqual(["s1", "p1", "s2"]);
+  });
+
+  it("returns an empty list for an empty page", () => {
+    expect(groupIntoPickUnits([])).toEqual([]);
   });
 });

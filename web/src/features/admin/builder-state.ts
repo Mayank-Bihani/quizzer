@@ -40,3 +40,35 @@ export function toggleSelection(
   const wasSelected = withoutGroup.length !== selected.length;
   return wasSelected ? withoutGroup : [...withoutGroup, ...group];
 }
+
+export type PickUnit = {
+  key: string;
+  passageId: string | null;
+  members: QuestionFull[]; // group_position order for a group; single element for a standalone
+};
+
+// Groups a browsed page of questions by passageId so the picker shows one row per RC/LRDI set —
+// exactly what a question setter picks — instead of one row per flat question. A group split
+// across two fetched pages appears as a partial-looking row on each; selection stays correct
+// regardless, since toggling a group re-fetches its full membership from the server.
+export function groupIntoPickUnits(questions: QuestionFull[]): PickUnit[] {
+  const units: PickUnit[] = [];
+  const byPassage = new Map<string, PickUnit>();
+  for (const question of questions) {
+    if (question.passageId === null) {
+      units.push({ key: question.id, passageId: null, members: [question] });
+      continue;
+    }
+    let unit = byPassage.get(question.passageId);
+    if (!unit) {
+      unit = { key: question.passageId, passageId: question.passageId, members: [] };
+      byPassage.set(question.passageId, unit);
+      units.push(unit);
+    }
+    unit.members.push(question);
+  }
+  for (const unit of units) {
+    unit.members.sort((a, b) => (a.groupPosition ?? 0) - (b.groupPosition ?? 0));
+  }
+  return units;
+}
