@@ -4,10 +4,12 @@
 import { Hono } from "hono"
 import type { Context } from "hono"
 import type { Bindings, Variables } from "../core/config"
-import { DEFAULT_PAGE_LIMIT, MAX_PAGE_LIMIT } from "../core/config"
+import { DEFAULT_PAGE_LIMIT, MATERIALIZE_LOOKAHEAD_DAYS, MAX_PAGE_LIMIT } from "../core/config"
 import type { Difficulty, QuizType, UnitKind } from "../core/contracts"
-import type { CreateTemplateRequest, ListTemplatesResponse, UpdateTemplateRequest } from "../core/api"
+import type { CreateTemplateRequest, ListTemplatesResponse, MaterializeTemplatesNowResponse, UpdateTemplateRequest } from "../core/api"
 import { createTemplate, deactivateTemplate, listTemplates, patchTemplate, type TemplateDeps } from "../services/templates"
+import { materializeTemplates } from "../services/quiz-materializer"
+import { createBankContract } from "../db/bank"
 import { currentUser, requireRole } from "../middleware/auth"
 
 type Env = { Bindings: Bindings; Variables: Variables }
@@ -54,7 +56,8 @@ function checkTimingPolicy(value: unknown): string | null {
 const TEMPLATE_FIELDS = [
   "name",
   "type",
-  "questionCount",
+  "setCount",
+  "standaloneCount",
   "difficultyMix",
   "timingPolicy",
   "slackSec",
@@ -64,6 +67,14 @@ const TEMPLATE_FIELDS = [
   "seatCap",
   "rrule",
 ] as const
+
+// setCount/standaloneCount are type-conditional (lr has no standaloneCount; quant has no setCount)
+// — unlike every other field, `null` is how the irrelevant one is expressed, both at create (where
+// every field key must still be present) and at patch (where every other field's null is rejected).
+function checkOptionalCount(value: unknown, label: string): string | null {
+  if (value === null || typeof value === "number") return null
+  return `Invalid ${label}`
+}
 
 templates.get("/", async (c) => {
   const limitRaw = parsePaginationParam(c.req.query("limit"), DEFAULT_PAGE_LIMIT)
@@ -84,7 +95,10 @@ function validateCreateBody(body: unknown): string | null {
 
   if (typeof body.name !== "string" || body.name.trim().length === 0) return "Invalid name"
   if (typeof body.type !== "string" || !VALID_TYPES.includes(body.type as QuizType)) return "Invalid type"
-  if (typeof body.questionCount !== "number") return "Invalid questionCount"
+  const setCountError = checkOptionalCount(body.setCount, "setCount")
+  if (setCountError) return setCountError
+  const standaloneCountError = checkOptionalCount(body.standaloneCount, "standaloneCount")
+  if (standaloneCountError) return standaloneCountError
   const mixError = checkDifficultyMix(body.difficultyMix)
   if (mixError) return mixError
   const policyError = checkTimingPolicy(body.timingPolicy)
@@ -111,16 +125,42 @@ templates.post("/", async (c) => {
   return c.json(result.summary, 200)
 })
 
+// Runs the same draw the hourly cron tick runs (src/index.ts's HOURLY_CRON branch), on demand.
+// Cloudflare Cron Triggers never fire under `wrangler dev` (no local `scheduled()` invocation
+// exists short of `--test-scheduled` + manually curling `/__scheduled`), so without this route an
+// admin testing locally has no way to see a template turn into a quiz. Doubles as a production
+// escape hatch if an admin doesn't want to wait for the next hourly tick.
+templates.post("/materialize-now", async (c) => {
+  const result = await materializeTemplates(
+    { db: c.env.DB, bank: createBankContract(c.env.DB), random: () => Math.random() },
+    MATERIALIZE_LOOKAHEAD_DAYS,
+    Date.now()
+  )
+  const body: MaterializeTemplatesNowResponse = { created: result.quizIds.length, failed: result.failures.length, failures: result.failures }
+  return c.json(body, 200)
+})
+
 function validatePatchBody(body: unknown): string | null {
   if (!isPlainObject(body)) return "Invalid request body"
   const keys = Object.keys(body)
   if (keys.length === 0) return "Request body must not be empty"
   if (keys.some((k) => !TEMPLATE_FIELDS.includes(k as (typeof TEMPLATE_FIELDS)[number]))) return "Unknown field"
-  if (keys.some((k) => body[k] === null)) return "Null is not a valid value for any field"
+  // setCount/standaloneCount are the one pair where null is meaningful (the irrelevant one for the
+  // effective type) rather than a universally-invalid value.
+  if (keys.some((k) => body[k] === null && k !== "setCount" && k !== "standaloneCount")) {
+    return "Null is not a valid value for any field"
+  }
 
   if ("name" in body && typeof body.name !== "string") return "Invalid name"
   if ("type" in body && (typeof body.type !== "string" || !VALID_TYPES.includes(body.type as QuizType))) return "Invalid type"
-  if ("questionCount" in body && typeof body.questionCount !== "number") return "Invalid questionCount"
+  if ("setCount" in body) {
+    const setCountError = checkOptionalCount(body.setCount, "setCount")
+    if (setCountError) return setCountError
+  }
+  if ("standaloneCount" in body) {
+    const standaloneCountError = checkOptionalCount(body.standaloneCount, "standaloneCount")
+    if (standaloneCountError) return standaloneCountError
+  }
   if ("difficultyMix" in body) {
     const mixError = checkDifficultyMix(body.difficultyMix)
     if (mixError) return mixError

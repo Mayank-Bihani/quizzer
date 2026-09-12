@@ -55,11 +55,31 @@ export type QuestionFull = {
   passage: PassageContent | null
 }
 
+// The bank-query shape for listUnused: `count`/`difficultyMix` describe the STANDALONE portion of
+// a draw only (0/{} when nothing standalone is requested, e.g. a pure-lr draw). Whole rc/lrdi
+// groups are always fetched by BANK regardless of these fields — a group is never filtered by
+// difficulty, since its members keep whatever difficulty they were authored with (BANK.md).
 export type SelectionFilters = {
   type: QuizType
   difficultyMix: Partial<Record<Difficulty, number>>
-  count: number // graded questions, not timed units
+  count: number // standalone graded questions, not timed units
 }
+
+// What an auto-draw actually asks BANK/the selector for — QUIZZING.md §4. `count` continues to
+// mean graded questions for quant, which never groups in practice. lr is always fully grouped, so
+// its request is "N whole lrdi sets", not a question count. verbal mixes standalone VA questions
+// with RC passages, so it carries both a set count (RC passages) and a standalone count/mix (VA
+// questions) — asking for "1" no longer means "grab any single question", it means "1 of whichever
+// kind you actually asked for".
+export type DrawRequest =
+  | { type: 'quant'; count: number; difficultyMix: Partial<Record<Difficulty, number>> }
+  | { type: 'lr'; setCount: number }
+  | {
+      type: 'verbal'
+      setCount: number // RC passages
+      standaloneCount: number // standalone VA questions; may be 0
+      standaloneDifficultyMix: Partial<Record<Difficulty, number>>
+    }
 
 export interface BankContract {
   listUnused(filters: SelectionFilters): Promise<QuestionFull[]>

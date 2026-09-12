@@ -151,8 +151,13 @@ Creation returns flat `QuestionFull[]` for admin inspection **and** `QuizUnitDef
 with unit position, kind, member question positions and allowance. Report `questionCount` and
 `unitCount` separately. The admin list includes definitions so a draft can be resumed.
 
-`CreateQuizDraftRequest` remains selection filters plus title/scheduledAt and accepts at most 100
-graded questions. Its response is draft state, quizId, counts, questions and units. The first lock
+`CreateQuizDraftRequest` is a `DrawRequest` (discriminated on `type`) plus title/scheduledAt,
+revised 2026-09-12 (QUIZZING.md §4): quant carries `count`/`difficultyMix` as before; lr carries a
+whole-set `setCount` only (a count for lr always means LRDI sets, never individual questions); verbal
+carries `setCount` (RC passages) and `standaloneCount`/`standaloneDifficultyMix` (VA questions) as
+two independent asks, so a request for RC passages can never be silently filled by a standalone VA
+question or vice versa. The resulting actual total is capped at 100 graded questions regardless of
+type. Its response is draft state, quizId, counts, questions and units. The first lock
 attempt durably reserves the sequential quiz number needed by BANK, but draft responses continue
 to expose `quizNumber: null` until a room code is assigned and scheduling succeeds. Sequence gaps
 from abandoned reservations are accepted. `claimUnused` is idempotent for content already owned
@@ -162,7 +167,8 @@ A true short retirement claim returns `{locked:false,requestedCount,claimedCount
 **Manual selection mode (Sprint 10, resolved 2026-09-12, QUIZZING.md §4.5):**
 `CreateQuizDraftRequest` is now a discriminated union on an optional `mode: 'auto' | 'manual'`
 (default `'auto'`, the unchanged existing shape). `mode: 'manual'` instead takes
-`{ title, scheduledAt, type, questionIds: string[] }` — no `difficultyMix`/`count` — and the route
+`{ title, scheduledAt, type, questionIds: string[] }` — no `DrawRequest` fields (`count`,
+`difficultyMix`, `setCount`, `standaloneCount`, `standaloneDifficultyMix`) — and the route
 rejects a request that mixes fields from the wrong branch (e.g. `difficultyMix` sent alongside
 `mode: 'manual'`, or `questionIds` sent with `mode: 'auto'`/omitted). `questionCount`/`difficultyMix`
 on the resulting `quizzes` row are derived server-side from the validated selection, never accepted
@@ -187,10 +193,14 @@ wrong marks <=0, finite numeric values and cap <=120. Settings freeze once statu
 | `POST` | `/api/admin/templates` | `CreateTemplateRequest` | `CreateTemplateResponse` | 400, 403 |
 | `PATCH` | `/api/admin/templates/:id` | `UpdateTemplateRequest` | `UpdateTemplateResponse` | 400, 403, 404 |
 | `POST` | `/api/admin/templates/:id/deactivate` | — (no body) | `DeactivateTemplateResponse` | 403, 404, 409 (already inactive) |
+| `POST` | `/api/admin/templates/materialize-now` | — (no body) | `MaterializeTemplatesNowResponse` | 403 |
 
 `ListTemplatesRequest`/`Response` follow the same `PageRequest`/`PageResponse<T>` convention as
 `GET /api/admin/quizzes`. `CreateTemplateRequest`/`UpdateTemplateRequest` accept `name`, `type`,
-`questionCount`, `difficultyMix`, `timingPolicy` (only the unit kinds implied by `type` — validate
+`setCount`/`standaloneCount` (type-conditional, revised 2026-09-12 — QUIZZING.md §4: `null` for
+whichever half doesn't apply to `type`; quant sets `standaloneCount` only, lr sets `setCount` only,
+verbal sets both, each independently), `difficultyMix` (scopes `standaloneCount` only),
+`timingPolicy` (only the unit kinds implied by `type` — validate
 with the same per-used-kind rule `PATCH /api/admin/quizzes/:id` already applies), `slackSec`,
 `joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap` and `rrule` (the minimal RRULE subset
 resolved for Sprint 7, QUIZZING.md §4.2 — no `COUNT`/`UNTIL`). Reject any other field. There is no
@@ -201,6 +211,13 @@ An edit to an active template affects only its future materializations — quizz
 from it keep their own already-persisted units/questions/timing and are never rewritten. There is
 no hard delete: `POST /:id/deactivate` only flips `active` to 0, which `getActiveTemplates` already
 excludes from materialization; `quizzes.template_id` continues to reference the row.
+
+`POST /materialize-now` runs the same draw the hourly `HOURLY_CRON` tick runs
+(`src/services/quiz-materializer.ts`'s `materializeTemplates`), on demand. Cloudflare Cron Triggers
+never fire under `wrangler dev` (local dev has no equivalent of the scheduled Worker invocation
+short of `--test-scheduled` + manually curling `/__scheduled`), so this is the only way to see a
+template turn into a quiz without deploying; it also gives production admins a way to materialize a
+due occurrence without waiting for the next hourly tick.
 
 ## QUIZZING — the run (QUIZZING.md §5)
 
@@ -343,7 +360,7 @@ aggregates the schema can already produce.
 
 ## Route inventory and revision
 
-35 routes: AUTH 5, BANK 8, QUIZZING 21 (creation 6, templates 4, run 6, results 5, report 1).
+36 routes: AUTH 5, BANK 8, QUIZZING 22 (creation 6, templates 5, run 6, results 5, report 1).
 This revision removes per-question answer/skip/timeout routes and adds one unit-submit route.
 The source of exact type bodies is `src/core/api.ts`; module types are `src/core/contracts.ts`.
 Existing sprint packet route/type references are stale and intentionally not edited yet.

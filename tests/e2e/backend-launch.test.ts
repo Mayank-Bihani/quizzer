@@ -322,9 +322,11 @@ describe("AC-14: API-driven backend launch journey", () => {
     // instance of any given weekday.
     const rrule = "FREQ=WEEKLY;BYDAY=MO;BYHOUR=10;BYMINUTE=0"
     async function insertTemplate(name: string, questionCount: number, timingPolicy: Record<string, number>): Promise<void> {
+      // quant's request lives in standalone_count (set_count is null) — src/core/selection.ts's
+      // toStoredDrawRequest.
       await env.DB.prepare(
-        `INSERT INTO quiz_templates (id, name, type, question_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
-         VALUES (?, ?, 'quant', ?, ?, ?, 30, 600, 4, -1, 120, ?, 1, ?)`
+        `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
+         VALUES (?, ?, 'quant', NULL, ?, ?, ?, 30, 600, 4, -1, 120, ?, 1, ?)`
       )
         .bind(crypto.randomUUID(), name, questionCount, JSON.stringify({ easy: questionCount }), JSON.stringify(timingPolicy), rrule, adminId)
         .run()

@@ -3,8 +3,9 @@
 // reserve/claim/publish primitive — SCHEDULER.md §4.2; QUIZZING.md §7.
 
 import type { BankContract, MaterializationFailure, MaterializeResult, QuizUnitDefinition, UnitKind } from "../core/contracts"
+import { MATERIALIZE_LOOKBACK_MS, MAX_GRADED_QUESTION_COUNT } from "../core/config"
 import { expandRrule } from "../core/schedule"
-import { selectExactDraw } from "../core/selection"
+import { fromStoredDrawRequest, selectDraw, toBankFilters } from "../core/selection"
 import { applySettingsUpdate, deleteUnpublishedDraft, getActiveTemplates, insertDraft, occurrenceExists, type TemplateRow } from "../db/quizzes"
 import { reserveClaimAndPublish } from "./quiz-creation"
 
@@ -25,9 +26,20 @@ async function materializeOccurrence(
   scheduledAt: number,
   now: number
 ): Promise<{ quizId: string } | { failure: MaterializationFailure }> {
-  const candidates = await deps.bank.listUnused({ type: template.type, difficultyMix: template.difficultyMix, count: template.questionCount })
-  const draw = selectExactDraw(candidates, template.difficultyMix, template.questionCount, deps.random)
+  const request = fromStoredDrawRequest(template.type, {
+    setCount: template.setCount,
+    standaloneCount: template.standaloneCount,
+    difficultyMix: template.difficultyMix,
+  })
+  const candidates = await deps.bank.listUnused(toBankFilters(request))
+  const draw = selectDraw(candidates, request, deps.random)
   if (!draw.ok) {
+    return { failure: { templateId: template.id, scheduledAt, code: "pool_exhausted" } }
+  }
+  // A set-based draw's actual size isn't bounded up front (units vary 4-5 questions each), so a
+  // setCount that looked fine at template-creation time can still overflow quizzes.question_count's
+  // <= 100 CHECK on a given occurrence — fail that occurrence cleanly rather than let it throw.
+  if (draw.questions.length > MAX_GRADED_QUESTION_COUNT) {
     return { failure: { templateId: template.id, scheduledAt, code: "pool_exhausted" } }
   }
 
@@ -43,7 +55,11 @@ async function materializeOccurrence(
     title: template.name,
     type: template.type,
     scheduledAt,
-    questionCount: template.questionCount,
+    // The actual resulting total, not the request — a set-based draw's size varies (units are 4-5
+    // questions each), same reasoning as quiz-creation.ts's createAutoDraft.
+    questionCount: draw.questions.length,
+    setCount: template.setCount,
+    standaloneCount: template.standaloneCount,
     difficultyMix: template.difficultyMix,
     createdBy: template.createdBy,
     createdAt: now,
@@ -84,7 +100,9 @@ export async function materializeTemplates(deps: MaterializerDeps, days: number,
   const failures: MaterializationFailure[] = []
 
   for (const template of templates) {
-    const expansion = expandRrule(template.rrule, now, now + days * 24 * 60 * 60 * 1000)
+    // See MATERIALIZE_LOOKBACK_MS: looks slightly behind `now`, not just ahead, so an occurrence
+    // that fell due since the last tick is still caught instead of silently skipped forever.
+    const expansion = expandRrule(template.rrule, now - MATERIALIZE_LOOKBACK_MS, now + days * 24 * 60 * 60 * 1000)
     if (!expansion.ok) continue // an invalid seeded rrule has no safe failure code to report — skip, never guess
 
     for (const scheduledAt of expansion.timestampsMs) {

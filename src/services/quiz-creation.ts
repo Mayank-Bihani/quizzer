@@ -2,7 +2,7 @@
 // plus draft/reshuffle/settings/cancel orchestration over the pure selector, the QUIZZING
 // repository, and the injected BankContract — QUIZZING.md §4.
 
-import type { BankContract, CancelledPayload, Difficulty, QuizType, TimingPolicy } from "../core/contracts"
+import type { BankContract, CancelledPayload, Difficulty, DrawRequest, QuizType, TimingPolicy } from "../core/contracts"
 import type {
   CreateQuizDraftResponse,
   LockQuizResponse,
@@ -10,8 +10,21 @@ import type {
   ReshuffleQuizResponse,
   UpdateQuizParamsRequest,
 } from "../core/api"
-import { MAX_SEAT_CAP, ROOM_CODE_DIGIT_LENGTH, ROOM_CODE_MAX_COLLISION_RETRIES, ROOM_CODE_PREFIX_BY_TYPE } from "../core/config"
-import { buildManualDraw, selectExactDraw, type ManualDrawFailureReason } from "../core/selection"
+import {
+  MAX_GRADED_QUESTION_COUNT,
+  MAX_SEAT_CAP,
+  ROOM_CODE_DIGIT_LENGTH,
+  ROOM_CODE_MAX_COLLISION_RETRIES,
+  ROOM_CODE_PREFIX_BY_TYPE,
+} from "../core/config"
+import {
+  buildManualDraw,
+  fromStoredDrawRequest,
+  selectDraw,
+  toBankFilters,
+  toStoredDrawRequest,
+  type ManualDrawFailureReason,
+} from "../core/selection"
 import {
   applySettingsUpdate,
   cancelQuiz,
@@ -55,14 +68,7 @@ function generateRoomCode(type: QuizType, random: () => number): string {
 // ============================================================================
 
 export type CreateInput =
-  | {
-      mode: "auto"
-      title: string
-      scheduledAt: number
-      type: QuizType
-      difficultyMix: Partial<Record<Difficulty, number>>
-      count: number
-    }
+  | ({ mode: "auto"; title: string; scheduledAt: number } & DrawRequest)
   | {
       mode: "manual"
       title: string
@@ -80,18 +86,27 @@ async function createAutoDraft(
   adminId: string,
   input: Extract<CreateInput, { mode: "auto" }>
 ): Promise<CreateOutcome> {
-  const candidates = await deps.bank.listUnused({ type: input.type, difficultyMix: input.difficultyMix, count: input.count })
-  const draw = selectExactDraw(candidates, input.difficultyMix, input.count, deps.random)
+  const candidates = await deps.bank.listUnused(toBankFilters(input))
+  const draw = selectDraw(candidates, input, deps.random)
   if (!draw.ok) return { kind: "pool_exhausted" }
+  // A set-based request's actual size isn't bounded up front (units vary 4-5 questions each), so a
+  // setCount that looked fine at the route layer can still overflow quizzes.question_count's <= 100
+  // CHECK once whole units are drawn — reject cleanly here rather than let that constraint throw.
+  if (draw.questions.length > MAX_GRADED_QUESTION_COUNT) return { kind: "pool_exhausted" }
 
+  const stored = toStoredDrawRequest(input)
   const id = crypto.randomUUID()
   await insertDraft(deps.db, {
     id,
     title: input.title,
     type: input.type,
     scheduledAt: input.scheduledAt,
-    questionCount: input.count,
-    difficultyMix: input.difficultyMix,
+    // The actual resulting total, never the raw request — a set-based draw's size (lr, and
+    // verbal's RC portion) isn't knowable until the whole-unit draw completes (units vary 4-5).
+    questionCount: draw.questions.length,
+    setCount: stored.setCount,
+    standaloneCount: stored.standaloneCount,
+    difficultyMix: stored.difficultyMix,
     createdBy: adminId,
     createdAt: deps.now(),
     units: draw.units,
@@ -103,7 +118,7 @@ async function createAutoDraft(
     response: {
       quizId: id,
       status: "draft",
-      questionCount: input.count,
+      questionCount: draw.questions.length,
       unitCount: draw.units.length,
       units: draw.units,
       questions: draw.questions,
@@ -136,6 +151,8 @@ async function createManualDraft(
     type: input.type,
     scheduledAt: input.scheduledAt,
     questionCount: draw.questions.length,
+    setCount: null, // manual picks aren't expressed as a set/standalone request — reshuffle is
+    standaloneCount: null, // locked out for manual drafts, so these are never read back
     difficultyMix,
     createdBy: adminId,
     createdAt: deps.now(),
@@ -178,9 +195,17 @@ export async function reshuffleDraft(deps: CreationDeps, id: string): Promise<Re
   if (draft.status !== "draft") return { kind: "conflict" }
   if (draft.selectionMode === "manual") return { kind: "manual_locked" }
 
-  const candidates = await deps.bank.listUnused({ type: draft.type, difficultyMix: draft.difficultyMix, count: draft.questionCount })
-  const draw = selectExactDraw(candidates, draft.difficultyMix, draft.questionCount, deps.random)
+  const request = fromStoredDrawRequest(draft.type, {
+    setCount: draft.setCount,
+    standaloneCount: draft.standaloneCount,
+    difficultyMix: draft.difficultyMix,
+  })
+  const candidates = await deps.bank.listUnused(toBankFilters(request))
+  const draw = selectDraw(candidates, request, deps.random)
   if (!draw.ok) return { kind: "pool_exhausted" }
+  // A different combination of same-count sets can land on a different total (units vary 4-5
+  // questions each) — reject cleanly rather than let quizzes.question_count's <= 100 CHECK throw.
+  if (draw.questions.length > MAX_GRADED_QUESTION_COUNT) return { kind: "pool_exhausted" }
 
   // Reshuffle always discards prior overrides and reapplies the stored policy's defaults.
   const units = draw.units.map((u) => ({ ...u, timeLimitSec: draft.timingPolicy?.[u.kind] ?? null }))
@@ -188,7 +213,9 @@ export async function reshuffleDraft(deps: CreationDeps, id: string): Promise<Re
     units.map((u) => u.timeLimitSec),
     draft.slackSec
   )
-  await replaceMembership(deps.db, id, units, draw.questions.map((q) => q.id), windowSec)
+  // A set-based redraw's actual question total can differ from the prior draw (units vary 4-5
+  // questions each) even though the request (setCount/standaloneCount) is unchanged.
+  await replaceMembership(deps.db, id, units, draw.questions.map((q) => q.id), windowSec, draw.questions.length)
 
   return { kind: "ok", response: { questions: draw.questions, units, unitCount: units.length, windowSec } }
 }

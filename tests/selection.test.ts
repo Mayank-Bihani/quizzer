@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { buildManualDraw, selectExactDraw } from "../src/core/selection"
-import type { Difficulty, QuestionFull, QuizType } from "../src/core/contracts"
+import { buildManualDraw, selectDraw, selectExactDraw, selectSetCountDraw, selectVerbalDraw } from "../src/core/selection"
+import type { Difficulty, DrawRequest, QuestionFull, QuizType } from "../src/core/contracts"
 
 let nextId = 0
 function freshId(): string {
@@ -374,5 +374,125 @@ describe("selectExactDraw — property test against a brute-force oracle", () =>
         }
       }
     }
+  })
+})
+
+// Regression coverage for the bug this module's set-based functions fix: an LRDI/VARC request of
+// "1" used to mean "1 graded question" (failing outright for lr, or silently grabbing a lone
+// standalone VA question for verbal) instead of "1 whole set".
+describe("selectSetCountDraw — lr is always whole sets, never individual questions", () => {
+  it("setCount=1 draws exactly one whole 4-question lrdi group", () => {
+    const g = group("lr", ["easy", "medium", "hard", "hard"])
+    const result = selectSetCountDraw(g, "lrdi", 1, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(4)
+    expect(result.units).toHaveLength(1)
+    expect(result.units[0]).toMatchObject({ kind: "lrdi", questionPositions: [1, 2, 3, 4] })
+  })
+
+  it("fails rather than returning a partial set when no whole group exists", () => {
+    const candidates = [standalone("lr", "easy")] // a stray standalone must never satisfy a set request
+    const result = selectSetCountDraw(candidates, "lrdi", 1, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+
+  it("fails when fewer sets exist than requested", () => {
+    const g = group("lr", ["easy", "easy", "easy", "easy"])
+    const result = selectSetCountDraw(g, "lrdi", 2, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+
+  it("draws multiple whole sets without merging or splitting them", () => {
+    const g1 = group("lr", ["easy", "easy", "easy", "easy"])
+    const g2 = group("lr", ["hard", "hard", "hard", "hard", "hard"])
+    const result = selectSetCountDraw([...g1, ...g2], "lrdi", 2, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(9)
+    expect(result.units).toHaveLength(2)
+    expect(result.units.map((u) => u.questionPositions.length).sort()).toEqual([4, 5])
+  })
+
+  it("rejects setCount <= 0", () => {
+    const g = group("lr", ["easy", "easy", "easy", "easy"])
+    expect(selectSetCountDraw(g, "lrdi", 0, NO_RANDOM).ok).toBe(false)
+  })
+})
+
+describe("selectVerbalDraw — RC passages and standalone VA questions are independent asks", () => {
+  it("rcSetCount=1, standaloneCount=0 draws the whole RC passage, never a standalone instead", () => {
+    const rc = group("verbal", ["easy", "easy", "medium", "medium"])
+    const va = [standalone("verbal", "easy"), standalone("verbal", "medium")]
+    const result = selectVerbalDraw([...rc, ...va], 1, {}, 0, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.units).toHaveLength(1)
+    expect(result.units[0]).toMatchObject({ kind: "rc" })
+    expect(result.questions).toHaveLength(4)
+  })
+
+  it("rcSetCount=0, standaloneCount=1 draws exactly one standalone, never a whole passage instead", () => {
+    const rc = group("verbal", ["easy", "easy", "medium", "medium"])
+    const va = [standalone("verbal", "easy")]
+    const result = selectVerbalDraw([...rc, ...va], 0, {}, 1, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.units).toHaveLength(1)
+    expect(result.units[0]).toMatchObject({ kind: "standalone" })
+    expect(result.questions).toHaveLength(1)
+  })
+
+  it("combines a whole RC passage with standalone VA questions matching a difficulty mix", () => {
+    const rc = group("verbal", ["easy", "easy", "medium", "medium"])
+    const va = [standalone("verbal", "hard"), standalone("verbal", "hard")]
+    const result = selectVerbalDraw([...rc, ...va], 1, { hard: 2 }, 2, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(6)
+    expect(result.units).toHaveLength(3) // 1 rc unit + 2 standalone units
+    expect(result.units.filter((u) => u.kind === "rc")).toHaveLength(1)
+    expect(result.units.filter((u) => u.kind === "standalone")).toHaveLength(2)
+  })
+
+  it("fails when fewer RC passages exist than requested, even if standalones could fill the gap", () => {
+    const va = Array.from({ length: 4 }, () => standalone("verbal", "easy"))
+    const result = selectVerbalDraw(va, 1, {}, 0, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+
+  it("rejects rcSetCount=0 and standaloneCount=0 together", () => {
+    const rc = group("verbal", ["easy", "easy", "medium", "medium"])
+    const result = selectVerbalDraw(rc, 0, {}, 0, NO_RANDOM)
+    expect(result.ok).toBe(false)
+  })
+})
+
+describe("selectDraw — dispatches by DrawRequest.type", () => {
+  it("quant delegates to the exact-vector draw", () => {
+    const candidates = [standalone("quant", "easy"), standalone("quant", "easy")]
+    const request: DrawRequest = { type: "quant", count: 2, difficultyMix: { easy: 2 } }
+    const result = selectDraw(candidates, request, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.questions).toHaveLength(2)
+  })
+
+  it("lr delegates to the whole-set draw", () => {
+    const g = group("lr", ["easy", "easy", "easy", "easy"])
+    const request: DrawRequest = { type: "lr", setCount: 1 }
+    const result = selectDraw(g, request, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.units[0]?.kind).toBe("lrdi")
+  })
+
+  it("verbal delegates to the mixed rc/standalone draw", () => {
+    const rc = group("verbal", ["easy", "easy", "medium", "medium"])
+    const request: DrawRequest = { type: "verbal", setCount: 1, standaloneCount: 0, standaloneDifficultyMix: {} }
+    const result = selectDraw(rc, request, NO_RANDOM)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.units[0]?.kind).toBe("rc")
   })
 })

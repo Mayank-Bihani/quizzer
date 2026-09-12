@@ -44,11 +44,25 @@ SCORE-2 is reserved for V2; no speed bonus or scoring grace window exists in V1.
 | POST | `/api/admin/quizzes/:id/lock` | Validate complete settings, retire content and assign room identity |
 | POST | `/api/admin/quizzes/:id/cancel` | Cancel a draft/scheduled/open quiz; never return content to the pool |
 
-`SelectionFilters.count` and difficulty counts refer to **graded questions**. Every complete
-RC/LRDI group is one timed unit, and every standalone question is one timed unit. A draw with
-one four-question RC group and two standalones has six questions and three timed units.
-Maintain flat integer `position` for answer identity, `unit_position` for ordering and
+Every complete RC/LRDI group is one timed unit, and every standalone question is one timed unit.
+A draw with one four-question RC group and two standalones has six questions and three timed
+units. Maintain flat integer `position` for answer identity, `unit_position` for ordering and
 `sub_position` within the unit. Display the example as `1.1`..`1.4`, `2`, `3`; never decimal IDs.
+
+The auto-draw request shape is `DrawRequest` (revised 2026-09-12), discriminated by `type`, because
+a flat graded-question `count` cannot express "1" meaning "1 set" for a fully-grouped section: a
+quant request still asks for an exact standalone `count`/`difficultyMix`. An lr request asks for a
+whole-set `setCount` only — lr is always fully grouped, so a count of 1 always means one complete
+4–5-question LRDI set, never a single question (the request that used to fail outright, since no
+1-question lrdi group exists). A verbal request asks for `setCount` (RC passages) and
+`standaloneCount`/`standaloneDifficultyMix` (VA questions) independently — asking for 1 RC passage
+can never be silently satisfied by grabbing a lone standalone VA question instead, and vice versa.
+`difficultyMix` scopes the standalone portion only; a set's members keep whatever difficulty they
+were authored with, since BANK's `passages` carry no difficulty of their own. The persisted request
+(`setCount`/`standaloneCount`/`difficultyMix`) is distinct from the actual draw result
+(`questionCount`/`unitCount`): a set-based draw's real size varies occurrence to occurrence since
+sets are 4–5 questions each, so reshuffle/materialization always recompute the actual totals fresh
+from whatever units the redraw lands on, never assume they match the prior draw.
 
 The existing bank `passages` structure represents both RC passages and LRDI shared material.
 A grouped verbal question belongs to an `rc` unit; grouped quant/lr questions to an `lrdi` unit.
@@ -57,9 +71,11 @@ and in bank `group_position` order. The units themselves have the same order for
 
 Creation sequence:
 
-1. Store title, scheduled time, section, graded question count (maximum 100) and difficulty mix in a draft.
-2. Draw whole unused groups plus standalones to satisfy the count. Fail loudly on insufficient
-   supply or impossible composition; no partial draw and no reuse.
+1. Store title, scheduled time, section and the `DrawRequest` (set/standalone counts, maximum 100
+   each, and a standalone-only difficulty mix) in a draft.
+2. Draw whole unused groups and/or standalones to satisfy the request. Fail loudly on insufficient
+   supply, impossible composition, or a resulting total over 100 graded questions; no partial draw
+   and no reuse.
 3. Return full admin question content plus explicit unit definitions/counts for preview.
 4. Configure `timingPolicy` (seconds by `standalone`/`rc`/`lrdi`), optional per-unit overrides,
    `slackSec`, `joinWindowSec`, `marksCorrect`, `marksWrong`, and seat cap (maximum 120).
@@ -102,8 +118,10 @@ hard delete — `quizzes.template_id` references a template row indefinitely, so
 orphan history. Deactivation only flips `active = 0`, which `materializeTemplates` already excludes
 (`getActiveTemplates` filters `active = 1`); already-materialized quizzes are untouched.
 
-A template's fields mirror a manual quiz definition: `name`, `type`, `questionCount`,
-`difficultyMix`, `timingPolicy` (only the unit kinds implied by `type`, matching the same
+A template's fields mirror an auto-draw quiz definition: `name`, `type`, `setCount`/
+`standaloneCount` (type-conditional `DrawRequest` fields — §4 above — `null` for whichever half
+doesn't apply), `difficultyMix` (scopes `standaloneCount` only), `timingPolicy` (only the unit
+kinds implied by `type`, matching the same
 per-used-kind validation `patchSettings` already applies to manual quizzes), `slackSec`,
 `joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap`, and `rrule` (the same minimal RRULE
 subset resolved for Sprint 7 above). Reject a body outside these fields the same way manual
@@ -121,8 +139,8 @@ alert path (Telegram + email, §7) is the sole failure signal and is unchanged b
 ### 4.5 Manual question selection (resolved 2026-09-12)
 
 `POST /api/admin/quizzes` accepts an optional `mode: 'auto' | 'manual'` (default `'auto'`).
-`'auto'` is the existing draw-by-difficultyMix/count behavior, unchanged. `'manual'` lets the
-admin hand-pick exact `questionIds` instead: `difficultyMix`/`count` are not accepted with
+`'auto'` is the `DrawRequest`-driven draw described above (§4). `'manual'` lets the
+admin hand-pick exact `questionIds` instead: no `DrawRequest` field is accepted with
 `mode: 'manual'`, and `questionIds` is not accepted with `mode: 'auto'` (or omitted). A quiz's
 `selection_mode` is fixed at creation and stored on `quizzes` (`DEFAULT 'auto'`); it cannot be
 changed after creation, and reshuffling a `'manual'` draft is rejected (409, `manual_locked`) —

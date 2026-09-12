@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import type {
   AdminReportParticipantRow,
+  CreateQuizDraftRequest,
   CreateQuizDraftResponse,
   QuizAdminSummary,
   UpdateQuestionRequest,
@@ -872,6 +873,7 @@ export function QuizBuilderPage() {
   const [busy, setBusy] = useState(false);
   const [lockOpen, setLockOpen] = useState(false);
   const [defineMode, setDefineMode] = useState<"auto" | "manual">("auto");
+  const [defineType, setDefineType] = useState<QuizType | "">("");
   const [pickedQuestions, setPickedQuestions] = useState<QuestionFull[]>([]);
   const mode = builder?.mode ?? defineMode;
   const setAndSave = (next: BuilderSession) => {
@@ -892,33 +894,66 @@ export function QuizBuilderPage() {
       return;
     }
 
-    const difficultyMix: Partial<Record<Difficulty, number>> = {};
-    for (const difficulty of ["easy", "medium", "hard"] as const) {
-      const raw = form.get(difficulty);
-      // A blank field means "any difficulty" for that slice, not zero — only a difficulty the
-      // admin actually typed a value for becomes an explicit constraint.
-      if (raw !== null && String(raw).trim() !== "") {
-        difficultyMix[difficulty] = Number(raw);
+    const readDifficultyMix = (): Partial<Record<Difficulty, number>> => {
+      const mix: Partial<Record<Difficulty, number>> = {};
+      for (const difficulty of ["easy", "medium", "hard"] as const) {
+        const raw = form.get(difficulty);
+        // A blank field means "any difficulty" for that slice, not zero — only a difficulty the
+        // admin actually typed a value for becomes an explicit constraint.
+        if (raw !== null && String(raw).trim() !== "") {
+          mix[difficulty] = Number(raw);
+        }
       }
-    }
-    const count = Number(form.get("count"));
-    if (mixTotal(difficultyMix) > count) {
-      setError(
-        new Error("Difficulty counts can't add up to more than the question count."),
-      );
-      return;
-    }
-    setBusy(true);
-    setError(null);
-    try {
-      const response = await api.createQuiz({
+      return mix;
+    };
+
+    let draw: CreateQuizDraftRequest;
+    let difficultyMix: Partial<Record<Difficulty, number>>;
+    if (type === "lr") {
+      // lr is always whole LRDI sets — "1" means 1 full set, never 1 question.
+      const setCount = Number(form.get("setCount"));
+      difficultyMix = {};
+      draw = { mode: "auto", title, type, scheduledAt, setCount };
+    } else if (type === "verbal") {
+      // RC passages and standalone VA questions are independent asks — "1" for one is never
+      // silently satisfied by grabbing the other.
+      const setCount = Number(form.get("setCount"));
+      const standaloneCount = Number(form.get("standaloneCount"));
+      if (setCount === 0 && standaloneCount === 0) {
+        setError(new Error("Set at least one of RC passages or VA questions above 0."));
+        return;
+      }
+      difficultyMix = readDifficultyMix();
+      if (mixTotal(difficultyMix) > standaloneCount) {
+        setError(
+          new Error("Difficulty counts can't add up to more than the VA question count."),
+        );
+        return;
+      }
+      draw = {
         mode: "auto",
         title,
         type,
         scheduledAt,
-        count,
-        difficultyMix,
-      });
+        setCount,
+        standaloneCount,
+        standaloneDifficultyMix: difficultyMix,
+      };
+    } else {
+      const count = Number(form.get("count"));
+      difficultyMix = readDifficultyMix();
+      if (mixTotal(difficultyMix) > count) {
+        setError(
+          new Error("Difficulty counts can't add up to more than the question count."),
+        );
+        return;
+      }
+      draw = { mode: "auto", title, type, scheduledAt, count, difficultyMix };
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await api.createQuiz(draw);
       const next: BuilderSession = {
         ...response,
         title,
@@ -1107,7 +1142,13 @@ export function QuizBuilderPage() {
           </label>
           <label className="field">
             <span>Section</span>
-            <select className="inp" name="type" defaultValue="" required>
+            <select
+              className="inp"
+              name="type"
+              value={defineType}
+              onChange={(event) => setDefineType(event.target.value as QuizType | "")}
+              required
+            >
               <option value="" disabled>
                 Choose a section
               </option>
@@ -1141,7 +1182,59 @@ export function QuizBuilderPage() {
               </label>
             </div>
           </fieldset>
-          {defineMode === "auto" && (
+          {defineMode === "auto" && defineType === "lr" && (
+            <label className="field">
+              <span>Number of LRDI sets</span>
+              <input
+                className="inp"
+                name="setCount"
+                type="number"
+                min="1"
+                max="20"
+                required
+              />
+            </label>
+          )}
+          {defineMode === "auto" && defineType === "verbal" && (
+            <>
+              <label className="field">
+                <span>RC passages (sets)</span>
+                <input
+                  className="inp"
+                  name="setCount"
+                  type="number"
+                  min="0"
+                  max="20"
+                  required
+                />
+              </label>
+              <label className="field">
+                <span>VA questions (standalone)</span>
+                <input
+                  className="inp"
+                  name="standaloneCount"
+                  type="number"
+                  min="0"
+                  max="100"
+                  required
+                />
+              </label>
+              {(["easy", "medium", "hard"] as const).map((difficulty) => (
+                <label className="field" key={difficulty}>
+                  <span>
+                    VA {difficulty} (optional — leave blank to draw from any difficulty)
+                  </span>
+                  <input
+                    className="inp"
+                    name={difficulty}
+                    type="number"
+                    min="0"
+                  />
+                </label>
+              ))}
+            </>
+          )}
+          {defineMode === "auto" && defineType === "quant" && (
             <>
               <label className="field">
                 <span>Question count</span>

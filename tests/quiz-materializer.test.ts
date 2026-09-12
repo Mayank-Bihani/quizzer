@@ -101,9 +101,11 @@ async function insertTemplate(opts: {
   seatCap?: number
 }): Promise<string> {
   const id = crypto.randomUUID()
+  // Every template in this file is quant, whose request lives in standalone_count (set_count is
+  // null) — src/core/selection.ts's toStoredDrawRequest.
   await env.DB.prepare(
-    `INSERT INTO quiz_templates (id, name, type, question_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
-     VALUES (?, 'Recurring Test Template', ?, ?, ?, ?, ?, ?, 4, -1, ?, ?, ?, ?)`
+    `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
+     VALUES (?, 'Recurring Test Template', ?, NULL, ?, ?, ?, ?, ?, 4, -1, ?, ?, ?, ?)`
   )
     .bind(
       id,
@@ -191,6 +193,43 @@ describe("materializeTemplates", () => {
 
     const count = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
     expect(count?.n).toBe(1)
+  })
+
+  it("still materializes an occurrence that fell due since the last tick (MATERIALIZE_LOOKBACK_MS)", async () => {
+    // 30 minutes before T0 — the gap a template created between two hourly ticks can fall into
+    // (SCHEDULER.md §4.2): without a lookback this occurrence's time has already passed by the
+    // time `now` reaches T0, and expandRrule's `occurrenceMs >= fromMs` would drop it forever.
+    const pool = await Promise.all([makeStandalone("quant", "easy"), makeStandalone("quant", "easy")])
+    await insertTemplate({
+      type: "quant",
+      questionCount: 2,
+      difficultyMix: { easy: 2 },
+      timingPolicy: { standalone: 60 },
+      rrule: "FREQ=WEEKLY;BYDAY=MO;BYHOUR=5;BYMINUTE=0", // Monday 05:00 IST = T0 - 30min
+    })
+    const bank = fakeBank(pool)
+    // days=1 (not the production 7) so next week's recurrence of the same weekday falls outside
+    // the forward window too — isolates the lookback's effect from the normal forward lookahead.
+    const result = await materializeTemplates(deps(bank), 1, T0)
+    expect(result.failures).toEqual([])
+    expect(result.quizIds).toHaveLength(1)
+  })
+
+  it("does not resurrect an occurrence from well before the lookback window", async () => {
+    // 2 hours before T0 — outside MATERIALIZE_LOOKBACK_MS (65 min), so this stays excluded exactly
+    // like before the lookback existed; the fix widens the window, it doesn't remove the bound.
+    const pool = await Promise.all([makeStandalone("quant", "easy"), makeStandalone("quant", "easy")])
+    await insertTemplate({
+      type: "quant",
+      questionCount: 2,
+      difficultyMix: { easy: 2 },
+      timingPolicy: { standalone: 60 },
+      rrule: "FREQ=WEEKLY;BYDAY=MO;BYHOUR=3;BYMINUTE=30", // Monday 03:30 IST = T0 - 2h
+    })
+    const bank = fakeBank(pool)
+    const result = await materializeTemplates(deps(bank), 1, T0)
+    expect(result.failures).toEqual([])
+    expect(result.quizIds).toHaveLength(0)
   })
 
   it("isolates a pool-exhausted occurrence from a healthy sibling occurrence in the same call", async () => {

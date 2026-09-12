@@ -203,6 +203,134 @@ describe("POST /api/admin/quizzes — input validation", () => {
   })
 })
 
+describe("POST /api/admin/quizzes — lr/verbal set-based auto draws", () => {
+  it("lr setCount=1 draws one whole LRDI set, not a single question", async () => {
+    const { cookie, id } = await signInAs("admin")
+    const groupIds = await seedGroup(id, "lr", "medium")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "LRDI quiz", scheduledAt: 1_700_100_000_000, type: "lr", setCount: 1 }),
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json<{ questionCount: number; unitCount: number; units: { kind: string; questionPositions: number[] }[] }>()
+    expect(body.questionCount).toBe(4)
+    expect(body.unitCount).toBe(1)
+    expect(body.units[0]).toMatchObject({ kind: "lrdi", questionPositions: [1, 2, 3, 4] })
+    expect(groupIds).toHaveLength(4)
+  })
+
+  it("lr setCount=1 returns 409 with no write when no LRDI set exists", async () => {
+    const { cookie } = await signInAs("admin")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "LRDI quiz", scheduledAt: 1_700_100_000_000, type: "lr", setCount: 1 }),
+    })
+    expect(res.status).toBe(409)
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
+    expect(row?.n).toBe(0)
+  })
+
+  it("lr rejects count/difficultyMix/standaloneCount alongside setCount", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedGroup(id, "lr", "medium")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "LRDI quiz", scheduledAt: 1_700_100_000_000, type: "lr", setCount: 1, count: 4 }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("verbal setCount=1/standaloneCount=0 draws the RC passage, never substituting a standalone VA question", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedGroup(id, "verbal", "medium")
+    await seedStandalones(id, 3, "verbal", "medium") // VA questions that must NOT be drawn instead
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "VARC quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        setCount: 1,
+        standaloneCount: 0,
+        standaloneDifficultyMix: {},
+      }),
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json<{ questionCount: number; unitCount: number; units: { kind: string }[] }>()
+    expect(body.questionCount).toBe(4)
+    expect(body.unitCount).toBe(1)
+    expect(body.units[0]?.kind).toBe("rc")
+  })
+
+  it("verbal setCount=0/standaloneCount=1 draws exactly one standalone VA question, no passage", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "verbal", "easy")
+
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "VARC quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        setCount: 0,
+        standaloneCount: 1,
+        standaloneDifficultyMix: {},
+      }),
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json<{ questionCount: number; unitCount: number; units: { kind: string }[] }>()
+    expect(body.questionCount).toBe(1)
+    expect(body.unitCount).toBe(1)
+    expect(body.units[0]?.kind).toBe("standalone")
+  })
+
+  it("verbal rejects setCount and standaloneCount both 0", async () => {
+    const { cookie } = await signInAs("admin")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "VARC quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        setCount: 0,
+        standaloneCount: 0,
+        standaloneDifficultyMix: {},
+      }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("verbal rejects count/difficultyMix instead of setCount/standaloneCount", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1, "verbal", "easy")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "VARC quiz", scheduledAt: 1_700_100_000_000, type: "verbal", count: 1, difficultyMix: {} }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("quant rejects setCount/standaloneCount/standaloneDifficultyMix", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 1)
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "Quant quiz", scheduledAt: 1_700_100_000_000, type: "quant", setCount: 1 }),
+    })
+    expect(res.status).toBe(400)
+  })
+})
+
 describe("POST /api/admin/quizzes — manual mode", () => {
   it("BE-1: creates a manual draft from a whole standalone pair + a whole group", async () => {
     const { cookie, id } = await signInAs("admin")

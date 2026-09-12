@@ -42,7 +42,8 @@ function deps(): TemplateDeps {
 const VALID_QUANT_TEMPLATE: CreateTemplateRequest = {
   name: "Weekly Quant",
   type: "quant",
-  questionCount: 2,
+  setCount: null,
+  standaloneCount: 2,
   difficultyMix: { easy: 2 },
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
@@ -77,6 +78,7 @@ describe("createTemplate", () => {
     const result = await createTemplate(deps(), creatorId, {
       ...VALID_QUANT_TEMPLATE,
       type: "verbal",
+      setCount: 0, // all-standalone VA draw — never groups, so no rc timing entry is needed
       timingPolicy: { standalone: 60 }, // no rc — a draw that never groups verbal questions doesn't need one
     })
     expect(result.kind).toBe("ok")
@@ -110,6 +112,72 @@ describe("createTemplate", () => {
     expect(badMarks.kind).toBe("invalid")
     const badSeatCap = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, seatCap: 200 })
     expect(badSeatCap.kind).toBe("invalid")
+  })
+
+  it("accepts an lr template with setCount only — lr is always whole sets, never a question count", async () => {
+    const result = await createTemplate(deps(), creatorId, {
+      name: "Weekly LRDI",
+      type: "lr",
+      setCount: 3,
+      standaloneCount: null,
+      difficultyMix: {},
+      timingPolicy: { standalone: 60, lrdi: 180 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+    expect(result.kind).toBe("ok")
+    if (result.kind !== "ok") return
+    expect(result.summary.setCount).toBe(3)
+    expect(result.summary.standaloneCount).toBeNull()
+  })
+
+  it("rejects an lr template carrying a standaloneCount or a non-empty difficultyMix", async () => {
+    const base = {
+      name: "Weekly LRDI",
+      type: "lr" as const,
+      setCount: 3,
+      timingPolicy: { standalone: 60, lrdi: 180 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    }
+    const withStandalone = await createTemplate(deps(), creatorId, { ...base, standaloneCount: 2, difficultyMix: {} })
+    expect(withStandalone.kind).toBe("invalid")
+    const withMix = await createTemplate(deps(), creatorId, { ...base, standaloneCount: null, difficultyMix: { easy: 1 } })
+    expect(withMix.kind).toBe("invalid")
+  })
+
+  it("accepts a verbal template with independent setCount (RC passages) and standaloneCount (VA questions)", async () => {
+    const result = await createTemplate(deps(), creatorId, {
+      name: "Weekly VARC",
+      type: "verbal",
+      setCount: 2,
+      standaloneCount: 3,
+      difficultyMix: { easy: 1 },
+      timingPolicy: { standalone: 60, rc: 600 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+    expect(result.kind).toBe("ok")
+    if (result.kind !== "ok") return
+    expect(result.summary.setCount).toBe(2)
+    expect(result.summary.standaloneCount).toBe(3)
+  })
+
+  it("rejects a quant template carrying a setCount", async () => {
+    const result = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, setCount: 1 })
+    expect(result.kind).toBe("invalid")
   })
 })
 
@@ -168,6 +236,7 @@ describe("patchTemplate", () => {
 
     const result = await patchTemplate(deps(), created.summary.id, {
       type: "verbal",
+      setCount: 1, // verbal needs its own RC-passage count; quant's stored setCount is null
       timingPolicy: { standalone: 60, rc: 300 },
     })
     expect(result.kind).toBe("ok")

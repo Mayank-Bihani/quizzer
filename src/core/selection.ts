@@ -1,6 +1,6 @@
 // Pure unused draw by graded question count/difficulty, whole RC/LRDI groups plus standalones; construct ordered QuizUnitDefinition values — BANK.md; QUIZZING.md §4.
 
-import type { Difficulty, QuestionFull, QuizType, QuizUnitDefinition, UnitKind } from "./contracts"
+import type { Difficulty, DrawRequest, QuestionFull, QuizUnitDefinition, QuizType, SelectionFilters, UnitKind } from "./contracts"
 
 const DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"]
 
@@ -219,4 +219,132 @@ export function selectExactDraw(
   })
 
   return { ok: true, units, questions }
+}
+
+/** Shared tail: assigns unit/flat positions to an already-chosen, already-ordered unit list. */
+function assemble(selected: UnitCandidate[]): SelectionOutcome {
+  const units: QuizUnitDefinition[] = []
+  const questions: QuestionFull[] = []
+  let flatPosition = 1
+  selected.forEach((unit, index) => {
+    const questionPositions: number[] = []
+    for (const question of unit.questions) {
+      questionPositions.push(flatPosition)
+      questions.push(question)
+      flatPosition++
+    }
+    units.push({
+      unitPosition: index + 1,
+      kind: unit.kind,
+      passageId: unit.passageId,
+      questionPositions,
+      timeLimitSec: null,
+    })
+  })
+  return { ok: true, units, questions }
+}
+
+/**
+ * Draws exactly `setCount` whole rc/lrdi groups of `kind`, chosen at random with no difficulty
+ * constraint — a group's members keep whatever difficulty they were authored with (BANK.md), so a
+ * set is never targeted by difficulty. Used for lr (always fully grouped) and the RC portion of
+ * verbal. Fails if fewer than `setCount` matching groups exist; never partially satisfies a request.
+ */
+export function selectSetCountDraw(
+  candidates: QuestionFull[],
+  kind: Extract<UnitKind, "rc" | "lrdi">,
+  setCount: number,
+  randomSource: () => number
+): SelectionOutcome {
+  if (setCount <= 0) return { ok: false }
+  const matching = shuffled(buildUnitCandidates(candidates).filter((u) => u.kind === kind), randomSource)
+  if (matching.length < setCount) return { ok: false }
+  return assemble(matching.slice(0, setCount))
+}
+
+/**
+ * Draws a verbal quiz as `rcSetCount` whole RC passages plus `standaloneCount` standalone VA
+ * questions matching `standaloneDifficultyMix` (same exact-vector backtracking as selectExactDraw,
+ * scoped to standalone candidates only). The two parts are independent: an RC passage is never
+ * substituted for a requested VA question or vice versa, which is what let count=1 silently grab a
+ * lone VA question instead of a passage before this split existed.
+ */
+export function selectVerbalDraw(
+  candidates: QuestionFull[],
+  rcSetCount: number,
+  standaloneDifficultyMix: DifficultyVector,
+  standaloneCount: number,
+  randomSource: () => number
+): SelectionOutcome {
+  if (rcSetCount <= 0 && standaloneCount <= 0) return { ok: false }
+  const unitCandidates = buildUnitCandidates(candidates)
+
+  let rcUnits: UnitCandidate[] = []
+  if (rcSetCount > 0) {
+    const matching = shuffled(unitCandidates.filter((u) => u.kind === "rc"), randomSource)
+    if (matching.length < rcSetCount) return { ok: false }
+    rcUnits = matching.slice(0, rcSetCount)
+  }
+
+  let standaloneUnits: UnitCandidate[] = []
+  if (standaloneCount > 0) {
+    const explicit = {
+      easy: standaloneDifficultyMix.easy ?? 0,
+      medium: standaloneDifficultyMix.medium ?? 0,
+      hard: standaloneDifficultyMix.hard ?? 0,
+    }
+    const totalRequested = DIFFICULTIES.reduce((sum, d) => sum + explicit[d], 0)
+    if (totalRequested > standaloneCount) return { ok: false }
+    const target: RemainingVector = { ...explicit, any: standaloneCount - totalRequested }
+    const pool = shuffled(unitCandidates.filter((u) => u.kind === "standalone"), randomSource)
+    const found = search(pool, 0, target, randomSource, new Map())
+    if (!found) return { ok: false }
+    standaloneUnits = found
+  }
+
+  return assemble(shuffled([...rcUnits, ...standaloneUnits], randomSource))
+}
+
+/** Single dispatch point QUIZZING uses for every auto-draw — creation, reshuffle, materialization. */
+export function selectDraw(candidates: QuestionFull[], request: DrawRequest, randomSource: () => number): SelectionOutcome {
+  if (request.type === "quant") return selectExactDraw(candidates, request.difficultyMix, request.count, randomSource)
+  if (request.type === "lr") return selectSetCountDraw(candidates, "lrdi", request.setCount, randomSource)
+  return selectVerbalDraw(candidates, request.setCount, request.standaloneDifficultyMix, request.standaloneCount, randomSource)
+}
+
+/**
+ * The bank-query filters a DrawRequest implies — only the standalone portion is ever
+ * difficulty-scoped; whole groups are always fetched regardless (src/db/bank-contract.ts).
+ */
+export function toBankFilters(request: DrawRequest): SelectionFilters {
+  if (request.type === "quant") return { type: "quant", difficultyMix: request.difficultyMix, count: request.count }
+  if (request.type === "lr") return { type: "lr", difficultyMix: {}, count: 0 }
+  return { type: "verbal", difficultyMix: request.standaloneDifficultyMix, count: request.standaloneCount }
+}
+
+export type StoredDrawRequest = {
+  setCount: number | null
+  standaloneCount: number | null
+  difficultyMix: DifficultyVector
+}
+
+/** The set_count/standalone_count/difficulty_mix columns a DrawRequest persists as (quizzes and
+ * quiz_templates share this shape — src/db/quizzes.ts). */
+export function toStoredDrawRequest(request: DrawRequest): StoredDrawRequest {
+  if (request.type === "quant") return { setCount: null, standaloneCount: request.count, difficultyMix: request.difficultyMix }
+  if (request.type === "lr") return { setCount: request.setCount, standaloneCount: null, difficultyMix: {} }
+  return { setCount: request.setCount, standaloneCount: request.standaloneCount, difficultyMix: request.standaloneDifficultyMix }
+}
+
+/** Inverse of toStoredDrawRequest — reconstructs the request a stored row represents, for reshuffle
+ * and materialization. */
+export function fromStoredDrawRequest(type: QuizType, stored: StoredDrawRequest): DrawRequest {
+  if (type === "quant") return { type: "quant", count: stored.standaloneCount ?? 0, difficultyMix: stored.difficultyMix }
+  if (type === "lr") return { type: "lr", setCount: stored.setCount ?? 0 }
+  return {
+    type: "verbal",
+    setCount: stored.setCount ?? 0,
+    standaloneCount: stored.standaloneCount ?? 0,
+    standaloneDifficultyMix: stored.difficultyMix,
+  }
 }

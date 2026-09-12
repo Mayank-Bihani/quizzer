@@ -26,17 +26,46 @@ function impliedGroupKind(type: QuizType): UnitKind {
   return type === "verbal" ? "rc" : "lrdi"
 }
 
+// setCount/standaloneCount are type-conditional (QUIZZING.md §4, revised 2026-09-12): quant sets
+// standaloneCount only (its exact draw target, unchanged from the old questionCount semantics); lr
+// sets setCount only (whole lrdi sets — a "count" for lr always means sets, never questions); verbal
+// sets both (RC passages + standalone VA questions), each independently. difficultyMix scopes
+// standaloneCount only — a set's members keep whatever difficulty they were authored with.
 function isValidCoreFields(input: {
   name: string
   type: QuizType
-  questionCount: number
+  setCount: number | null
+  standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
 }): boolean {
   if (input.name.trim().length === 0) return false
   if (!VALID_TYPES.includes(input.type)) return false
-  if (!Number.isInteger(input.questionCount) || input.questionCount < 1 || input.questionCount > MAX_GRADED_QUESTION_COUNT) {
-    return false
-  }
+
+  const wantsSetCount = input.type === "lr" || input.type === "verbal"
+  const wantsStandaloneCount = input.type === "quant" || input.type === "verbal"
+  // lr is always fully grouped, so its setCount must be at least 1 (a quiz needs questions).
+  // verbal's setCount/standaloneCount are independent asks — either may legitimately be 0 (all VA,
+  // or all RC), but QUIZZING.md §4 requires at least one to be positive, checked below.
+  const setCountMin = input.type === "lr" ? 1 : 0
+  const standaloneCountMin = input.type === "quant" ? 1 : 0
+  if (wantsSetCount) {
+    if (!Number.isInteger(input.setCount) || (input.setCount as number) < setCountMin || (input.setCount as number) > MAX_GRADED_QUESTION_COUNT) {
+      return false
+    }
+  } else if (input.setCount !== null) return false
+
+  if (wantsStandaloneCount) {
+    if (
+      !Number.isInteger(input.standaloneCount) ||
+      (input.standaloneCount as number) < standaloneCountMin ||
+      (input.standaloneCount as number) > MAX_GRADED_QUESTION_COUNT
+    ) {
+      return false
+    }
+  } else if (input.standaloneCount !== null) return false
+
+  if (input.type === "verbal" && input.setCount === 0 && input.standaloneCount === 0) return false
+
   let sum = 0
   for (const [key, value] of Object.entries(input.difficultyMix)) {
     if (!VALID_DIFFICULTIES.includes(key as Difficulty)) return false
@@ -44,8 +73,10 @@ function isValidCoreFields(input: {
     sum += value
   }
   // An omitted difficulty is filled from any difficulty at draw time (src/core/selection.ts's
-  // `any` bucket) rather than excluded, so only an over-specified mix is rejected.
-  return sum <= input.questionCount
+  // `any` bucket) rather than excluded, so only an over-specified mix is rejected. A type with no
+  // standalone portion (lr) has nothing for difficultyMix to scope, so it must be empty.
+  if (!wantsStandaloneCount) return sum === 0
+  return sum <= (input.standaloneCount as number)
 }
 
 function isValidScalarFields(input: {
@@ -116,12 +147,19 @@ export async function patchTemplate(deps: TemplateDeps, id: string, patch: Updat
   if (!current) return { kind: "not_found" }
 
   const touchesCoreFields =
-    patch.name !== undefined || patch.type !== undefined || patch.questionCount !== undefined || patch.difficultyMix !== undefined
+    patch.name !== undefined ||
+    patch.type !== undefined ||
+    patch.setCount !== undefined ||
+    patch.standaloneCount !== undefined ||
+    patch.difficultyMix !== undefined
   if (touchesCoreFields) {
     const effective = {
       name: patch.name ?? current.name,
       type: patch.type ?? current.type,
-      questionCount: patch.questionCount ?? current.questionCount,
+      // `??` would wrongly fall back to `current` when the admin explicitly sends null to clear
+      // the field that no longer applies after a type change (e.g. lr has no standaloneCount).
+      setCount: patch.setCount !== undefined ? patch.setCount : current.setCount,
+      standaloneCount: patch.standaloneCount !== undefined ? patch.standaloneCount : current.standaloneCount,
       difficultyMix: patch.difficultyMix ?? current.difficultyMix,
     }
     if (!isValidCoreFields(effective)) return { kind: "invalid" }

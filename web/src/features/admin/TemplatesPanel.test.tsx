@@ -28,7 +28,8 @@ const QUANT_TEMPLATE: TemplateSummary = {
   id: "t1",
   name: "Weekly Quant",
   type: "quant",
-  questionCount: 2,
+  setCount: null,
+  standaloneCount: 2,
   difficultyMix: { easy: 2 },
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
@@ -78,15 +79,15 @@ describe("TemplatesPanel", () => {
     await user.click(await screen.findByRole("button", { name: /new template/i }));
 
     await user.type(screen.getByLabelText(/name/i), "Weekly Quant");
-    await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
     await user.type(screen.getByLabelText(/question count/i), "2");
     await user.type(screen.getByLabelText(/^easy/i), "2");
     await user.type(screen.getByLabelText(/^medium/i), "0");
     await user.type(screen.getByLabelText(/^hard/i), "0");
-    await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
-    await user.type(screen.getByLabelText(/lrdi unit seconds/i), "180");
-    await user.type(screen.getByLabelText(/buffer time between units/i), "30");
-    await user.type(screen.getByLabelText(/admission window seconds/i), "600");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per lrdi/i), "180");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
     await user.type(screen.getByLabelText(/marks for correct/i), "4");
     await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
     await user.type(screen.getByLabelText(/seat cap/i), "120");
@@ -100,7 +101,8 @@ describe("TemplatesPanel", () => {
     expect(createTemplate).toHaveBeenCalledWith({
       name: "Weekly Quant",
       type: "quant",
-      questionCount: 2,
+      setCount: null,
+      standaloneCount: 2,
       difficultyMix: { easy: 2, medium: 0, hard: 0 },
       timingPolicy: { standalone: 60, lrdi: 180 },
       slackSec: 30,
@@ -121,14 +123,14 @@ describe("TemplatesPanel", () => {
     await user.click(await screen.findByRole("button", { name: /new template/i }));
 
     await user.type(screen.getByLabelText(/name/i), "Weekly Quant");
-    await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
     await user.type(screen.getByLabelText(/question count/i), "2");
     await user.type(screen.getByLabelText(/^easy/i), "2");
     await user.type(screen.getByLabelText(/^medium/i), "0");
     await user.type(screen.getByLabelText(/^hard/i), "0");
-    await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
-    await user.type(screen.getByLabelText(/buffer time between units/i), "30");
-    await user.type(screen.getByLabelText(/admission window seconds/i), "600");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
     await user.type(screen.getByLabelText(/marks for correct/i), "4");
     await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
     await user.type(screen.getByLabelText(/seat cap/i), "120");
@@ -152,13 +154,13 @@ describe("TemplatesPanel", () => {
 
     await user.click(await screen.findByRole("button", { name: /new template/i }));
     await user.type(screen.getByLabelText(/name/i), "Bad Mix");
-    await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
     await user.type(screen.getByLabelText(/question count/i), "2");
     await user.type(screen.getByLabelText(/^easy/i), "5");
-    await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
-    await user.type(screen.getByLabelText(/lrdi unit seconds/i), "180");
-    await user.type(screen.getByLabelText(/buffer time between units/i), "30");
-    await user.type(screen.getByLabelText(/admission window seconds/i), "600");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per lrdi/i), "180");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
     await user.type(screen.getByLabelText(/marks for correct/i), "4");
     await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
     await user.type(screen.getByLabelText(/seat cap/i), "120");
@@ -180,14 +182,14 @@ describe("TemplatesPanel", () => {
 
     await user.click(await screen.findByRole("button", { name: /new template/i }));
     await user.type(screen.getByLabelText(/name/i), "Partial Mix");
-    await user.selectOptions(screen.getByLabelText(/^section$/i), "quant");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
     await user.type(screen.getByLabelText(/question count/i), "2");
     await user.type(screen.getByLabelText(/^easy/i), "1");
     // medium and hard are left blank on purpose — the remaining slot should draw from any difficulty.
-    await user.type(screen.getByLabelText(/standalone unit seconds/i), "60");
-    await user.type(screen.getByLabelText(/lrdi unit seconds/i), "180");
-    await user.type(screen.getByLabelText(/buffer time between units/i), "30");
-    await user.type(screen.getByLabelText(/admission window seconds/i), "600");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per lrdi/i), "180");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
     await user.type(screen.getByLabelText(/marks for correct/i), "4");
     await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
     await user.type(screen.getByLabelText(/seat cap/i), "120");
@@ -201,6 +203,100 @@ describe("TemplatesPanel", () => {
     expect(createTemplate).toHaveBeenCalledWith(
       expect.objectContaining({ difficultyMix: { easy: 1 } }),
     );
+  });
+
+  it("creates an lr template as a whole-set count, never a question count", async () => {
+    const user = userEvent.setup();
+    createTemplate.mockResolvedValue({ ...QUANT_TEMPLATE, id: "new", type: "lr" });
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.type(screen.getByLabelText(/name/i), "Weekly LRDI");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "lr");
+
+    // Only a single "number of sets" field is offered for lr — no standalone/difficulty fields,
+    // since a set's members keep whatever difficulty they were authored with.
+    expect(screen.getByLabelText(/number of lrdi sets/i)).toBeInTheDocument();
+    expect(screen.queryByLabelText(/^easy/i)).not.toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/number of lrdi sets/i), "1");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per lrdi/i), "180");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
+    await user.type(screen.getByLabelText(/marks for correct/i), "4");
+    await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
+    await user.type(screen.getByLabelText(/seat cap/i), "120");
+    await user.click(screen.getByLabelText(/^tue$/i));
+    await user.type(screen.getByLabelText(/hour \(ist\)/i), "18");
+    await user.type(screen.getByLabelText(/minute/i), "0");
+
+    await user.click(screen.getByRole("button", { name: /create template/i }));
+
+    await waitFor(() => expect(createTemplate).toHaveBeenCalledTimes(1));
+    expect(createTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "lr", setCount: 1, standaloneCount: null, difficultyMix: {} }),
+    );
+  });
+
+  it("creates a verbal template with independent RC-passage and VA-question counts", async () => {
+    const user = userEvent.setup();
+    createTemplate.mockResolvedValue({ ...QUANT_TEMPLATE, id: "new", type: "verbal" });
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.type(screen.getByLabelText(/name/i), "Weekly VARC");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "verbal");
+
+    // "1" RC passage must never be satisfiable by a standalone VA question — the two counts are
+    // independent fields, not one flat count.
+    await user.type(screen.getByLabelText(/rc passages/i), "1");
+    await user.type(screen.getByLabelText(/va questions/i), "0");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per rc/i), "600");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
+    await user.type(screen.getByLabelText(/marks for correct/i), "4");
+    await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
+    await user.type(screen.getByLabelText(/seat cap/i), "120");
+    await user.click(screen.getByLabelText(/^tue$/i));
+    await user.type(screen.getByLabelText(/hour \(ist\)/i), "18");
+    await user.type(screen.getByLabelText(/minute/i), "0");
+
+    await user.click(screen.getByRole("button", { name: /create template/i }));
+
+    await waitFor(() => expect(createTemplate).toHaveBeenCalledTimes(1));
+    expect(createTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "verbal", setCount: 1, standaloneCount: 0, difficultyMix: {} }),
+    );
+  });
+
+  it("rejects a verbal template with both RC passages and VA questions at 0", async () => {
+    const user = userEvent.setup();
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.type(screen.getByLabelText(/name/i), "Empty VARC");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "verbal");
+    await user.type(screen.getByLabelText(/rc passages/i), "0");
+    await user.type(screen.getByLabelText(/va questions/i), "0");
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per rc/i), "600");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
+    await user.type(screen.getByLabelText(/marks for correct/i), "4");
+    await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
+    await user.type(screen.getByLabelText(/seat cap/i), "120");
+    await user.click(screen.getByLabelText(/^tue$/i));
+    await user.type(screen.getByLabelText(/hour \(ist\)/i), "18");
+    await user.type(screen.getByLabelText(/minute/i), "0");
+
+    await user.click(screen.getByRole("button", { name: /create template/i }));
+
+    expect(
+      await screen.findByText(/set at least one of rc passages or va questions/i),
+    ).toBeInTheDocument();
+    expect(createTemplate).not.toHaveBeenCalled();
   });
 
   it("opens the edit form pre-filled with the template's stored values", async () => {

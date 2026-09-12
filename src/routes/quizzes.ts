@@ -39,6 +39,25 @@ const VALID_DIFFICULTIES: readonly Difficulty[] = ["easy", "medium", "hard"]
 const VALID_STATUSES: readonly QuizStatus[] = ["draft", "scheduled", "open", "ended", "cancelled"]
 const VALID_UNIT_KINDS: readonly UnitKind[] = ["standalone", "rc", "lrdi"]
 
+function parseDifficultyMix(raw: unknown): Partial<Record<Difficulty, number>> | "invalid" {
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return "invalid"
+  const mix: Partial<Record<Difficulty, number>> = {}
+  for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!VALID_DIFFICULTIES.includes(key as Difficulty)) return "invalid"
+    if (typeof value !== "number" || !Number.isInteger(value) || value < 0) return "invalid"
+    mix[key as Difficulty] = value
+  }
+  return mix
+}
+
+function mixSum(mix: Partial<Record<Difficulty, number>>): number {
+  return Object.values(mix).reduce((sum: number, v) => sum + (v ?? 0), 0)
+}
+
+function isValidCount(value: unknown, min: number): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= min && value <= MAX_GRADED_QUESTION_COUNT
+}
+
 const INVALID_SELECTION_MESSAGES: Record<ManualDrawFailureReason, string> = {
   unknown_question: "One or more selected questions are no longer in the unused pool",
   duplicate_question: "questionIds contains a duplicate",
@@ -71,7 +90,18 @@ quizzes.post("/", async (c) => {
   }
   if (typeof body !== "object" || body === null || Array.isArray(body)) return c.json({ message: "Invalid request body" }, 400)
   const b = body as Record<string, unknown>
-  const allowedFields = ["title", "scheduledAt", "type", "difficultyMix", "count", "mode", "questionIds"]
+  const allowedFields = [
+    "title",
+    "scheduledAt",
+    "type",
+    "difficultyMix",
+    "count",
+    "setCount",
+    "standaloneCount",
+    "standaloneDifficultyMix",
+    "mode",
+    "questionIds",
+  ]
   if (Object.keys(b).some((k) => !allowedFields.includes(k))) return c.json({ message: "Unknown field" }, 400)
 
   if (typeof b.title !== "string" || b.title.trim().length === 0) return c.json({ message: "Invalid title" }, 400)
@@ -84,8 +114,14 @@ quizzes.post("/", async (c) => {
 
   let input: CreateInput
   if (mode === "manual") {
-    if (b.difficultyMix !== undefined || b.count !== undefined) {
-      return c.json({ message: "difficultyMix/count are not accepted with mode: manual" }, 400)
+    if (
+      b.difficultyMix !== undefined ||
+      b.count !== undefined ||
+      b.setCount !== undefined ||
+      b.standaloneCount !== undefined ||
+      b.standaloneDifficultyMix !== undefined
+    ) {
+      return c.json({ message: "Draw-request fields are not accepted with mode: manual" }, 400)
     }
     if (
       !Array.isArray(b.questionIds) ||
@@ -102,35 +138,52 @@ quizzes.post("/", async (c) => {
       type: b.type as QuizType,
       questionIds: b.questionIds as string[],
     }
-  } else {
-    if (b.questionIds !== undefined) return c.json({ message: "questionIds is only accepted with mode: manual" }, 400)
-    if (typeof b.count !== "number" || !Number.isInteger(b.count) || b.count < 1 || b.count > MAX_GRADED_QUESTION_COUNT) {
-      return c.json({ message: "Invalid count" }, 400)
+  } else if (b.questionIds !== undefined) {
+    return c.json({ message: "questionIds is only accepted with mode: manual" }, 400)
+  } else if (b.type === "quant") {
+    if (b.setCount !== undefined || b.standaloneCount !== undefined || b.standaloneDifficultyMix !== undefined) {
+      return c.json({ message: "setCount/standaloneCount/standaloneDifficultyMix are only accepted for type verbal/lr" }, 400)
     }
-    if (typeof b.difficultyMix !== "object" || b.difficultyMix === null || Array.isArray(b.difficultyMix)) {
-      return c.json({ message: "Invalid difficultyMix" }, 400)
-    }
-    let mixSum = 0
-    const difficultyMix: Partial<Record<Difficulty, number>> = {}
-    for (const [key, value] of Object.entries(b.difficultyMix as Record<string, unknown>)) {
-      if (!VALID_DIFFICULTIES.includes(key as Difficulty)) return c.json({ message: "Invalid difficulty key" }, 400)
-      if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
-        return c.json({ message: "Invalid difficulty count" }, 400)
-      }
-      difficultyMix[key as Difficulty] = value
-      mixSum += value
-    }
+    if (!isValidCount(b.count, 1)) return c.json({ message: "Invalid count" }, 400)
+    const difficultyMix = parseDifficultyMix(b.difficultyMix)
+    if (difficultyMix === "invalid") return c.json({ message: "Invalid difficultyMix" }, 400)
     // A difficulty omitted from difficultyMix isn't excluded — the shortfall is drawn from any
     // difficulty (src/core/selection.ts). Only an over-specified mix (sum > count) is invalid.
-    if (mixSum > b.count) return c.json({ message: "difficultyMix must not exceed count" }, 400)
+    if (mixSum(difficultyMix) > b.count) return c.json({ message: "difficultyMix must not exceed count" }, 400)
+    input = { mode: "auto", title: b.title.trim(), scheduledAt: b.scheduledAt, type: "quant", count: b.count, difficultyMix }
+  } else if (b.type === "lr") {
+    if (b.count !== undefined || b.difficultyMix !== undefined || b.standaloneCount !== undefined || b.standaloneDifficultyMix !== undefined) {
+      return c.json({ message: "lr accepts only setCount — it is always whole LRDI sets, never standalone questions" }, 400)
+    }
+    // lr is always fully grouped: "1" means 1 whole LRDI set, never 1 question (the bug this fixes).
+    if (!isValidCount(b.setCount, 1)) return c.json({ message: "Invalid setCount" }, 400)
+    input = { mode: "auto", title: b.title.trim(), scheduledAt: b.scheduledAt, type: "lr", setCount: b.setCount }
+  } else if (b.type === "verbal") {
+    if (b.count !== undefined || b.difficultyMix !== undefined) {
+      return c.json({ message: "verbal uses setCount (RC passages) + standaloneCount/standaloneDifficultyMix (VA questions), not count/difficultyMix" }, 400)
+    }
+    // setCount is RC passages, standaloneCount is standalone VA questions — independent asks, so
+    // "1" for one and "0" for the other means exactly that, never a substitution of one for the
+    // other (the bug this fixes: count=1 used to silently grab a lone VA question over a passage).
+    if (!isValidCount(b.setCount, 0)) return c.json({ message: "Invalid setCount" }, 400)
+    if (!isValidCount(b.standaloneCount, 0)) return c.json({ message: "Invalid standaloneCount" }, 400)
+    if (b.setCount === 0 && b.standaloneCount === 0) return c.json({ message: "setCount and standaloneCount cannot both be 0" }, 400)
+    const standaloneDifficultyMix = parseDifficultyMix(b.standaloneDifficultyMix)
+    if (standaloneDifficultyMix === "invalid") return c.json({ message: "Invalid standaloneDifficultyMix" }, 400)
+    if (mixSum(standaloneDifficultyMix) > b.standaloneCount) {
+      return c.json({ message: "standaloneDifficultyMix must not exceed standaloneCount" }, 400)
+    }
     input = {
       mode: "auto",
       title: b.title.trim(),
       scheduledAt: b.scheduledAt,
-      type: b.type as QuizType,
-      difficultyMix,
-      count: b.count,
+      type: "verbal",
+      setCount: b.setCount,
+      standaloneCount: b.standaloneCount,
+      standaloneDifficultyMix,
     }
+  } else {
+    return c.json({ message: "Invalid type" }, 400)
   }
 
   const result = await createDraft(creationDeps(c), currentUser(c).id, input)

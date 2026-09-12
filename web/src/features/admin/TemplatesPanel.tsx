@@ -29,9 +29,9 @@ import {
 } from "./rrule-builder";
 
 const unitKindLabels: Record<UnitKind, string> = {
-  standalone: "Standalone unit seconds",
-  rc: "RC unit seconds",
-  lrdi: "LRDI unit seconds",
+  standalone: "question",
+  rc: "RC passage group",
+  lrdi: "LRDI set",
 };
 
 // A grouped verbal question belongs to an rc unit; grouped quant/lr questions to an lrdi unit —
@@ -39,6 +39,17 @@ const unitKindLabels: Record<UnitKind, string> = {
 // template has no drawn units to read the kind off of.
 function impliedGroupKind(type: QuizType): UnitKind {
   return type === "verbal" ? "rc" : "lrdi";
+}
+
+// A template only ever stores the request (setCount/standaloneCount), never a drawn total — the
+// actual question count per occurrence varies since sets are 4-5 questions each.
+function describeDraw(template: TemplateSummary): string {
+  if (template.type === "quant") return `${template.standaloneCount} questions`;
+  if (template.type === "lr") return `${template.setCount} LRDI set${template.setCount === 1 ? "" : "s"}`;
+  const parts: string[] = [];
+  if (template.setCount) parts.push(`${template.setCount} RC passage${template.setCount === 1 ? "" : "s"}`);
+  if (template.standaloneCount) parts.push(`${template.standaloneCount} VA question${template.standaloneCount === 1 ? "" : "s"}`);
+  return parts.join(" + ") || "0 questions";
 }
 
 type TemplateFormProps = {
@@ -78,10 +89,28 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         difficultyMix[difficulty] = Number(raw);
       }
     }
-    const questionCount = Number(form.get("questionCount"));
-    if (mixTotal(difficultyMix) > questionCount) {
+
+    // lr is always whole LRDI sets; verbal independently asks for RC passages (sets) and
+    // standalone VA questions; quant is always a plain standalone count — QUIZZING.md §4.
+    let setCount: number | null = null;
+    let standaloneCount: number | null = null;
+    if (type === "lr") {
+      setCount = Number(form.get("setCount"));
+    } else if (type === "verbal") {
+      setCount = Number(form.get("setCount"));
+      standaloneCount = Number(form.get("standaloneCount"));
+      if (setCount === 0 && standaloneCount === 0) {
+        setValidationError("Set at least one of RC passages or VA questions above 0.");
+        return;
+      }
+    } else {
+      standaloneCount = Number(form.get("standaloneCount"));
+    }
+    if (mixTotal(difficultyMix) > (standaloneCount ?? 0)) {
       setValidationError(
-        "Difficulty counts can't add up to more than the question count.",
+        type === "verbal"
+          ? "Difficulty counts can't add up to more than the VA question count."
+          : "Difficulty counts can't add up to more than the question count.",
       );
       return;
     }
@@ -102,7 +131,8 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
     onSubmit({
       name: String(form.get("name")).trim(),
       type,
-      questionCount,
+      setCount,
+      standaloneCount,
       difficultyMix,
       timingPolicy,
       slackSec: Number(form.get("slackSec")),
@@ -132,7 +162,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         <input className="inp" name="name" defaultValue={initial?.name} required />
       </label>
       <label className="field">
-        <span>Section</span>
+        <span>Section (quiz type)</span>
         <select
           className="inp"
           name="type"
@@ -145,32 +175,81 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
           <option value="lr">Logical Reasoning</option>
         </select>
       </label>
-      <label className="field">
-        <span>Question count</span>
-        <input
-          className="inp"
-          name="questionCount"
-          type="number"
-          min="1"
-          max="100"
-          defaultValue={initial?.questionCount}
-          required
-        />
-      </label>
-      {(["easy", "medium", "hard"] as const).map((difficulty) => (
-        <label className="field" key={difficulty}>
-          <span>{difficulty} (optional — leave blank to draw from any difficulty)</span>
+      {type === "lr" && (
+        <label className="field">
+          <span>Number of LRDI sets</span>
           <input
             className="inp"
-            name={difficulty}
+            name="setCount"
             type="number"
-            min="0"
-            defaultValue={initial?.difficultyMix[difficulty]}
+            min="1"
+            max="20"
+            defaultValue={initial?.setCount ?? undefined}
+            required
           />
         </label>
-      ))}
+      )}
+      {type === "verbal" && (
+        <>
+          <label className="field">
+            <span>RC passages (sets)</span>
+            <input
+              className="inp"
+              name="setCount"
+              type="number"
+              min="0"
+              max="20"
+              defaultValue={initial?.setCount ?? undefined}
+              required
+            />
+          </label>
+          <label className="field">
+            <span>VA questions (standalone)</span>
+            <input
+              className="inp"
+              name="standaloneCount"
+              type="number"
+              min="0"
+              max="100"
+              defaultValue={initial?.standaloneCount ?? undefined}
+              required
+            />
+          </label>
+        </>
+      )}
+      {type === "quant" && (
+        <label className="field">
+          <span>Question count</span>
+          <input
+            className="inp"
+            name="standaloneCount"
+            type="number"
+            min="1"
+            max="100"
+            defaultValue={initial?.standaloneCount ?? undefined}
+            required
+          />
+        </label>
+      )}
+      {type !== "lr" &&
+        (["easy", "medium", "hard"] as const).map((difficulty) => (
+          <label className="field" key={difficulty}>
+            <span>
+              {type === "verbal" ? "VA " : ""}
+              {difficulty[0].toUpperCase() + difficulty.slice(1)} questions
+              (optional — leave blank to draw from any difficulty)
+            </span>
+            <input
+              className="inp"
+              name={difficulty}
+              type="number"
+              min="0"
+              defaultValue={initial?.difficultyMix[difficulty]}
+            />
+          </label>
+        ))}
       <label className="field">
-        <span>{unitKindLabels.standalone}</span>
+        <span>Time limit per question (seconds)</span>
         <input
           className="inp"
           name="standalone"
@@ -182,8 +261,8 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
       </label>
       <label className="field" key={groupKind}>
         <span>
-          {unitKindLabels[groupKind]} (optional — only needed if this section
-          ever draws grouped questions)
+          Time limit per {unitKindLabels[groupKind]} (seconds) (optional —
+          only needed if this section ever draws grouped questions)
         </span>
         <input
           className="inp"
@@ -194,7 +273,10 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <label className="field">
-        <span>Buffer time between units (seconds)</span>
+        <span>
+          Buffer between questions/groups (seconds) — added on top of the time
+          limits above
+        </span>
         <input
           className="inp"
           name="slackSec"
@@ -205,7 +287,10 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <label className="field">
-        <span>Admission window seconds</span>
+        <span>
+          Admission window (seconds) — how long after the start time students
+          can still join
+        </span>
         <input
           className="inp"
           name="joinWindowSec"
@@ -216,7 +301,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <label className="field">
-        <span>Marks for correct</span>
+        <span>Marks for correct answer</span>
         <input
           className="inp"
           name="marksCorrect"
@@ -228,7 +313,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <label className="field">
-        <span>Marks for wrong</span>
+        <span>Marks for wrong answer (must be zero or negative)</span>
         <input
           className="inp"
           name="marksWrong"
@@ -252,7 +337,10 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <fieldset className="field">
-        <legend>Days of the week</legend>
+        <legend>
+          Repeats weekly on these days (not a one-time date — pick the
+          weekday(s) + time this quiz should run every week)
+        </legend>
         <div className="rowflex">
           {WEEKDAY_ORDER.map((day) => (
             <label className="chk" key={day}>
@@ -279,7 +367,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         />
       </label>
       <label className="field">
-        <span>Minute</span>
+        <span>Minute (IST)</span>
         <input
           className="inp"
           name="minute"
@@ -316,10 +404,33 @@ export function TemplatesPanel() {
     useState<TemplateSummary | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
+  const [materializing, setMaterializing] = useState(false);
+  const [materializeResult, setMaterializeResult] = useState<string | null>(
+    null,
+  );
   const resource = useResource(
     () => api.templates({ limit: 20, offset }),
     [offset],
   );
+
+  const materializeNow = async () => {
+    setMaterializing(true);
+    setMaterializeResult(null);
+    setError(null);
+    try {
+      const result = await api.materializeTemplatesNow();
+      setMaterializeResult(
+        result.created === 0 && result.failed === 0
+          ? "Checked all active templates — no quiz was due yet."
+          : `Created ${result.created} quiz${result.created === 1 ? "" : "zes"}${result.failed > 0 ? `, ${result.failed} failed (check the question bank has enough unused questions)` : ""}.`,
+      );
+      await resource.reload();
+    } catch (caught) {
+      setError(caught);
+    } finally {
+      setMaterializing(false);
+    }
+  };
 
   const submitForm = async (body: CreateTemplateRequest) => {
     setBusy(true);
@@ -368,19 +479,35 @@ export function TemplatesPanel() {
       )}
       <div className="rowflex-between">
         <p className="tiny">
-          Recurring templates are drawn and scheduled automatically every
-          week.
+          Active templates are checked every hour and turned into real
+          quizzes up to 7 days ahead. Use "Check now" below to run that check
+          immediately instead of waiting for the next hourly check.
         </p>
         {formTarget === "closed" && (
-          <button
-            className="btn"
-            type="button"
-            onClick={() => setFormTarget("create")}
-          >
-            New template
-          </button>
+          <div className="rowflex">
+            <button
+              className="btn sec"
+              type="button"
+              disabled={materializing}
+              onClick={() => void materializeNow()}
+            >
+              {materializing ? "Checking…" : "Check now"}
+            </button>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => setFormTarget("create")}
+            >
+              New template
+            </button>
+          </div>
         )}
       </div>
+      {materializeResult && (
+        <div className="alert a-info" role="status">
+          <span>{materializeResult}</span>
+        </div>
+      )}
       {formTarget !== "closed" && (
         <TemplateForm
           key={formTarget === "create" ? "create" : formTarget.id}
@@ -422,7 +549,7 @@ export function TemplatesPanel() {
                   <div>
                     <h2 className="schedcard__title">{template.name}</h2>
                     <div className="schedcard__facts">
-                      {template.questionCount} questions ·{" "}
+                      {describeDraw(template)} ·{" "}
                       {schedule
                         ? `${schedule.days.map((day) => WEEKDAY_LABELS[day]).join(", ")} at ${String(schedule.hour).padStart(2, "0")}:${String(schedule.minute).padStart(2, "0")} IST`
                         : template.rrule}{" "}

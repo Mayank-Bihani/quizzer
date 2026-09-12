@@ -48,7 +48,8 @@ function authed(path: string, cookie: string | null, init: RequestInit = {}) {
 const VALID_BODY = {
   name: "Weekly Quant",
   type: "quant",
-  questionCount: 2,
+  setCount: null,
+  standaloneCount: 2,
   difficultyMix: { easy: 2 },
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
@@ -140,6 +141,7 @@ describe("POST /api/admin/templates", () => {
     const res = await postJson("/api/admin/templates", cookie, {
       ...VALID_BODY,
       type: "verbal",
+      setCount: 0, // all-standalone VA draw — never groups, so no rc timing entry is needed
       timingPolicy: { standalone: 60 },
     })
     expect(res.status).toBe(200)

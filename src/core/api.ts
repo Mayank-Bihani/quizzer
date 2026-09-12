@@ -15,8 +15,8 @@ import type {
   Difficulty,
   QuestionFormat,
   CurrentUser,
+  DrawRequest,
   QuestionFull,
-  SelectionFilters,
   ServedUnit,
   TimingPolicy,
   QuizUnitDefinition,
@@ -24,6 +24,7 @@ import type {
   UnitCloseReason,
   LeaderboardRow,
   WeeklyBoardRow,
+  MaterializationFailure,
 } from './contracts'
 
 // ============================================================================
@@ -71,6 +72,8 @@ export type QuizAdminSummary = {
   title: string
   type: QuizType
   questionCount: number | null
+  setCount: number | null
+  standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>> | null
   scheduledAt: number
   lobbyOpensAt: number | null
@@ -224,14 +227,17 @@ export type ListQuizzesResponse = PageResponse<QuizAdminSummary>
 
 // Creates a 'draft' quiz row — quizNumber and roomCode aren't assigned yet (that happens at
 // lock, QUIZZING.md §4 step 7 — COUNCIL_FINDINGS.md #36), and scoring/timing params are deferred
-// to the later PATCH (COUNCIL_FINDINGS.md #2/#3). question_count/difficultyMix are stored from
-// SelectionFilters at draft time so reshuffle and the window derivation have something to read
-// (COUNCIL_FINDINGS.md #5).
-// Manual mode (Sprint 10): the admin hand-picks exact questionIds instead of a difficultyMix/count
-// target; questionCount/difficultyMix are derived server-side from what was actually picked
+// to the later PATCH (COUNCIL_FINDINGS.md #2/#3). The request IS a DrawRequest (discriminated by
+// `type`): quant carries an exact question count/difficultyMix; lr carries a whole-set count; verbal
+// carries a set count (RC passages) plus an independent standalone count/difficultyMix (VA
+// questions) — QUIZZING.md §4 revised 2026-09-12. setCount/standaloneCount/difficultyMix are stored
+// on the quiz row at draft time so reshuffle and the window derivation have something to read
+// (COUNCIL_FINDINGS.md #5); questionCount/unitCount instead always store the actual resulting draw.
+// Manual mode (Sprint 10): the admin hand-picks exact questionIds instead of a draw request;
+// questionCount/difficultyMix are derived server-side from what was actually picked
 // (QUIZZING.md §4, "manual selection").
 export type CreateQuizDraftRequest =
-  | (SelectionFilters & { title: string; scheduledAt: number; mode?: 'auto' })
+  | (DrawRequest & { title: string; scheduledAt: number; mode?: 'auto' })
   | { title: string; scheduledAt: number; type: QuizType; mode: 'manual'; questionIds: string[] }
 export type CreateQuizDraftResponse = {
   quizId: string
@@ -242,8 +248,8 @@ export type CreateQuizDraftResponse = {
   questions: QuestionFull[]
 }
 
-// POST /api/admin/quizzes/:id/reshuffle — no body, redraws with the same stored parameters
-// (SelectionFilters, now stored on the quiz row itself — COUNCIL_FINDINGS.md #5)
+// POST /api/admin/quizzes/:id/reshuffle — no body, redraws with the same stored draw request
+// (setCount/standaloneCount/difficultyMix, now stored on the quiz row itself — COUNCIL_FINDINGS.md #5)
 export type ReshuffleQuizResponse = {
   questions: QuestionFull[]
   units: QuizUnitDefinition[]
@@ -283,14 +289,19 @@ export type CancelQuizResponse = QuizAdminSummary
 // QUIZZING — templates (QUIZZING.md §4.4; API.md "QUIZZING — templates")
 // ============================================================================
 
-// Admin-facing recurring template row. Unlike QuizAdminSummary's fields, a template's
-// difficultyMix/timingPolicy/rrule columns are NOT NULL (migrations/0001_init.sql:41-56), so they
-// are typed non-nullable here rather than reusing QuizAdminSummary's nullable variants.
+// Admin-facing recurring template row. Unlike QuizAdminSummary's fields, difficultyMix/timingPolicy
+// /rrule/slackSec/etc. columns are NOT NULL (migrations/0001_init.sql:41-56), so they are typed
+// non-nullable here. setCount/standaloneCount are type-conditional request fields, not a draw
+// result (a template hasn't drawn anything yet) — migrations/0004_lrdi_varc_set_count.sql: quant
+// sets standaloneCount only (its exact draw target); lr sets setCount only; verbal sets both.
+// difficultyMix scopes standaloneCount only — a set's members keep whatever difficulty they were
+// authored with (BANK.md).
 export type TemplateSummary = {
   id: string
   name: string
   type: QuizType
-  questionCount: number
+  setCount: number | null
+  standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
   timingPolicy: TimingPolicy
   slackSec: number
@@ -305,7 +316,8 @@ export type TemplateSummary = {
 export type CreateTemplateRequest = {
   name: string
   type: QuizType
-  questionCount: number
+  setCount: number | null
+  standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
   timingPolicy: TimingPolicy
   slackSec: number
@@ -328,6 +340,12 @@ export type UpdateTemplateResponse = TemplateSummary
 
 // POST /api/admin/templates/:id/deactivate — no body
 export type DeactivateTemplateResponse = TemplateSummary
+
+// POST /api/admin/templates/materialize-now — no body. Runs the same draw the hourly cron tick
+// runs (src/services/quiz-materializer.ts), on demand: local dev has no way to trigger Cloudflare
+// Cron Triggers (wrangler dev doesn't fire `scheduled`), and production admins need a way to
+// materialize a due occurrence without waiting for the next hourly tick.
+export type MaterializeTemplatesNowResponse = { created: number; failed: number; failures: MaterializationFailure[] }
 
 // ============================================================================
 // QUIZZING — the run (QUIZZING.md §5)
