@@ -90,4 +90,21 @@ describe("API client", () => {
       },
     );
   });
+
+  it("requests distinct topics for a given quiz type", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ topics: ["Arithmetic"] }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    const client = createApiClient(fetcher);
+
+    await client.topics("quant");
+
+    expect(fetcher).toHaveBeenCalledWith("/api/bank/topics?type=quant", {
+      method: "GET",
+      credentials: "same-origin",
+    });
+  });
 });

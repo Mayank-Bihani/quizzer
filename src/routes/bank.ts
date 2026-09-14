@@ -1,5 +1,6 @@
-// The seven admin BANK routes: import preview/commit, question browse/detail/PATCH/DELETE, and
-// passage list — BANK.md §5. GET /api/images/:key lives in routes/images.ts (different guard).
+// The eight admin BANK routes: import preview/commit, question browse/detail/PATCH/DELETE,
+// passage list, and topics — BANK.md §5. GET /api/images/:key lives in routes/images.ts
+// (different guard).
 
 import { Hono } from "hono"
 import type { Bindings, Variables } from "../core/config"
@@ -14,6 +15,7 @@ import type {
   ImportRowError,
   ListPassagesResponse,
   ListQuestionsResponse,
+  ListTopicsResponse,
   PassageGroupSummary,
   UpdateQuestionRequest,
   UpdateQuestionResponse,
@@ -38,6 +40,7 @@ import {
   commitImport,
   deleteQuestionCascade,
   getQuestionById,
+  listDistinctTopics,
   listPassages,
   listQuestionsPage,
   updateQuestion,
@@ -348,6 +351,16 @@ bank.delete("/questions/:id", async (c) => {
 bank.get("/passages", async (c) => {
   const passages = await listPassages(c.env.DB)
   const body: ListPassagesResponse = { passages }
+  return c.json(body, 200)
+})
+
+bank.get("/topics", async (c) => {
+  const type = c.req.query("type")
+  if (type === undefined || !VALID_TYPES.includes(type as QuizType)) {
+    return c.json({ message: "Invalid type" }, 400)
+  }
+  const topics = await listDistinctTopics(c.env.DB, type as QuizType)
+  const body: ListTopicsResponse = { topics }
   return c.json(body, 200)
 })
 

@@ -159,6 +159,8 @@ R2 (images), D1.
 **Routes:** `POST /api/bank/import/preview` · `POST /api/bank/import/commit` ·
 `GET /api/bank/questions` (filter by type / topic / difficulty / used-unused) ·
 `GET|PATCH|DELETE /api/bank/questions/:id` · `GET /api/bank/passages` ·
+`GET /api/bank/topics` (resolved 2026-09-14 — distinct topics for a `type`, used and unused alike;
+feeds the admin's quant auto-draw topic picker, API.md) ·
 `GET /api/images/:key` — serves an R2 object by key (BANK-4). This module owns R2 end to end,
 import and serving; the route had no owner before ([[AUDIT]] §5). **This one route is not
 admin-gated** — students load question images mid-quiz, so it's `requireAuth()` only (any

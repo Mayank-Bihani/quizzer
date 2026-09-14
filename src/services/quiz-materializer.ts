@@ -30,6 +30,7 @@ async function materializeOccurrence(
     setCount: template.setCount,
     standaloneCount: template.standaloneCount,
     difficultyMix: template.difficultyMix,
+    topics: template.topics,
   })
   const candidates = await deps.bank.listUnused(toBankFilters(request))
   const draw = selectDraw(candidates, request, deps.random)
@@ -61,6 +62,7 @@ async function materializeOccurrence(
     setCount: template.setCount,
     standaloneCount: template.standaloneCount,
     difficultyMix: template.difficultyMix,
+    topics: template.topics,
     createdBy: template.createdBy,
     createdAt: now,
     units: draw.units,

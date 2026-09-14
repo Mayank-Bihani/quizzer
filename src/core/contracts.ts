@@ -63,6 +63,7 @@ export type SelectionFilters = {
   type: QuizType
   difficultyMix: Partial<Record<Difficulty, number>>
   count: number // standalone graded questions, not timed units
+  topics: string[] // quant only; [] means "no topic filter" (BANK.md)
 }
 
 // What an auto-draw actually asks BANK/the selector for — QUIZZING.md §4. `count` continues to
@@ -72,7 +73,7 @@ export type SelectionFilters = {
 // questions) — asking for "1" no longer means "grab any single question", it means "1 of whichever
 // kind you actually asked for".
 export type DrawRequest =
-  | { type: 'quant'; count: number; difficultyMix: Partial<Record<Difficulty, number>> }
+  | { type: 'quant'; count: number; difficultyMix: Partial<Record<Difficulty, number>>; topics: string[] }
   | { type: 'lr'; setCount: number }
   | {
       type: 'verbal'

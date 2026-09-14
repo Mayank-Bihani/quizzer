@@ -3,7 +3,7 @@
 import { Hono } from "hono"
 import type { Context } from "hono"
 import type { Bindings, Variables } from "../core/config"
-import { DEFAULT_PAGE_LIMIT, MAX_GRADED_QUESTION_COUNT, MAX_PAGE_LIMIT } from "../core/config"
+import { DEFAULT_PAGE_LIMIT, MAX_GRADED_QUESTION_COUNT, MAX_PAGE_LIMIT, MAX_TOPICS_PER_DRAW } from "../core/config"
 import type { Difficulty, QuizStatus, QuizType, UnitKind } from "../core/contracts"
 import type { ListQuizzesResponse, UpdateQuizParamsRequest } from "../core/api"
 import { listQuizzesPage } from "../db/quizzes"
@@ -54,6 +54,18 @@ function mixSum(mix: Partial<Record<Difficulty, number>>): number {
   return Object.values(mix).reduce((sum: number, v) => sum + (v ?? 0), 0)
 }
 
+function parseTopics(raw: unknown): string[] | "invalid" {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw) || raw.length > MAX_TOPICS_PER_DRAW) return "invalid"
+  const trimmed: string[] = []
+  for (const value of raw) {
+    if (typeof value !== "string" || value.trim().length === 0) return "invalid"
+    trimmed.push(value.trim())
+  }
+  if (new Set(trimmed).size !== trimmed.length) return "invalid"
+  return trimmed
+}
+
 function isValidCount(value: unknown, min: number): value is number {
   return typeof value === "number" && Number.isInteger(value) && value >= min && value <= MAX_GRADED_QUESTION_COUNT
 }
@@ -99,6 +111,7 @@ quizzes.post("/", async (c) => {
     "setCount",
     "standaloneCount",
     "standaloneDifficultyMix",
+    "topics",
     "mode",
     "questionIds",
   ]
@@ -119,7 +132,8 @@ quizzes.post("/", async (c) => {
       b.count !== undefined ||
       b.setCount !== undefined ||
       b.standaloneCount !== undefined ||
-      b.standaloneDifficultyMix !== undefined
+      b.standaloneDifficultyMix !== undefined ||
+      b.topics !== undefined
     ) {
       return c.json({ message: "Draw-request fields are not accepted with mode: manual" }, 400)
     }
@@ -150,8 +164,11 @@ quizzes.post("/", async (c) => {
     // A difficulty omitted from difficultyMix isn't excluded — the shortfall is drawn from any
     // difficulty (src/core/selection.ts). Only an over-specified mix (sum > count) is invalid.
     if (mixSum(difficultyMix) > b.count) return c.json({ message: "difficultyMix must not exceed count" }, 400)
-    input = { mode: "auto", title: b.title.trim(), scheduledAt: b.scheduledAt, type: "quant", count: b.count, difficultyMix }
+    const topics = parseTopics(b.topics)
+    if (topics === "invalid") return c.json({ message: "Invalid topics" }, 400)
+    input = { mode: "auto", title: b.title.trim(), scheduledAt: b.scheduledAt, type: "quant", count: b.count, difficultyMix, topics }
   } else if (b.type === "lr") {
+    if (b.topics !== undefined) return c.json({ message: "topics is only accepted for type quant" }, 400)
     if (b.count !== undefined || b.difficultyMix !== undefined || b.standaloneCount !== undefined || b.standaloneDifficultyMix !== undefined) {
       return c.json({ message: "lr accepts only setCount — it is always whole LRDI sets, never standalone questions" }, 400)
     }
@@ -159,6 +176,7 @@ quizzes.post("/", async (c) => {
     if (!isValidCount(b.setCount, 1)) return c.json({ message: "Invalid setCount" }, 400)
     input = { mode: "auto", title: b.title.trim(), scheduledAt: b.scheduledAt, type: "lr", setCount: b.setCount }
   } else if (b.type === "verbal") {
+    if (b.topics !== undefined) return c.json({ message: "topics is only accepted for type quant" }, 400)
     if (b.count !== undefined || b.difficultyMix !== undefined) {
       return c.json({ message: "verbal uses setCount (RC passages) + standaloneCount/standaloneDifficultyMix (VA questions), not count/difficultyMix" }, 400)
     }

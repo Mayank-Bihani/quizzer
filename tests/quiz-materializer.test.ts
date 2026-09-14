@@ -28,19 +28,19 @@ async function insertAdmin(): Promise<string> {
   return id
 }
 
-async function makeStandalone(type: QuizType, difficulty: Difficulty): Promise<QuestionFull> {
+async function makeStandalone(type: QuizType, difficulty: Difficulty, topic = "Topic"): Promise<QuestionFull> {
   questionSeq++
   const id = `m-q-${questionSeq}`
   await env.DB.prepare(
     `INSERT INTO questions (id, type, topic, difficulty, format, body_md, option_a, option_b, option_c, option_d, correct_option, explanation_md, created_by, created_at)
-     VALUES (?, ?, 'Topic', ?, 'mcq', ?, 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
+     VALUES (?, ?, ?, ?, 'mcq', ?, 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
   )
-    .bind(id, type, difficulty, `Body ${questionSeq}`, creatorId, Date.now())
+    .bind(id, type, topic, difficulty, `Body ${questionSeq}`, creatorId, Date.now())
     .run()
   return {
     id,
     type,
-    topic: "Topic",
+    topic,
     subtopic: null,
     difficulty,
     format: "mcq",
@@ -67,7 +67,13 @@ function fakeBank(pool: QuestionFull[]): BankContract & { claims: Map<string, { 
     claims,
     async listUnused(filters: SelectionFilters) {
       const difficulties = Object.keys(filters.difficultyMix)
-      return pool.filter((q) => q.type === filters.type && !claims.has(q.id) && difficulties.includes(q.difficulty))
+      return pool.filter(
+        (q) =>
+          q.type === filters.type &&
+          !claims.has(q.id) &&
+          difficulties.includes(q.difficulty) &&
+          (filters.topics.length === 0 || filters.topics.includes(q.topic))
+      )
     },
     async claimUnused(questionIds, quizId, quizNumber) {
       const confirmed: string[] = []
@@ -93,6 +99,7 @@ async function insertTemplate(opts: {
   type: QuizType
   questionCount: number
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics?: string[]
   timingPolicy: TimingPolicy
   slackSec?: number
   joinWindowSec?: number
@@ -104,14 +111,15 @@ async function insertTemplate(opts: {
   // Every template in this file is quant, whose request lives in standalone_count (set_count is
   // null) — src/core/selection.ts's toStoredDrawRequest.
   await env.DB.prepare(
-    `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
-     VALUES (?, 'Recurring Test Template', ?, NULL, ?, ?, ?, ?, ?, 4, -1, ?, ?, ?, ?)`
+    `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, topics, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
+     VALUES (?, 'Recurring Test Template', ?, NULL, ?, ?, ?, ?, ?, ?, 4, -1, ?, ?, ?, ?)`
   )
     .bind(
       id,
       opts.type,
       opts.questionCount,
       JSON.stringify(opts.difficultyMix),
+      JSON.stringify(opts.topics ?? []),
       JSON.stringify(opts.timingPolicy),
       opts.slackSec ?? 30,
       opts.joinWindowSec ?? 600,
@@ -173,6 +181,49 @@ describe("materializeTemplates", () => {
     expect(bank.claims.has(pool[1]!.id)).toBe(true)
     const questionCount = await env.DB.prepare("SELECT COUNT(*) AS n FROM quiz_questions WHERE quiz_id = ?").bind(result.quizIds[0]).first<{ n: number }>()
     expect(questionCount?.n).toBe(2)
+  })
+
+  it("BE-9: honors a template's configured topics, drawing only from that subset", async () => {
+    const arithmetic = await Promise.all([
+      makeStandalone("quant", "easy", "Arithmetic"),
+      makeStandalone("quant", "easy", "Arithmetic"),
+    ])
+    const algebra = await Promise.all([makeStandalone("quant", "easy", "Algebra"), makeStandalone("quant", "easy", "Algebra")])
+    await insertTemplate({
+      type: "quant",
+      questionCount: 2,
+      difficultyMix: { easy: 2 },
+      topics: ["Arithmetic"],
+      timingPolicy: { standalone: 60 },
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+
+    const bank = fakeBank([...arithmetic, ...algebra])
+    const result = await materializeTemplates(deps(bank), 7, T0)
+    expect(result.failures).toEqual([])
+    expect(result.quizIds).toHaveLength(1)
+    expect(algebra.every((q) => !bank.claims.has(q.id))).toBe(true)
+    expect(arithmetic.every((q) => bank.claims.has(q.id))).toBe(true)
+  })
+
+  it("BE-10: reports pool_exhausted and writes nothing when the configured topics can't satisfy the draw", async () => {
+    const arithmetic = await makeStandalone("quant", "easy", "Arithmetic")
+    await insertTemplate({
+      type: "quant",
+      questionCount: 2, // only 1 Arithmetic candidate exists
+      difficultyMix: { easy: 2 },
+      topics: ["Arithmetic"],
+      timingPolicy: { standalone: 60 },
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+
+    const bank = fakeBank([arithmetic])
+    const result = await materializeTemplates(deps(bank), 7, T0)
+    expect(result.quizIds).toEqual([])
+    expect(result.failures).toHaveLength(1)
+    expect(result.failures[0]?.code).toBe("pool_exhausted")
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
+    expect(row?.n).toBe(0)
   })
 
   it("is idempotent — a second invocation over the same window creates nothing new for already-materialized slots", async () => {

@@ -85,6 +85,7 @@ async function createDraftQuiz(onQuizCancelled?: CreationDeps["onQuizCancelled"]
     type: "quant",
     difficultyMix: { easy: 2 },
     count: 2,
+    topics: [],
   })
   if (created.kind !== "ok") throw new Error("test setup failed: draft creation did not succeed")
   return created.response.quizId

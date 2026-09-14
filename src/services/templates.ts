@@ -37,12 +37,15 @@ function isValidCoreFields(input: {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
 }): boolean {
   if (input.name.trim().length === 0) return false
   if (!VALID_TYPES.includes(input.type)) return false
 
   const wantsSetCount = input.type === "lr" || input.type === "verbal"
   const wantsStandaloneCount = input.type === "quant" || input.type === "verbal"
+  const wantsTopics = input.type === "quant"
+  if (!wantsTopics && input.topics.length > 0) return false
   // lr is always fully grouped, so its setCount must be at least 1 (a quiz needs questions).
   // verbal's setCount/standaloneCount are independent asks — either may legitimately be 0 (all VA,
   // or all RC), but QUIZZING.md §4 requires at least one to be positive, checked below.
@@ -151,7 +154,8 @@ export async function patchTemplate(deps: TemplateDeps, id: string, patch: Updat
     patch.type !== undefined ||
     patch.setCount !== undefined ||
     patch.standaloneCount !== undefined ||
-    patch.difficultyMix !== undefined
+    patch.difficultyMix !== undefined ||
+    patch.topics !== undefined
   if (touchesCoreFields) {
     const effective = {
       name: patch.name ?? current.name,
@@ -161,6 +165,7 @@ export async function patchTemplate(deps: TemplateDeps, id: string, patch: Updat
       setCount: patch.setCount !== undefined ? patch.setCount : current.setCount,
       standaloneCount: patch.standaloneCount !== undefined ? patch.standaloneCount : current.standaloneCount,
       difficultyMix: patch.difficultyMix ?? current.difficultyMix,
+      topics: patch.topics ?? current.topics,
     }
     if (!isValidCoreFields(effective)) return { kind: "invalid" }
   }

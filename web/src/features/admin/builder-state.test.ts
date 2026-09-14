@@ -4,6 +4,7 @@ import {
   derivedWindowSeconds,
   groupIntoPickUnits,
   mixTotal,
+  readMultiSelect,
   tallyByDifficulty,
   toggleSelection,
 } from "./builder-state";
@@ -110,6 +111,33 @@ describe("toggleSelection", () => {
     expect(added.map((q) => q.id).sort()).toEqual(["s1", "s2"]);
     const removed = toggleSelection(added, [standalone]);
     expect(removed.map((q) => q.id)).toEqual(["s2"]);
+  });
+});
+
+describe("readMultiSelect", () => {
+  it("returns an empty array when no option is selected", () => {
+    const form = new FormData();
+    expect(readMultiSelect(form, "topics")).toEqual([]);
+  });
+
+  it("returns a single-element array when one option is selected", () => {
+    const form = new FormData();
+    form.append("topics", "Arithmetic");
+    expect(readMultiSelect(form, "topics")).toEqual(["Arithmetic"]);
+  });
+
+  it("returns every selected value when multiple options are selected", () => {
+    const form = new FormData();
+    form.append("topics", "Arithmetic");
+    form.append("topics", "Algebra");
+    expect(readMultiSelect(form, "topics")).toEqual(["Arithmetic", "Algebra"]);
+  });
+
+  it("ignores entries under a different field name", () => {
+    const form = new FormData();
+    form.append("topics", "Arithmetic");
+    form.append("other", "ignored");
+    expect(readMultiSelect(form, "topics")).toEqual(["Arithmetic"]);
   });
 });
 

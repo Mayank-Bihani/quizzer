@@ -19,6 +19,11 @@ export function mixTotal(mix: Partial<Record<Difficulty, number>>): number {
   return (mix.easy ?? 0) + (mix.medium ?? 0) + (mix.hard ?? 0);
 }
 
+// A native <select multiple> submits one FormData entry per selected option under the same key.
+export function readMultiSelect(form: FormData, name: string): string[] {
+  return form.getAll(name).map(String);
+}
+
 export function tallyByDifficulty(
   questions: QuestionFull[],
 ): Partial<Record<Difficulty, number>> {

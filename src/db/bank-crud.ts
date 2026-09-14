@@ -75,6 +75,14 @@ export async function getQuestionById(db: D1Database, id: string): Promise<Quest
   return row ? toQuestionFull(row) : null
 }
 
+export async function listDistinctTopics(db: D1Database, type: QuizType): Promise<string[]> {
+  const { results } = await db
+    .prepare("SELECT DISTINCT topic FROM questions WHERE type = ? ORDER BY topic ASC")
+    .bind(type)
+    .all<{ topic: string }>()
+  return results.map((r) => r.topic)
+}
+
 export async function listPassages(db: D1Database): Promise<PassageSummary[]> {
   const { results } = await db
     .prepare("SELECT id, type, topic, title, body_md, image_key, source, used_in_quiz_id FROM passages ORDER BY created_at ASC, id ASC")

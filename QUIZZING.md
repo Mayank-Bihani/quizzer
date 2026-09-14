@@ -58,7 +58,13 @@ whole-set `setCount` only — lr is always fully grouped, so a count of 1 always
 `standaloneCount`/`standaloneDifficultyMix` (VA questions) independently — asking for 1 RC passage
 can never be silently satisfied by grabbing a lone standalone VA question instead, and vice versa.
 `difficultyMix` scopes the standalone portion only; a set's members keep whatever difficulty they
-were authored with, since BANK's `passages` carry no difficulty of their own. The persisted request
+were authored with, since BANK's `passages` carry no difficulty of their own. A quant request also
+carries `topics: string[]` (resolved 2026-09-14) — quant only, since quant never produces groups in
+this codebase's fixtures; `[]` (the default) means no topic filter, exactly as today. When
+non-empty, only standalone candidates whose `topic` is in the list are drawn; the admin picks from
+a dropdown populated by `GET /api/bank/topics?type=<QuizType>` (built generically over any type,
+though only quant gets a UI picker) rather than typing free text, avoiding a silent-typo miss. The
+persisted request
 (`setCount`/`standaloneCount`/`difficultyMix`) is distinct from the actual draw result
 (`questionCount`/`unitCount`): a set-based draw's real size varies occurrence to occurrence since
 sets are 4–5 questions each, so reshuffle/materialization always recompute the actual totals fresh
@@ -120,7 +126,8 @@ orphan history. Deactivation only flips `active = 0`, which `materializeTemplate
 
 A template's fields mirror an auto-draw quiz definition: `name`, `type`, `setCount`/
 `standaloneCount` (type-conditional `DrawRequest` fields — §4 above — `null` for whichever half
-doesn't apply), `difficultyMix` (scopes `standaloneCount` only), `timingPolicy` (only the unit
+doesn't apply), `difficultyMix` (scopes `standaloneCount` only), `topics` (resolved 2026-09-14;
+quant only — must be `[]` for verbal/lr, same rule `difficultyMix` follows for lr today), `timingPolicy` (only the unit
 kinds implied by `type`, matching the same
 per-used-kind validation `patchSettings` already applies to manual quizzes), `slackSec`,
 `joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap`, and `rrule` (the same minimal RRULE

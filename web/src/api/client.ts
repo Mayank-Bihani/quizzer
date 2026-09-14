@@ -27,6 +27,7 @@ import type {
   ListQuizzesResponse,
   ListTemplatesRequest,
   ListTemplatesResponse,
+  ListTopicsResponse,
   LockQuizResponse,
   LogoutResponse,
   MaterializeTemplatesNowResponse,
@@ -50,6 +51,7 @@ import type {
   ListOpenQuizzesResponse,
   ListUpcomingQuizzesResponse,
 } from "../../../src/core/api";
+import type { QuizType } from "../../../src/core/contracts";
 
 export class ApiRequestError extends Error {
   constructor(
@@ -161,6 +163,8 @@ export function createApiClient(fetcher: typeof fetch = fetch) {
       upload<ImportCommitResponse>("/api/bank/import/commit", form),
     questions: (query: ListQuestionsRequest = {}) =>
       get<ListQuestionsResponse>(withQuery("/api/bank/questions", query)),
+    topics: (type: QuizType) =>
+      get<ListTopicsResponse>(withQuery("/api/bank/topics", { type })),
     question: (id: string) =>
       get<GetQuestionResponse>(`/api/bank/questions/${encodeSegment(id)}`),
     updateQuestion: (id: string, body: UpdateQuestionRequest) =>

@@ -51,6 +51,7 @@ const VALID_BODY = {
   setCount: null,
   standaloneCount: 2,
   difficultyMix: { easy: 2 },
+  topics: [],
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
   joinWindowSec: 600,
@@ -161,6 +162,36 @@ describe("POST /api/admin/templates", () => {
     const res = await postJson("/api/admin/templates", cookie, { ...VALID_BODY, rrule: "FREQ=DAILY" })
     expect(res.status).toBe(400)
   })
+
+  it("BE-8: rejects a body that omits the topics key entirely", async () => {
+    const { cookie } = await signInAs("admin")
+    const { topics: _topics, ...withoutTopics } = VALID_BODY
+    const res = await postJson("/api/admin/templates", cookie, withoutTopics)
+    expect(res.status).toBe(400)
+  })
+
+  it("BE-7: creates a quant template with valid topics; rejects duplicate topics", async () => {
+    const { cookie } = await signInAs("admin")
+    const ok = await postJson("/api/admin/templates", cookie, { ...VALID_BODY, topics: ["Arithmetic", "Algebra"] })
+    expect(ok.status).toBe(200)
+    const body = await ok.json<{ topics: string[] }>()
+    expect(body.topics).toEqual(["Arithmetic", "Algebra"])
+
+    const dup = await postJson("/api/admin/templates", cookie, { ...VALID_BODY, topics: ["Arithmetic", "Arithmetic"] })
+    expect(dup.status).toBe(400)
+  })
+
+  it("BE-7: rejects a non-empty topics on a verbal/lr template", async () => {
+    const { cookie } = await signInAs("admin")
+    const res = await postJson("/api/admin/templates", cookie, {
+      ...VALID_BODY,
+      type: "verbal",
+      setCount: 0,
+      timingPolicy: { standalone: 60 },
+      topics: ["Arithmetic"],
+    })
+    expect(res.status).toBe(400)
+  })
 })
 
 describe("GET /api/admin/templates", () => {
@@ -209,6 +240,24 @@ describe("PATCH /api/admin/templates/:id", () => {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ type: "verbal" }),
+    })
+    expect(res.status).toBe(400)
+  })
+
+  it("BE-7: PATCH a verbal template with non-empty topics returns 400", async () => {
+    const { cookie } = await signInAs("admin")
+    const created = await postJson("/api/admin/templates", cookie, {
+      ...VALID_BODY,
+      type: "verbal",
+      setCount: 0,
+      timingPolicy: { standalone: 60 },
+    })
+    const { id } = await created.json<{ id: string }>()
+
+    const res = await authed(`/api/admin/templates/${id}`, cookie, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ topics: ["Arithmetic"] }),
     })
     expect(res.status).toBe(400)
   })

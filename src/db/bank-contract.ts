@@ -34,15 +34,16 @@ export async function listUnused(db: D1Database, filters: SelectionFilters): Pro
   // A pure-set request (e.g. lr, or verbal with no standalone VA questions) has count=0 and no
   // difficulties to filter by — that must skip only the standalone query, never the group query
   // below, which whole rc/lrdi groups always need regardless of any standalone filter.
+  const topicClause = filters.topics.length > 0 ? ` AND q.topic IN (${placeholders(filters.topics.length)})` : ""
   const standaloneRows =
     filters.count > 0 && difficulties.length > 0
       ? await db
           .prepare(
             `SELECT ${QUESTION_JOIN_PASSAGE_SELECT} ${QUESTION_JOIN_PASSAGE_FROM}
              WHERE q.type = ? AND q.passage_id IS NULL AND q.used_in_quiz_id IS NULL
-               AND q.difficulty IN (${placeholders(difficulties.length)})`
+               AND q.difficulty IN (${placeholders(difficulties.length)})${topicClause}`
           )
-          .bind(filters.type, ...difficulties)
+          .bind(filters.type, ...difficulties, ...filters.topics)
           .all<JoinedQuestionRow>()
       : { results: [] as JoinedQuestionRow[] }
 

@@ -80,6 +80,10 @@ export const IMAGES_ROUTE_PREFIX = "/api/images"
 export const MAX_GRADED_QUESTION_COUNT = 100
 export const MAX_SEAT_CAP = 120
 
+// Sanity bound on a quant auto-draw's topics array, not a product requirement — mirrors
+// ID_CHUNK_SIZE's role in bank-contract.ts. Implementation bound, not a product setting.
+export const MAX_TOPICS_PER_DRAW = 20
+
 // Human-readable room code, e.g. "QNT-8417" (PRD.md QUIZ-8) — a section prefix plus random digits.
 export const ROOM_CODE_PREFIX_BY_TYPE = { verbal: "VRB", quant: "QNT", lr: "LGR" } as const
 export const ROOM_CODE_DIGIT_LENGTH = 4

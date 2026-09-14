@@ -4,7 +4,7 @@
 import { Hono } from "hono"
 import type { Context } from "hono"
 import type { Bindings, Variables } from "../core/config"
-import { DEFAULT_PAGE_LIMIT, MATERIALIZE_LOOKAHEAD_DAYS, MAX_PAGE_LIMIT } from "../core/config"
+import { DEFAULT_PAGE_LIMIT, MATERIALIZE_LOOKAHEAD_DAYS, MAX_PAGE_LIMIT, MAX_TOPICS_PER_DRAW } from "../core/config"
 import type { Difficulty, QuizType, UnitKind } from "../core/contracts"
 import type { CreateTemplateRequest, ListTemplatesResponse, MaterializeTemplatesNowResponse, UpdateTemplateRequest } from "../core/api"
 import { createTemplate, deactivateTemplate, listTemplates, patchTemplate, type TemplateDeps } from "../services/templates"
@@ -44,6 +44,17 @@ function checkDifficultyMix(value: unknown): string | null {
   return null
 }
 
+function checkTopics(value: unknown): string | null {
+  if (!Array.isArray(value) || value.length > MAX_TOPICS_PER_DRAW) return "Invalid topics"
+  const trimmed: string[] = []
+  for (const item of value) {
+    if (typeof item !== "string" || item.trim().length === 0) return "Invalid topics"
+    trimmed.push(item.trim())
+  }
+  if (new Set(trimmed).size !== trimmed.length) return "Invalid topics"
+  return null
+}
+
 function checkTimingPolicy(value: unknown): string | null {
   if (!isPlainObject(value)) return "Invalid timingPolicy"
   for (const [kind, v] of Object.entries(value)) {
@@ -59,6 +70,7 @@ const TEMPLATE_FIELDS = [
   "setCount",
   "standaloneCount",
   "difficultyMix",
+  "topics",
   "timingPolicy",
   "slackSec",
   "joinWindowSec",
@@ -101,6 +113,8 @@ function validateCreateBody(body: unknown): string | null {
   if (standaloneCountError) return standaloneCountError
   const mixError = checkDifficultyMix(body.difficultyMix)
   if (mixError) return mixError
+  const topicsError = checkTopics(body.topics)
+  if (topicsError) return topicsError
   const policyError = checkTimingPolicy(body.timingPolicy)
   if (policyError) return policyError
   for (const field of ["slackSec", "joinWindowSec", "marksCorrect", "marksWrong", "seatCap"] as const) {
@@ -164,6 +178,10 @@ function validatePatchBody(body: unknown): string | null {
   if ("difficultyMix" in body) {
     const mixError = checkDifficultyMix(body.difficultyMix)
     if (mixError) return mixError
+  }
+  if ("topics" in body) {
+    const topicsError = checkTopics(body.topics)
+    if (topicsError) return topicsError
   }
   if ("timingPolicy" in body) {
     const policyError = checkTimingPolicy(body.timingPolicy)

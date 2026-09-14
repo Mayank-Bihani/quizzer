@@ -45,6 +45,7 @@ const VALID_QUANT_TEMPLATE: CreateTemplateRequest = {
   setCount: null,
   standaloneCount: 2,
   difficultyMix: { easy: 2 },
+  topics: [],
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
   joinWindowSec: 600,
@@ -121,6 +122,7 @@ describe("createTemplate", () => {
       setCount: 3,
       standaloneCount: null,
       difficultyMix: {},
+      topics: [],
       timingPolicy: { standalone: 60, lrdi: 180 },
       slackSec: 30,
       joinWindowSec: 600,
@@ -140,6 +142,7 @@ describe("createTemplate", () => {
       name: "Weekly LRDI",
       type: "lr" as const,
       setCount: 3,
+      topics: [] as string[],
       timingPolicy: { standalone: 60, lrdi: 180 },
       slackSec: 30,
       joinWindowSec: 600,
@@ -161,6 +164,7 @@ describe("createTemplate", () => {
       setCount: 2,
       standaloneCount: 3,
       difficultyMix: { easy: 1 },
+      topics: [],
       timingPolicy: { standalone: 60, rc: 600 },
       slackSec: 30,
       joinWindowSec: 600,
@@ -178,6 +182,49 @@ describe("createTemplate", () => {
   it("rejects a quant template carrying a setCount", async () => {
     const result = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, setCount: 1 })
     expect(result.kind).toBe("invalid")
+  })
+
+  it("accepts a quant template with a non-empty topics array", async () => {
+    const result = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, topics: ["Arithmetic", "Algebra"] })
+    expect(result.kind).toBe("ok")
+    if (result.kind !== "ok") return
+    expect(result.summary.topics).toEqual(["Arithmetic", "Algebra"])
+  })
+
+  it("rejects an lr or verbal template carrying a non-empty topics array — topics is quant-only", async () => {
+    const lrResult = await createTemplate(deps(), creatorId, {
+      name: "Weekly LRDI",
+      type: "lr",
+      setCount: 3,
+      standaloneCount: null,
+      difficultyMix: {},
+      topics: ["Arithmetic"],
+      timingPolicy: { standalone: 60, lrdi: 180 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+    expect(lrResult.kind).toBe("invalid")
+
+    const verbalResult = await createTemplate(deps(), creatorId, {
+      name: "Weekly VARC",
+      type: "verbal",
+      setCount: 2,
+      standaloneCount: 3,
+      difficultyMix: { easy: 1 },
+      topics: ["Arithmetic"],
+      timingPolicy: { standalone: 60, rc: 600 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+    expect(verbalResult.kind).toBe("invalid")
   })
 })
 
@@ -253,6 +300,50 @@ describe("patchTemplate", () => {
     expect(result.kind).toBe("ok")
     if (result.kind !== "ok") return
     expect(result.summary.name).toBe("Renamed")
+  })
+
+  it("applies a topics patch on a quant template", async () => {
+    const created = await createTemplate(deps(), creatorId, VALID_QUANT_TEMPLATE)
+    if (created.kind !== "ok") throw new Error("setup failed")
+
+    const result = await patchTemplate(deps(), created.summary.id, { topics: ["Geometry"] })
+    expect(result.kind).toBe("ok")
+    if (result.kind !== "ok") return
+    expect(result.summary.topics).toEqual(["Geometry"])
+  })
+
+  it("rejects a topics patch on a non-quant (lr) template — topics is quant-only", async () => {
+    const created = await createTemplate(deps(), creatorId, {
+      name: "Weekly LRDI",
+      type: "lr",
+      setCount: 3,
+      standaloneCount: null,
+      difficultyMix: {},
+      topics: [],
+      timingPolicy: { standalone: 60, lrdi: 180 },
+      slackSec: 30,
+      joinWindowSec: 600,
+      marksCorrect: 4,
+      marksWrong: -1,
+      seatCap: 120,
+      rrule: "FREQ=WEEKLY;BYDAY=TU;BYHOUR=18;BYMINUTE=0",
+    })
+    if (created.kind !== "ok") throw new Error("setup failed")
+
+    const result = await patchTemplate(deps(), created.summary.id, { topics: ["Arithmetic"] })
+    expect(result.kind).toBe("invalid")
+  })
+
+  it("rejects a type-only patch away from quant when stored topics is non-empty and the patch doesn't clear it", async () => {
+    const created = await createTemplate(deps(), creatorId, { ...VALID_QUANT_TEMPLATE, topics: ["Arithmetic"] })
+    if (created.kind !== "ok") throw new Error("setup failed")
+
+    const result = await patchTemplate(deps(), created.summary.id, {
+      type: "verbal",
+      setCount: 1,
+      timingPolicy: { standalone: 60, rc: 300 },
+    })
+    expect(result.kind).toBe("invalid")
   })
 })
 

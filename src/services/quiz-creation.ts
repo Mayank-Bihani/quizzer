@@ -107,6 +107,7 @@ async function createAutoDraft(
     setCount: stored.setCount,
     standaloneCount: stored.standaloneCount,
     difficultyMix: stored.difficultyMix,
+    topics: stored.topics,
     createdBy: adminId,
     createdAt: deps.now(),
     units: draw.units,
@@ -137,6 +138,7 @@ async function createManualDraft(
     type: input.type,
     difficultyMix: { easy: 1, medium: 1, hard: 1 },
     count: input.questionIds.length,
+    topics: [],
   })
   const draw = buildManualDraw(candidates, input.questionIds)
   if (!draw.ok) return { kind: "invalid_selection", reason: draw.reason }
@@ -154,6 +156,7 @@ async function createManualDraft(
     setCount: null, // manual picks aren't expressed as a set/standalone request — reshuffle is
     standaloneCount: null, // locked out for manual drafts, so these are never read back
     difficultyMix,
+    topics: [], // manual mode never carries a DrawRequest/topics at all
     createdBy: adminId,
     createdAt: deps.now(),
     units: draw.units,
@@ -199,6 +202,7 @@ export async function reshuffleDraft(deps: CreationDeps, id: string): Promise<Re
     setCount: draft.setCount,
     standaloneCount: draft.standaloneCount,
     difficultyMix: draft.difficultyMix,
+    topics: draft.topics,
   })
   const candidates = await deps.bank.listUnused(toBankFilters(request))
   const draw = selectDraw(candidates, request, deps.random)

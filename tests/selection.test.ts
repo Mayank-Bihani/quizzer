@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest"
-import { buildManualDraw, selectDraw, selectExactDraw, selectSetCountDraw, selectVerbalDraw } from "../src/core/selection"
+import {
+  buildManualDraw,
+  fromStoredDrawRequest,
+  selectDraw,
+  selectExactDraw,
+  selectSetCountDraw,
+  selectVerbalDraw,
+  toBankFilters,
+  toStoredDrawRequest,
+} from "../src/core/selection"
 import type { Difficulty, DrawRequest, QuestionFull, QuizType } from "../src/core/contracts"
 
 let nextId = 0
@@ -471,7 +480,7 @@ describe("selectVerbalDraw — RC passages and standalone VA questions are indep
 describe("selectDraw — dispatches by DrawRequest.type", () => {
   it("quant delegates to the exact-vector draw", () => {
     const candidates = [standalone("quant", "easy"), standalone("quant", "easy")]
-    const request: DrawRequest = { type: "quant", count: 2, difficultyMix: { easy: 2 } }
+    const request: DrawRequest = { type: "quant", count: 2, difficultyMix: { easy: 2 }, topics: [] }
     const result = selectDraw(candidates, request, NO_RANDOM)
     expect(result.ok).toBe(true)
     if (!result.ok) return
@@ -494,5 +503,35 @@ describe("selectDraw — dispatches by DrawRequest.type", () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.units[0]?.kind).toBe("rc")
+  })
+})
+
+describe("toBankFilters — topics scope quant's standalone draw only", () => {
+  it("passes a quant request's topics through to the bank filters", () => {
+    const request: DrawRequest = { type: "quant", count: 2, difficultyMix: { easy: 2 }, topics: ["Arithmetic"] }
+    expect(toBankFilters(request)).toEqual({ type: "quant", difficultyMix: { easy: 2 }, count: 2, topics: ["Arithmetic"] })
+  })
+
+  it("forces topics to [] for lr and verbal, which never filter by topic", () => {
+    expect(toBankFilters({ type: "lr", setCount: 1 }).topics).toEqual([])
+    expect(
+      toBankFilters({ type: "verbal", setCount: 1, standaloneCount: 0, standaloneDifficultyMix: {} }).topics
+    ).toEqual([])
+  })
+})
+
+describe("toStoredDrawRequest / fromStoredDrawRequest — topics round-trip", () => {
+  it("stores and reconstructs a quant request's topics exactly", () => {
+    const request: DrawRequest = { type: "quant", count: 2, difficultyMix: { easy: 2 }, topics: ["Arithmetic", "Algebra"] }
+    const stored = toStoredDrawRequest(request)
+    expect(stored.topics).toEqual(["Arithmetic", "Algebra"])
+    expect(fromStoredDrawRequest("quant", stored)).toEqual(request)
+  })
+
+  it("stores [] for lr/verbal regardless of what's on the request", () => {
+    expect(toStoredDrawRequest({ type: "lr", setCount: 1 }).topics).toEqual([])
+    expect(
+      toStoredDrawRequest({ type: "verbal", setCount: 1, standaloneCount: 0, standaloneDifficultyMix: {} }).topics
+    ).toEqual([])
   })
 })

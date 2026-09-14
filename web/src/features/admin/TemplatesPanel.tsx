@@ -19,7 +19,7 @@ import {
   useResource,
 } from "../../components/ui";
 import { quizTypeLabels } from "../../lib/format";
-import { mixTotal } from "./builder-state";
+import { mixTotal, readMultiSelect } from "./builder-state";
 import {
   buildWeeklyRrule,
   parseWeeklyRrule,
@@ -44,7 +44,10 @@ function impliedGroupKind(type: QuizType): UnitKind {
 // A template only ever stores the request (setCount/standaloneCount), never a drawn total — the
 // actual question count per occurrence varies since sets are 4-5 questions each.
 function describeDraw(template: TemplateSummary): string {
-  if (template.type === "quant") return `${template.standaloneCount} questions`;
+  if (template.type === "quant") {
+    const base = `${template.standaloneCount} questions`;
+    return template.topics.length > 0 ? `${base} (${template.topics.join(", ")})` : base;
+  }
   if (template.type === "lr") return `${template.setCount} LRDI set${template.setCount === 1 ? "" : "s"}`;
   const parts: string[] = [];
   if (template.setCount) parts.push(`${template.setCount} RC passage${template.setCount === 1 ? "" : "s"}`);
@@ -67,6 +70,11 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
   );
   const [validationError, setValidationError] = useState<string | null>(null);
   const groupKind = impliedGroupKind(type);
+  // Fetched only when quant is selected — lr/verbal never show a topics picker (§4).
+  const topicsResource = useResource(
+    () => (type === "quant" ? api.topics("quant") : Promise.resolve({ topics: [] })),
+    [type],
+  );
 
   const toggleDay = (day: WeekdayCode) => {
     setDays((current) => {
@@ -127,6 +135,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
         ? { [groupKind]: Number(groupValue) }
         : {}),
     };
+    const topics = type === "quant" ? readMultiSelect(form, "topics") : [];
 
     onSubmit({
       name: String(form.get("name")).trim(),
@@ -134,6 +143,7 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
       setCount,
       standaloneCount,
       difficultyMix,
+      topics,
       timingPolicy,
       slackSec: Number(form.get("slackSec")),
       joinWindowSec: Number(form.get("joinWindowSec")),
@@ -229,6 +239,25 @@ function TemplateForm({ initial, busy, onCancel, onSubmit }: TemplateFormProps) 
             defaultValue={initial?.standaloneCount ?? undefined}
             required
           />
+        </label>
+      )}
+      {type === "quant" && topicsResource.data && (
+        <label className="field">
+          <span>
+            Topics (optional — leave nothing selected to draw from any topic)
+          </span>
+          <select
+            className="inp"
+            name="topics"
+            multiple
+            defaultValue={initial?.topics}
+          >
+            {topicsResource.data.topics.map((topic) => (
+              <option key={topic} value={topic}>
+                {topic}
+              </option>
+            ))}
+          </select>
         </label>
       )}
       {type !== "lr" &&

@@ -4,12 +4,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TemplateSummary } from "../../../../src/core/api";
 import { TemplatesPanel } from "./TemplatesPanel";
 
-const { templates, createTemplate, updateTemplate, deactivateTemplate } =
+const { templates, createTemplate, updateTemplate, deactivateTemplate, topics } =
   vi.hoisted(() => ({
     templates: vi.fn(),
     createTemplate: vi.fn(),
     updateTemplate: vi.fn(),
     deactivateTemplate: vi.fn(),
+    topics: vi.fn(),
   }));
 
 vi.mock("../../api/client", () => ({
@@ -21,7 +22,7 @@ vi.mock("../../api/client", () => ({
       super(message);
     }
   },
-  api: { templates, createTemplate, updateTemplate, deactivateTemplate },
+  api: { templates, createTemplate, updateTemplate, deactivateTemplate, topics },
 }));
 
 const QUANT_TEMPLATE: TemplateSummary = {
@@ -31,6 +32,7 @@ const QUANT_TEMPLATE: TemplateSummary = {
   setCount: null,
   standaloneCount: 2,
   difficultyMix: { easy: 2 },
+  topics: [],
   timingPolicy: { standalone: 60, lrdi: 180 },
   slackSec: 30,
   joinWindowSec: 600,
@@ -46,7 +48,9 @@ beforeEach(() => {
   createTemplate.mockReset();
   updateTemplate.mockReset();
   deactivateTemplate.mockReset();
+  topics.mockReset();
   templates.mockResolvedValue({ items: [], total: 0, limit: 20, offset: 0 });
+  topics.mockResolvedValue({ topics: ["Arithmetic", "Algebra"] });
 });
 
 describe("TemplatesPanel", () => {
@@ -104,6 +108,7 @@ describe("TemplatesPanel", () => {
       setCount: null,
       standaloneCount: 2,
       difficultyMix: { easy: 2, medium: 0, hard: 0 },
+      topics: [],
       timingPolicy: { standalone: 60, lrdi: 180 },
       slackSec: 30,
       joinWindowSec: 600,
@@ -269,6 +274,101 @@ describe("TemplatesPanel", () => {
     expect(createTemplate).toHaveBeenCalledWith(
       expect.objectContaining({ type: "verbal", setCount: 1, standaloneCount: 0, difficultyMix: {} }),
     );
+  });
+
+  it("FE-1: shows a topics picker only for quant, populated from api.topics", async () => {
+    const user = userEvent.setup();
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
+
+    expect(await screen.findByLabelText(/topics/i)).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Arithmetic" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Algebra" })).toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/^section/i), "lr");
+    expect(screen.queryByLabelText(/topics/i)).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText(/^section/i), "verbal");
+    expect(screen.queryByLabelText(/topics/i)).not.toBeInTheDocument();
+  });
+
+  it("FE-2: submits the selected topics for a quant template", async () => {
+    const user = userEvent.setup();
+    createTemplate.mockResolvedValue({ ...QUANT_TEMPLATE, id: "new" });
+    render(<TemplatesPanel />);
+
+    await user.click(await screen.findByRole("button", { name: /new template/i }));
+    await user.type(screen.getByLabelText(/name/i), "Weekly Quant");
+    await user.selectOptions(screen.getByLabelText(/^section/i), "quant");
+    await user.type(screen.getByLabelText(/question count/i), "2");
+    await user.type(screen.getByLabelText(/^easy/i), "2");
+    await user.type(screen.getByLabelText(/^medium/i), "0");
+    await user.type(screen.getByLabelText(/^hard/i), "0");
+    await user.selectOptions(await screen.findByLabelText(/topics/i), ["Arithmetic"]);
+    await user.type(screen.getByLabelText(/time limit per question/i), "60");
+    await user.type(screen.getByLabelText(/time limit per lrdi/i), "180");
+    await user.type(screen.getByLabelText(/buffer between/i), "30");
+    await user.type(screen.getByLabelText(/admission window/i), "600");
+    await user.type(screen.getByLabelText(/marks for correct/i), "4");
+    await user.type(screen.getByLabelText(/marks for wrong/i), "-1");
+    await user.type(screen.getByLabelText(/seat cap/i), "120");
+    await user.click(screen.getByLabelText(/^tue$/i));
+    await user.type(screen.getByLabelText(/hour \(ist\)/i), "18");
+    await user.type(screen.getByLabelText(/minute/i), "0");
+
+    await user.click(screen.getByRole("button", { name: /create template/i }));
+
+    await waitFor(() => expect(createTemplate).toHaveBeenCalledTimes(1));
+    expect(createTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ topics: ["Arithmetic"] }),
+    );
+  });
+
+  it("FE-3: pre-selects the template's stored topics on edit", async () => {
+    const user = userEvent.setup();
+    templates.mockResolvedValue({
+      items: [{ ...QUANT_TEMPLATE, topics: ["Algebra"] }],
+      total: 1,
+      limit: 20,
+      offset: 0,
+    });
+    render(<TemplatesPanel />);
+
+    const card = (await screen.findByText("Weekly Quant")).closest("article")!;
+    await user.click(within(card).getByRole("button", { name: /edit/i }));
+
+    const select = (await screen.findByLabelText(/topics/i)) as HTMLSelectElement;
+    const selected = [...select.selectedOptions].map((o) => o.value);
+    expect(selected).toEqual(["Algebra"]);
+  });
+
+  it("FE-4: describeDraw appends selected topics for a quant template with a non-empty topics list", async () => {
+    templates.mockResolvedValue({
+      items: [{ ...QUANT_TEMPLATE, topics: ["Arithmetic", "Algebra"] }],
+      total: 1,
+      limit: 20,
+      offset: 0,
+    });
+    render(<TemplatesPanel />);
+
+    const card = (await screen.findByText("Weekly Quant")).closest("article")!;
+    expect(within(card).getByText(/2 questions \(Arithmetic, Algebra\)/)).toBeInTheDocument();
+  });
+
+  it("does not append a topics suffix for a quant template with an empty topics list", async () => {
+    templates.mockResolvedValue({
+      items: [QUANT_TEMPLATE],
+      total: 1,
+      limit: 20,
+      offset: 0,
+    });
+    render(<TemplatesPanel />);
+
+    const card = (await screen.findByText("Weekly Quant")).closest("article")!;
+    expect(within(card).getByText(/^2 questions/)).toBeInTheDocument();
+    expect(within(card).queryByText(/\(/)).not.toBeInTheDocument();
   });
 
   it("rejects a verbal template with both RC passages and VA questions at 0", async () => {

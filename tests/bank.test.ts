@@ -483,7 +483,7 @@ describe("BankContract via src/db/bank.ts", () => {
     await insertDummyQuiz("quiz-2", userId)
 
     const contract = createBankContract(env.DB)
-    const pool = await contract.listUnused({ type: "quant", difficultyMix: { easy: 2 }, count: 2 })
+    const pool = await contract.listUnused({ type: "quant", difficultyMix: { easy: 2 }, count: 2, topics: [] })
     expect(pool.length).toBeGreaterThanOrEqual(2)
     const ids = pool.map((q) => q.id)
 
@@ -512,7 +512,7 @@ describe("BankContract via src/db/bank.ts", () => {
     const contract = createBankContract(env.DB)
     // Only easy:1 is constrained; the remaining slot is left to any difficulty, so the medium
     // candidate must still show up in the pool even though its difficulty was never named.
-    const pool = await contract.listUnused({ type: "quant", difficultyMix: { easy: 1 }, count: 2 })
+    const pool = await contract.listUnused({ type: "quant", difficultyMix: { easy: 1 }, count: 2, topics: [] })
     expect(pool.some((q) => q.difficulty === "medium")).toBe(true)
   })
 
@@ -549,6 +549,69 @@ describe("BankContract via src/db/bank.ts", () => {
       .bind(passageId)
       .first<{ used_in_quiz_id: string | null }>()
     expect(passageRow?.used_in_quiz_id).toBe("quiz-3")
+  })
+
+  it("listUnused filters the standalone query by topic when topics is non-empty, but never filters whole groups", async () => {
+    const { createBankContract } = await import("../src/db/bank")
+    const cookie = await signInAs("admin")
+    const csv = csvWith(
+      'quant,Algebra,,easy,mcq,,"Solve for x",,3,4,5,6,B,,,"x=4",',
+      'verbal,RC,,medium,passage,rc-1,"Shared passage text",,,,,,,,,,',
+      'verbal,RC,,medium,mcq,rc-1,"Q1",,3,4,5,6,A,,,"E1",',
+      'verbal,RC,,medium,mcq,rc-1,"Q2",,3,4,5,6,A,,,"E2",',
+      'verbal,RC,,medium,mcq,rc-1,"Q3",,3,4,5,6,A,,,"E3",',
+      'verbal,RC,,medium,mcq,rc-1,"Q4",,3,4,5,6,A,,,"E4",'
+    )
+    await authed("/api/bank/import/commit", cookie, { method: "POST", body: multipartBody({ csv }) })
+
+    const contract = createBankContract(env.DB)
+    const arithmeticOnly = await contract.listUnused({ type: "quant", difficultyMix: { easy: 1 }, count: 1, topics: ["Arithmetic"] })
+    expect(arithmeticOnly.every((q) => q.topic === "Arithmetic")).toBe(true)
+    expect(arithmeticOnly.some((q) => q.topic === "Algebra")).toBe(false)
+
+    // A verbal RC group must never be excluded by a topic filter — groups are never topic-scoped.
+    const rcGroups = await contract.listUnused({ type: "verbal", difficultyMix: {}, count: 0, topics: ["nonexistent-topic"] })
+    expect(rcGroups.some((q) => q.passageId !== null)).toBe(true)
+  })
+})
+
+describe("listDistinctTopics", () => {
+  it("returns the sorted distinct topics for a type, ignoring the used filter", async () => {
+    const { listDistinctTopics } = await import("../src/db/bank")
+    const cookie = await signInAs("admin")
+    const csv = csvWith(
+      'quant,Geometry,,easy,mcq,,"Q2",,3,4,5,6,A,,,"E",',
+      'quant,Algebra,,easy,mcq,,"Q3",,3,4,5,6,A,,,"E",'
+    )
+    await authed("/api/bank/import/commit", cookie, { method: "POST", body: multipartBody({ csv }) })
+
+    const topics = await listDistinctTopics(env.DB, "quant")
+    expect(topics).toEqual(["Algebra", "Arithmetic", "Geometry"])
+  })
+
+  it("returns an empty array for a type with zero imported questions", async () => {
+    const { listDistinctTopics } = await import("../src/db/bank")
+    const topics = await listDistinctTopics(env.DB, "lr")
+    expect(topics).toEqual([])
+  })
+})
+
+describe("GET /api/bank/topics", () => {
+  it("returns the distinct topics for the requested type", async () => {
+    const cookie = await signInAs("admin")
+    await authed("/api/bank/import/commit", cookie, { method: "POST", body: multipartBody({ csv: VALID_CSV }) })
+    const res = await authed("/api/bank/topics?type=quant", cookie)
+    expect(res.status).toBe(200)
+    const body = await res.json<{ topics: string[] }>()
+    expect(body.topics).toEqual(["Arithmetic"])
+  })
+
+  it("returns 400 when type is missing or invalid", async () => {
+    const cookie = await signInAs("admin")
+    const missing = await authed("/api/bank/topics", cookie)
+    expect(missing.status).toBe(400)
+    const invalid = await authed("/api/bank/topics?type=bogus", cookie)
+    expect(invalid.status).toBe(400)
   })
 })
 

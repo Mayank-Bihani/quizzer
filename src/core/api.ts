@@ -75,6 +75,7 @@ export type QuizAdminSummary = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>> | null
+  topics: string[] | null
   scheduledAt: number
   lobbyOpensAt: number | null
   endsAt: number | null
@@ -171,6 +172,11 @@ export type ListQuestionsRequest = PageRequest & {
 // QuestionFull (correctOption, explanationMd included) is safe here — AUDIT.md §11 decision 17:
 // admin-role holders already author and know the answer, so this is not a student-facing leak.
 export type ListQuestionsResponse = PageResponse<QuestionFull>
+
+// GET /api/bank/topics — distinct topics for a type, used and unused questions alike, feeding the
+// admin's quant auto-draw topic picker (built generically over any QuizType).
+export type ListTopicsRequest = { type: QuizType }
+export type ListTopicsResponse = { topics: string[] }
 
 // GET /api/bank/questions/:id — no body
 export type GetQuestionResponse = QuestionFull
@@ -303,6 +309,7 @@ export type TemplateSummary = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
   timingPolicy: TimingPolicy
   slackSec: number
   joinWindowSec: number
@@ -319,6 +326,7 @@ export type CreateTemplateRequest = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
   timingPolicy: TimingPolicy
   slackSec: number
   joinWindowSec: number

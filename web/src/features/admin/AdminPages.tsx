@@ -43,6 +43,7 @@ import {
   derivedWindowSeconds,
   groupIntoPickUnits,
   mixTotal,
+  readMultiSelect,
   tallyByDifficulty,
   toggleSelection,
   type PickUnit,
@@ -876,6 +877,11 @@ export function QuizBuilderPage() {
   const [defineType, setDefineType] = useState<QuizType | "">("");
   const [pickedQuestions, setPickedQuestions] = useState<QuestionFull[]>([]);
   const mode = builder?.mode ?? defineMode;
+  // Fetched only when quant is selected — lr/verbal never show a topics picker (§4).
+  const topicsResource = useResource(
+    () => (defineType === "quant" ? api.topics("quant") : Promise.resolve({ topics: [] })),
+    [defineType],
+  );
   const setAndSave = (next: BuilderSession) => {
     setBuilder(next);
     saveBuilder(next);
@@ -948,7 +954,8 @@ export function QuizBuilderPage() {
         );
         return;
       }
-      draw = { mode: "auto", title, type, scheduledAt, count, difficultyMix };
+      const topics = readMultiSelect(form, "topics");
+      draw = { mode: "auto", title, type, scheduledAt, count, difficultyMix, topics };
     }
     setBusy(true);
     setError(null);
@@ -1258,6 +1265,19 @@ export function QuizBuilderPage() {
                   />
                 </label>
               ))}
+              <label className="field">
+                <span>
+                  Topics (optional — leave nothing selected to draw from any
+                  topic)
+                </span>
+                <select className="inp" name="topics" multiple>
+                  {(topicsResource.data?.topics ?? []).map((topic) => (
+                    <option key={topic} value={topic}>
+                      {topic}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </>
           )}
           <label className="field">

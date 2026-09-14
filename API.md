@@ -80,7 +80,13 @@ that group plus the shared passage row, atomically. The existing 409 (already us
 any group with a used member — cascade delete never touches one. A standalone unused question
 deletes alone, unchanged.
 | `GET` | `/api/bank/passages` | — (no filters documented) | `ListPassagesResponse` | 403 |
+| `GET` | `/api/bank/topics` | `ListTopicsRequest` (`type`, required) | `ListTopicsResponse` | 400 (missing/invalid `type`), 403 |
 | `GET` | `/api/images/:key` | — (binary passthrough, no JSON contract) | — (raw R2 object body) | 401, 404 |
+
+**`GET /api/bank/topics`** (resolved 2026-09-14) returns the distinct `topic` values for a given
+`type`, used and unused questions alike — feeding the admin's quant auto-draw topic picker
+(`CreateQuizDraftRequest`'s quant `topics` field, and templates' `topics` field below). Built
+generically over any `QuizType`, though only Quant gets a UI picker.
 
 **`GET /api/images/:key` is not admin-gated**, unlike every other row in this table — it's
 `requireAuth()` only (401, not 403), no per-question scoping. Students load question images
@@ -151,6 +157,14 @@ Creation returns flat `QuestionFull[]` for admin inspection **and** `QuizUnitDef
 with unit position, kind, member question positions and allowance. Report `questionCount` and
 `unitCount` separately. The admin list includes definitions so a draft can be resumed.
 
+**Quant topic filter (resolved 2026-09-14, QUIZZING.md §4):** the quant `DrawRequest` variant
+carries an additional `topics: string[]`, `[]` (default, if omitted) meaning no topic filter. When
+non-empty, the draw's standalone candidates are restricted to those topics; length is capped at
+`MAX_TOPICS_PER_DRAW` (20), no duplicates. `topics` is rejected outright for `type: 'lr'`/`'verbal'`
+and for `mode: 'manual'` — it is a `DrawRequest` field like `count`/`difficultyMix`. `topics` is
+immutable after creation (not in `PATCH_ALLOWED_FIELDS`); reshuffle redraws within the same stored
+topics, since it reconstructs the full `DrawRequest` from what was persisted at creation.
+
 `CreateQuizDraftRequest` is a `DrawRequest` (discriminated on `type`) plus title/scheduledAt,
 revised 2026-09-12 (QUIZZING.md §4): quant carries `count`/`difficultyMix` as before; lr carries a
 whole-set `setCount` only (a count for lr always means LRDI sets, never individual questions); verbal
@@ -200,6 +214,9 @@ wrong marks <=0, finite numeric values and cap <=120. Settings freeze once statu
 `setCount`/`standaloneCount` (type-conditional, revised 2026-09-12 — QUIZZING.md §4: `null` for
 whichever half doesn't apply to `type`; quant sets `standaloneCount` only, lr sets `setCount` only,
 verbal sets both, each independently), `difficultyMix` (scopes `standaloneCount` only),
+`topics` (resolved 2026-09-14 — quant-only; `[]` for verbal/lr, same rule `difficultyMix` follows
+for lr — required present on create like every other field, threaded through to every future
+materialized occurrence unchanged),
 `timingPolicy` (only the unit kinds implied by `type` — validate
 with the same per-used-kind rule `PATCH /api/admin/quizzes/:id` already applies), `slackSec`,
 `joinWindowSec`, `marksCorrect`, `marksWrong`, `seatCap` and `rrule` (the minimal RRULE subset

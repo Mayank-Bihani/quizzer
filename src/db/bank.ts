@@ -14,6 +14,7 @@ export {
   listQuestionsPage,
   getQuestionById,
   listPassages,
+  listDistinctTopics,
   updateQuestion,
   deleteQuestionCascade,
   type QuestionFilters,

@@ -60,6 +60,19 @@ async function seedStandalones(creatorId: string, n: number, type = "quant", dif
   await env.DB.batch(statements)
 }
 
+async function seedStandalonesWithTopic(creatorId: string, n: number, type: string, topic: string, difficulty = "easy"): Promise<void> {
+  const statements = []
+  for (let i = 0; i < n; i++) {
+    statements.push(
+      env.DB.prepare(
+        `INSERT INTO questions (id, type, topic, difficulty, format, body_md, option_a, option_b, option_c, option_d, correct_option, explanation_md, created_by, created_at)
+         VALUES (?, ?, ?, ?, 'mcq', 'Body', 'A', 'B', 'C', 'D', 'A', 'Explanation', ?, ?)`
+      ).bind(crypto.randomUUID(), type, topic, difficulty, creatorId, Date.now())
+    )
+  }
+  await env.DB.batch(statements)
+}
+
 async function seedGroup(creatorId: string, type = "verbal", difficulty = "medium"): Promise<string[]> {
   const passageId = crypto.randomUUID()
   await env.DB.prepare(
@@ -328,6 +341,104 @@ describe("POST /api/admin/quizzes — lr/verbal set-based auto draws", () => {
       body: JSON.stringify({ title: "Quant quiz", scheduledAt: 1_700_100_000_000, type: "quant", setCount: 1 }),
     })
     expect(res.status).toBe(400)
+  })
+})
+
+describe("POST /api/admin/quizzes — quant topics filter", () => {
+  it("BE-4: draws only from the given topics, 409 pool_exhausted when that subset can't satisfy count", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalonesWithTopic(id, 1, "quant", "Arithmetic")
+    await seedStandalonesWithTopic(id, 5, "quant", "Algebra")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...CREATE_BODY, difficultyMix: {}, count: 5, topics: ["Arithmetic"] }),
+    })
+    expect(res.status).toBe(409)
+    const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
+    expect(row?.n).toBe(0)
+  })
+
+  it("draws only from the given topic when the pool has enough", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalonesWithTopic(id, 2, "quant", "Arithmetic")
+    await seedStandalonesWithTopic(id, 5, "quant", "Algebra")
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...CREATE_BODY, difficultyMix: {}, count: 2, topics: ["Arithmetic"] }),
+    })
+    expect(res.status).toBe(200)
+    const body = await res.json<{ questions: { topic: string }[] }>()
+    expect(body.questions.every((q) => q.topic === "Arithmetic")).toBe(true)
+  })
+
+  it("defaults to [] (no filter) when topics is omitted", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 5)
+    const res = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(CREATE_BODY),
+    })
+    expect(res.status).toBe(200)
+  })
+
+  it("rejects invalid topics: duplicates, non-strings, and over MAX_TOPICS_PER_DRAW", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalones(id, 5)
+    for (const topics of [["A", "A"], [1, 2], Array.from({ length: 21 }, (_, i) => `t${i}`)]) {
+      const res = await authed("/api/admin/quizzes", cookie, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ ...CREATE_BODY, topics }),
+      })
+      expect(res.status).toBe(400)
+    }
+  })
+
+  it("BE-5: rejects topics sent with type lr or verbal", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedGroup(id, "lr", "medium")
+    const lrRes = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ title: "LRDI quiz", scheduledAt: 1_700_100_000_000, type: "lr", setCount: 1, topics: ["A"] }),
+    })
+    expect(lrRes.status).toBe(400)
+
+    await seedStandalones(id, 1, "verbal", "easy")
+    const verbalRes = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "VARC quiz",
+        scheduledAt: 1_700_100_000_000,
+        type: "verbal",
+        setCount: 0,
+        standaloneCount: 1,
+        standaloneDifficultyMix: {},
+        topics: ["A"],
+      }),
+    })
+    expect(verbalRes.status).toBe(400)
+  })
+
+  it("BE-6: reshuffle redraws only within the topics stored on the draft", async () => {
+    const { cookie, id } = await signInAs("admin")
+    await seedStandalonesWithTopic(id, 3, "quant", "Arithmetic")
+    await seedStandalonesWithTopic(id, 3, "quant", "Algebra")
+    const created = await authed("/api/admin/quizzes", cookie, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...CREATE_BODY, difficultyMix: {}, count: 2, topics: ["Arithmetic"] }),
+    })
+    const { quizId } = await created.json<{ quizId: string }>()
+
+    const reshuffled = await authed(`/api/admin/quizzes/${quizId}/reshuffle`, cookie, { method: "POST" })
+    expect(reshuffled.status).toBe(200)
+    const body = await reshuffled.json<{ questions: { topic: string }[] }>()
+    expect(body.questions.every((q) => q.topic === "Arithmetic")).toBe(true)
   })
 })
 

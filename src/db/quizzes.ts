@@ -16,6 +16,7 @@ type QuizRow = {
   set_count: number | null
   standalone_count: number | null
   difficulty_mix: string | null
+  topics: string
   timing_policy: string | null
   slack_sec: number | null
   join_window_sec: number | null
@@ -78,6 +79,7 @@ function toAdminSummary(row: QuizRow, units: QuizUnitDefinition[]): QuizAdminSum
     setCount: row.set_count,
     standaloneCount: row.standalone_count,
     difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(row.difficulty_mix),
+    topics: parseJsonColumn<string[]>(row.topics) ?? [],
     scheduledAt: row.scheduled_at,
     lobbyOpensAt: row.lobby_opens_at,
     endsAt: row.ends_at,
@@ -122,6 +124,7 @@ export type DraftInsert = {
   setCount: number | null // the requested set count that produced this draw; null for quant
   standaloneCount: number | null // the requested standalone count; null for a pure-set lr draw
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[] // quant only; [] for every other type and for manual mode
   createdBy: string
   createdAt: number
   units: QuizUnitDefinition[]
@@ -136,8 +139,8 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
   const statements = [
     db
       .prepare(
-        `INSERT INTO quizzes (id, template_id, title, type, question_count, unit_count, set_count, standalone_count, difficulty_mix, scheduled_at, lobby_opens_at, seat_cap, selection_mode, created_by, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        `INSERT INTO quizzes (id, template_id, title, type, question_count, unit_count, set_count, standalone_count, difficulty_mix, topics, scheduled_at, lobby_opens_at, seat_cap, selection_mode, created_by, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         draft.id,
@@ -149,6 +152,7 @@ export async function insertDraft(db: D1Database, draft: DraftInsert): Promise<v
         draft.setCount,
         draft.standaloneCount,
         JSON.stringify(draft.difficultyMix),
+        JSON.stringify(draft.topics),
         draft.scheduledAt,
         lobbyOpensAt,
         draft.seatCap ?? 120,
@@ -247,6 +251,7 @@ export type DraftForReshuffle = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
   timingPolicy: TimingPolicy | null
   slackSec: number | null
   selectionMode: "auto" | "manual"
@@ -255,11 +260,11 @@ export type DraftForReshuffle = {
 export async function getDraftForReshuffle(db: D1Database, id: string): Promise<DraftForReshuffle | null> {
   const row = await db
     .prepare(
-      "SELECT status, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, selection_mode FROM quizzes WHERE id = ?"
+      "SELECT status, type, set_count, standalone_count, difficulty_mix, topics, timing_policy, slack_sec, selection_mode FROM quizzes WHERE id = ?"
     )
     .bind(id)
     .first<
-      Pick<QuizRow, "status" | "type" | "set_count" | "standalone_count" | "difficulty_mix" | "timing_policy" | "slack_sec"> & {
+      Pick<QuizRow, "status" | "type" | "set_count" | "standalone_count" | "difficulty_mix" | "topics" | "timing_policy" | "slack_sec"> & {
         selection_mode: "auto" | "manual"
       }
     >()
@@ -270,6 +275,7 @@ export async function getDraftForReshuffle(db: D1Database, id: string): Promise<
     setCount: row.set_count,
     standaloneCount: row.standalone_count,
     difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(row.difficulty_mix) ?? {},
+    topics: parseJsonColumn<string[]>(row.topics) ?? [],
     timingPolicy: parseJsonColumn<TimingPolicy>(row.timing_policy),
     slackSec: row.slack_sec,
     selectionMode: row.selection_mode,
@@ -607,6 +613,7 @@ export type TemplateRow = {
   setCount: number | null // lr, and the RC portion of verbal; null for quant
   standaloneCount: number | null // quant's exact draw target, and the VA portion of verbal; null for lr
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[] // quant only; [] for every other type
   timingPolicy: TimingPolicy
   slackSec: number
   joinWindowSec: number
@@ -620,7 +627,7 @@ export type TemplateRow = {
 export async function getActiveTemplates(db: D1Database): Promise<TemplateRow[]> {
   const { results } = await db
     .prepare(
-      `SELECT id, name, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, created_by
+      `SELECT id, name, type, set_count, standalone_count, difficulty_mix, topics, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, created_by
        FROM quiz_templates WHERE active = 1`
     )
     .all<{
@@ -630,6 +637,7 @@ export async function getActiveTemplates(db: D1Database): Promise<TemplateRow[]>
       set_count: number | null
       standalone_count: number | null
       difficulty_mix: string
+      topics: string
       timing_policy: string
       slack_sec: number
       join_window_sec: number
@@ -646,6 +654,7 @@ export async function getActiveTemplates(db: D1Database): Promise<TemplateRow[]>
     setCount: r.set_count,
     standaloneCount: r.standalone_count,
     difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(r.difficulty_mix) ?? {},
+    topics: parseJsonColumn<string[]>(r.topics) ?? [],
     timingPolicy: parseJsonColumn<TimingPolicy>(r.timing_policy) ?? {},
     slackSec: r.slack_sec,
     joinWindowSec: r.join_window_sec,
@@ -670,6 +679,7 @@ type TemplateColumnRow = {
   set_count: number | null
   standalone_count: number | null
   difficulty_mix: string
+  topics: string
   timing_policy: string
   slack_sec: number
   join_window_sec: number
@@ -688,6 +698,7 @@ function toTemplateSummary(row: TemplateColumnRow): TemplateSummary {
     setCount: row.set_count,
     standaloneCount: row.standalone_count,
     difficultyMix: parseJsonColumn<Partial<Record<Difficulty, number>>>(row.difficulty_mix) ?? {},
+    topics: parseJsonColumn<string[]>(row.topics) ?? [],
     timingPolicy: parseJsonColumn<TimingPolicy>(row.timing_policy) ?? {},
     slackSec: row.slack_sec,
     joinWindowSec: row.join_window_sec,
@@ -706,6 +717,7 @@ export type TemplateInsert = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
   timingPolicy: TimingPolicy
   slackSec: number
   joinWindowSec: number
@@ -719,8 +731,8 @@ export type TemplateInsert = {
 export async function insertTemplateRow(db: D1Database, input: TemplateInsert): Promise<void> {
   await db
     .prepare(
-      `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`
+      `INSERT INTO quiz_templates (id, name, type, set_count, standalone_count, difficulty_mix, topics, timing_policy, slack_sec, join_window_sec, marks_correct, marks_wrong, seat_cap, rrule, active, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`
     )
     .bind(
       input.id,
@@ -729,6 +741,7 @@ export async function insertTemplateRow(db: D1Database, input: TemplateInsert): 
       input.setCount,
       input.standaloneCount,
       JSON.stringify(input.difficultyMix),
+      JSON.stringify(input.topics),
       JSON.stringify(input.timingPolicy),
       input.slackSec,
       input.joinWindowSec,
@@ -761,6 +774,7 @@ export type TemplateFieldUpdate = Partial<{
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: Partial<Record<Difficulty, number>>
+  topics: string[]
   timingPolicy: TimingPolicy
   slackSec: number
   joinWindowSec: number
@@ -776,6 +790,7 @@ const TEMPLATE_COLUMN_BY_FIELD: Record<string, string> = {
   setCount: "set_count",
   standaloneCount: "standalone_count",
   difficultyMix: "difficulty_mix",
+  topics: "topics",
   timingPolicy: "timing_policy",
   slackSec: "slack_sec",
   joinWindowSec: "join_window_sec",
@@ -789,7 +804,9 @@ export async function updateTemplateRow(db: D1Database, id: string, fields: Temp
   const entries = Object.entries(fields).filter(([, v]) => v !== undefined)
   if (entries.length === 0) return
   const setClause = entries.map(([field]) => `${TEMPLATE_COLUMN_BY_FIELD[field]} = ?`).join(", ")
-  const values = entries.map(([field, v]) => (field === "difficultyMix" || field === "timingPolicy" ? JSON.stringify(v) : v))
+  const values = entries.map(([field, v]) =>
+    field === "difficultyMix" || field === "topics" || field === "timingPolicy" ? JSON.stringify(v) : v
+  )
   await db.prepare(`UPDATE quiz_templates SET ${setClause} WHERE id = ?`).bind(...values, id).run()
 }
 

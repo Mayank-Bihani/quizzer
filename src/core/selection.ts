@@ -317,29 +317,41 @@ export function selectDraw(candidates: QuestionFull[], request: DrawRequest, ran
  * difficulty-scoped; whole groups are always fetched regardless (src/db/bank-contract.ts).
  */
 export function toBankFilters(request: DrawRequest): SelectionFilters {
-  if (request.type === "quant") return { type: "quant", difficultyMix: request.difficultyMix, count: request.count }
-  if (request.type === "lr") return { type: "lr", difficultyMix: {}, count: 0 }
-  return { type: "verbal", difficultyMix: request.standaloneDifficultyMix, count: request.standaloneCount }
+  if (request.type === "quant") {
+    return { type: "quant", difficultyMix: request.difficultyMix, count: request.count, topics: request.topics }
+  }
+  if (request.type === "lr") return { type: "lr", difficultyMix: {}, count: 0, topics: [] }
+  return { type: "verbal", difficultyMix: request.standaloneDifficultyMix, count: request.standaloneCount, topics: [] }
 }
 
 export type StoredDrawRequest = {
   setCount: number | null
   standaloneCount: number | null
   difficultyMix: DifficultyVector
+  topics: string[]
 }
 
-/** The set_count/standalone_count/difficulty_mix columns a DrawRequest persists as (quizzes and
- * quiz_templates share this shape — src/db/quizzes.ts). */
+/** The set_count/standalone_count/difficulty_mix/topics columns a DrawRequest persists as (quizzes
+ * and quiz_templates share this shape — src/db/quizzes.ts). */
 export function toStoredDrawRequest(request: DrawRequest): StoredDrawRequest {
-  if (request.type === "quant") return { setCount: null, standaloneCount: request.count, difficultyMix: request.difficultyMix }
-  if (request.type === "lr") return { setCount: request.setCount, standaloneCount: null, difficultyMix: {} }
-  return { setCount: request.setCount, standaloneCount: request.standaloneCount, difficultyMix: request.standaloneDifficultyMix }
+  if (request.type === "quant") {
+    return { setCount: null, standaloneCount: request.count, difficultyMix: request.difficultyMix, topics: request.topics }
+  }
+  if (request.type === "lr") return { setCount: request.setCount, standaloneCount: null, difficultyMix: {}, topics: [] }
+  return {
+    setCount: request.setCount,
+    standaloneCount: request.standaloneCount,
+    difficultyMix: request.standaloneDifficultyMix,
+    topics: [],
+  }
 }
 
 /** Inverse of toStoredDrawRequest — reconstructs the request a stored row represents, for reshuffle
  * and materialization. */
 export function fromStoredDrawRequest(type: QuizType, stored: StoredDrawRequest): DrawRequest {
-  if (type === "quant") return { type: "quant", count: stored.standaloneCount ?? 0, difficultyMix: stored.difficultyMix }
+  if (type === "quant") {
+    return { type: "quant", count: stored.standaloneCount ?? 0, difficultyMix: stored.difficultyMix, topics: stored.topics }
+  }
   if (type === "lr") return { type: "lr", setCount: stored.setCount ?? 0 }
   return {
     type: "verbal",

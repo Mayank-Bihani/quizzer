@@ -165,6 +165,7 @@ describe("createDraft", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     expect(result.kind).toBe("ok")
     if (result.kind !== "ok") return
@@ -187,6 +188,7 @@ describe("createDraft", () => {
       type: "quant",
       difficultyMix: { easy: 3 },
       count: 3,
+      topics: [],
     })
     expect(result.kind).toBe("pool_exhausted")
     const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM quizzes").first<{ n: number }>()
@@ -286,6 +288,7 @@ describe("reshuffleDraft", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -312,6 +315,7 @@ describe("reshuffleDraft", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -360,6 +364,7 @@ describe("patchSettings", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     return created.response.quizId
@@ -457,6 +462,7 @@ describe("lockQuiz", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -502,6 +508,7 @@ describe("lockQuiz", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
 
@@ -559,6 +566,7 @@ describe("cancel", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
 
@@ -583,6 +591,7 @@ describe("cancel", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -618,6 +627,7 @@ describe("cancel", () => {
       type: "quant",
       difficultyMix: { easy: 2 },
       count: 2,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -651,6 +661,7 @@ describe("cancel", () => {
       type: "quant",
       difficultyMix: { easy: 1 },
       count: 1,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -675,6 +686,7 @@ describe("cancel", () => {
       type: "quant",
       difficultyMix: { easy: 1 },
       count: 1,
+      topics: [],
     })
     if (created.kind !== "ok") throw new Error("setup failed")
     const id = created.response.quizId
@@ -707,6 +719,7 @@ describe("listQuizzesPage", () => {
       type: "quant",
       difficultyMix: { easy: 1 },
       count: 1,
+      topics: [],
     })
     await createDraft(deps(bank, { now: () => 2 }), admin, {
       mode: "auto",
@@ -715,6 +728,7 @@ describe("listQuizzesPage", () => {
       type: "quant",
       difficultyMix: { easy: 1 },
       count: 1,
+      topics: [],
     })
 
     const { items, total } = await listQuizzesPage(env.DB, {}, 50, 0)
@@ -734,6 +748,7 @@ describe("listQuizzesPage", () => {
       type: "quant",
       difficultyMix: { easy: 1 },
       count: 1,
+      topics: [],
     })
     const { items, total } = await listQuizzesPage(env.DB, { status: "scheduled" }, 50, 0)
     expect(total).toBe(0)
